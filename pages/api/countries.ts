@@ -1,6 +1,7 @@
 import db from '../../database/db';
+import { NextApiRequest, NextApiResponse } from 'next';
 
-export default function handler(req, res) {
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     const countries = db.prepare('SELECT * FROM countries').all();
     return res.status(200).json(countries);

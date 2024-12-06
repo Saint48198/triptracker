@@ -1,4 +1,5 @@
-const Database = require('better-sqlite3');
-const db = new Database('./database/app.db');
+import Database from 'better-sqlite3';
 
-module.exports = db;
+const db = new Database('./database/trip-tracker.db');
+
+export default db;
