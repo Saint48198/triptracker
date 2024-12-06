@@ -1,5 +1,5 @@
 const Database = require('better-sqlite3');
-const db = new Database('./app.db');
+const db = new Database('./database/trip-tracker.db');
 
 // Example Table
 db.exec(`
@@ -10,4 +10,4 @@ db.exec(`
   );
 `);
 
-console.log("Database initialized");
+console.log('Database initialized');
