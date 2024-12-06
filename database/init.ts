@@ -17,7 +17,9 @@ db.exec(`
                                          destination TEXT NOT NULL,
                                          startDate TEXT NOT NULL,
                                          endDate TEXT NOT NULL,
-                                         notes TEXT
+                                         notes TEXT,
+                                         countryId INTEGER NOT NULL,
+                                         FOREIGN KEY (countryId) REFERENCES countries (id) ON DELETE CASCADE
     );
 `);
 

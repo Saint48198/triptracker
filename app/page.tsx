@@ -1,18 +1,14 @@
-import TripList from '../components/TripList';
-import { Trip } from '../components/types';
+import Navbar from '@/components/Navbar';
+import ClientButtonWrapper from '@/components/ClientButtonWrapper';
 
-async function getTrips(): Promise<Trip[]> {
-  const res = await fetch('http://localhost:3000/api/trips');
-  return res.json();
-}
-
-export default async function Home() {
-  const trips = await getTrips();
-
+export default function Home() {
   return (
-    <div>
-      <h1>Trip Tracker</h1>
-      <TripList trips={trips} />
-    </div>
+    <>
+      <Navbar />
+      <div className="container mx-auto px-4">
+        <h1 className="text-2xl font-bold my-4">Welcome to Trip Tracker</h1>
+        <ClientButtonWrapper />
+      </div>
+    </>
   );
 }
