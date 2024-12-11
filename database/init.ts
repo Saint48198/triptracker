@@ -6,7 +6,10 @@ db.exec(`
     CREATE TABLE IF NOT EXISTS countries (
                                              id INTEGER PRIMARY KEY AUTOINCREMENT,
                                              name TEXT NOT NULL,
-                                             abbreviation TEXT NOT NULL
+                                             abbreviation TEXT NOT NULL,
+                                             lat REAL NOT NULL,
+                                              lng REAL NOT NULL,
+                                              slug TEXT NOT NULL
     );
 `);
 

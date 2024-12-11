@@ -8,10 +8,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   if (req.method === 'POST') {
-    const { name, abbreviation } = req.body;
+    const { name, abbreviation, lat, lng, slug } = req.body;
     const result = db
-      .prepare('INSERT INTO countries (name, abbreviation) VALUES (?, ?)')
-      .run(name, abbreviation);
+      .prepare(
+        'INSERT INTO countries (name, abbreviation, lat, lng, slug) VALUES (?, ?, ?, ?, ?)'
+      )
+      .run(name, abbreviation, lat, lng, slug);
     return res.status(201).json({ id: result.lastInsertRowid });
   }
 

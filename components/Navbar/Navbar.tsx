@@ -3,6 +3,7 @@
 import { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import styles from './Navbar.module.scss';
+import Link from 'next/link';
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
@@ -46,8 +47,8 @@ const Navbar = () => {
                   <div className="py-1">
                     <Menu.Item>
                       {({ active }) => (
-                        <a
-                          href="#"
+                        <Link
+                          href={'/admin'}
                           className={classNames(
                             active
                               ? 'bg-gray-100 text-gray-900'
@@ -55,8 +56,8 @@ const Navbar = () => {
                             'block px-4 py-2 text-sm'
                           )}
                         >
-                          Dashboard
-                        </a>
+                          Admin
+                        </Link>
                       )}
                     </Menu.Item>
                     <Menu.Item>
