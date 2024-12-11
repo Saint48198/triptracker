@@ -4,6 +4,7 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import Navbar from '@/components/Navbar/Navbar';
 import { Country } from '@/components/types';
+import Footer from '@/components/Footer/Footer';
 
 interface MapComponentProps {
   countries?: Country[];
@@ -36,7 +37,10 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <MapComponent />
+      <main>
+        <MapComponent />
+      </main>
+      <Footer />
     </>
   );
 }
