@@ -2,6 +2,7 @@
 
 import { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
+import styles from './Navbar.module.scss';
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
@@ -9,11 +10,21 @@ function classNames(...classes: string[]) {
 
 const Navbar = () => {
   return (
-    <div className="bg-gray-800">
+    <header className={(styles.containerNavbar, 'bg-white-800')}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <span className="text-white text-lg font-bold">Trip Tracker</span>
+            <h1
+              className={classNames(
+                'text-4xl',
+                'font-bold',
+                'font-sans',
+                'text-gray-800',
+                styles.textBorder
+              )}
+            >
+              TravelTracker
+            </h1>
           </div>
           <div className="hidden md:block">
             <Menu as="div" className="relative inline-block text-left">
@@ -31,7 +42,7 @@ const Navbar = () => {
                 leaveFrom="transform opacity-100 scale-100"
                 leaveTo="transform opacity-0 scale-95"
               >
-                <Menu.Items className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+                <Menu.Items className="origin-top-right absolute z-1000 right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
                   <div className="py-1">
                     <Menu.Item>
                       {({ active }) => (
@@ -70,7 +81,7 @@ const Navbar = () => {
           </div>
         </div>
       </div>
-    </div>
+    </header>
   );
 };
 

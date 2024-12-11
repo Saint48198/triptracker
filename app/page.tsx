@@ -2,7 +2,7 @@
 
 import React from 'react';
 import dynamic from 'next/dynamic';
-import Navbar from '@/components/Navbar';
+import Navbar from '@/components/Navbar/Navbar';
 import { Country } from '@/components/types';
 
 interface MapComponentProps {
