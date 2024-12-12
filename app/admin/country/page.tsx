@@ -2,12 +2,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Country } from '@/components/types';
+import Navbar from '@/components/Navbar/Navbar';
+import Footer from '@/components/Footer/Footer';
+
+interface Country {
+  id: number;
+  name: string;
+  abbreviation: string;
+  lat: number;
+  lng: number;
+}
 
 export default function CountryPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [countries, setCountries] = useState<Country[]>([]);
   const [editingCountry, setEditingCountry] = useState<Country | null>(null);
   const [name, setName] = useState('');
   const [abbreviation, setAbbreviation] = useState('');
@@ -18,22 +26,10 @@ export default function CountryPage() {
   const id = searchParams ? searchParams.get('id') : null; // Get `id` from query parameters
 
   useEffect(() => {
-    fetchCountries();
-
     if (id) {
       fetchCountry(id);
     }
   }, [id]);
-
-  const fetchCountries = async () => {
-    try {
-      const response = await fetch('/api/countries');
-      const data = await response.json();
-      setCountries(data);
-    } catch (error) {
-      console.error('Failed to fetch countries:', error);
-    }
-  };
 
   const fetchCountry = async (id: string) => {
     try {
@@ -77,8 +73,7 @@ export default function CountryPage() {
         setLat('');
         setLng('');
         setEditingCountry(null);
-        fetchCountries();
-        router.push('/admin/country'); // Clear the query parameters
+        router.push('/admin/countries'); // Navigate to the list of countries
       } else {
         setMessage('Failed to save country.');
       }
@@ -88,117 +83,84 @@ export default function CountryPage() {
     }
   };
 
-  const handleDeleteCountry = async (id: number) => {
-    try {
-      const response = await fetch(`/api/countries/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        setMessage('Country deleted successfully!');
-        fetchCountries();
-      } else {
-        setMessage('Failed to delete country.');
-      }
-    } catch (error) {
-      console.error('Failed to delete country:', error);
-      setMessage('An error occurred.');
-    }
-  };
-
-  const handleEditCountry = (country: Country) => {
-    router.push(`/admin/country?id=${country.id}`);
-  };
-
   return (
-    <div className="container mx-auto px-4">
-      <h1 className="text-2xl font-bold my-4">
-        {editingCountry ? 'Edit Country' : 'Add Country'}
-      </h1>
-      <form onSubmit={handleAddOrUpdateCountry} className="space-y-4">
-        <div>
-          <label htmlFor="name" className="block font-medium">
-            Country Name
-          </label>
-          <input
-            type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full border px-4 py-2 rounded"
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="abbreviation" className="block font-medium">
-            Abbreviation
-          </label>
-          <input
-            type="text"
-            id="abbreviation"
-            value={abbreviation}
-            onChange={(e) => setAbbreviation(e.target.value)}
-            className="w-full border px-4 py-2 rounded"
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="lat" className="block font-medium">
-            Latitude
-          </label>
-          <input
-            type="number"
-            id="lat"
-            value={lat}
-            onChange={(e) => setLat(e.target.value)}
-            className="w-full border px-4 py-2 rounded"
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="lng" className="block font-medium">
-            Longitude
-          </label>
-          <input
-            type="number"
-            id="lng"
-            value={lng}
-            onChange={(e) => setLng(e.target.value)}
-            className="w-full border px-4 py-2 rounded"
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          {editingCountry ? 'Update Country' : 'Add Country'}
-        </button>
-      </form>
-      {message && <p className="mt-4">{message}</p>}
-      <h2 className="text-xl font-semibold my-4">Existing Countries</h2>
-      <ul className="space-y-2">
-        {countries.map((country) => (
-          <li
-            key={country.id}
-            className="flex justify-between items-center border-b pb-2"
+    <>
+      <Navbar></Navbar>
+      <div className="container mx-auto px-4">
+        <h1 className="text-2xl font-bold my-4">
+          {editingCountry ? 'Edit Country' : 'Add Country'}
+        </h1>
+        <form onSubmit={handleAddOrUpdateCountry} className="space-y-4">
+          <div>
+            <label htmlFor="name" className="block font-medium">
+              Country Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full border px-4 py-2 rounded"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="abbreviation" className="block font-medium">
+              Abbreviation
+            </label>
+            <input
+              type="text"
+              id="abbreviation"
+              value={abbreviation}
+              onChange={(e) => setAbbreviation(e.target.value)}
+              className="w-full border px-4 py-2 rounded"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="lat" className="block font-medium">
+              Latitude
+            </label>
+            <input
+              type="number"
+              id="lat"
+              value={lat}
+              onChange={(e) => setLat(e.target.value)}
+              className="w-full border px-4 py-2 rounded"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="lng" className="block font-medium">
+              Longitude
+            </label>
+            <input
+              type="number"
+              id="lng"
+              value={lng}
+              onChange={(e) => setLng(e.target.value)}
+              className="w-full border px-4 py-2 rounded"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
-            <span
-              className="cursor-pointer"
-              onClick={() => handleEditCountry(country)}
-            >
-              {country.name} ({country.abbreviation}) - [{country.lat},{' '}
-              {country.lng}]
-            </span>
-            <button
-              onClick={() => handleDeleteCountry(country.id)}
-              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-            >
-              Delete
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
+            {editingCountry ? 'Update Country' : 'Add Country'}
+          </button>
+        </form>
+        {message && <p className="mt-4">{message}</p>}
+        <div className="mt-4">
+          <button
+            onClick={() => router.push('/admin/countries')}
+            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+          >
+            View All Countries
+          </button>
+        </div>
+      </div>
+      <Footer></Footer>
+    </>
   );
 }

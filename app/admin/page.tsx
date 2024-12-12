@@ -13,7 +13,7 @@ export default function AdminLandingPage() {
         <h1 className="text-2xl font-bold my-4">Admin Section</h1>
         <div className="space-y-4">
           <Link
-            href="/admin/country"
+            href="/admin/countries"
             className="block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
             Manage Visited Countries

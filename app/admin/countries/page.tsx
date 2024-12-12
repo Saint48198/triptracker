@@ -54,12 +54,24 @@ export default function CountriesPage() {
     router.push(`/admin/country?id=${id}`);
   };
 
+  const handleAddCountry = () => {
+    router.push(`/admin/country`);
+  };
+
   return (
     <>
       <Navbar />
       <div className="container mx-auto px-4">
         <h1 className="text-2xl font-bold my-4">Countries</h1>
         {message && <p className="mt-4">{message}</p>}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={handleAddCountry}
+            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          >
+            Add Country
+          </button>
+        </div>
         <ul className="space-y-2">
           {countries.map((country) => (
             <li
