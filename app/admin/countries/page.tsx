@@ -4,18 +4,16 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
+import { Country } from '@/components/types';
 
-interface Country {
-  id: number;
-  name: string;
-  abbreviation: string;
-  lat: number;
-  lng: number;
-}
+type SortKey = 'name' | 'abbreviation';
+type SortOrder = 'asc' | 'desc';
 
 export default function CountriesPage() {
   const router = useRouter();
   const [countries, setCountries] = useState<Country[]>([]);
+  const [sortKey, setSortKey] = useState<SortKey>('name');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -31,6 +29,24 @@ export default function CountriesPage() {
       console.error('Failed to fetch countries:', error);
     }
   };
+
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortKey(key);
+      setSortOrder('asc');
+    }
+  };
+
+  const sortedCountries = [...countries].sort((a, b) => {
+    const keyA = a[sortKey];
+    const keyB = b[sortKey];
+
+    if (keyA < keyB) return sortOrder === 'asc' ? -1 : 1;
+    if (keyA > keyB) return sortOrder === 'asc' ? 1 : -1;
+    return 0;
+  });
 
   const handleDeleteCountry = async (id: number) => {
     try {
@@ -72,33 +88,71 @@ export default function CountriesPage() {
             Add Country
           </button>
         </div>
-        <ul className="space-y-2">
-          {countries.map((country) => (
-            <li
-              key={country.id}
-              className="flex justify-between items-center border-b pb-2"
-            >
-              <span>
-                {country.name} ({country.abbreviation}) - [{country.lat},{' '}
-                {country.lng}]
-              </span>
-              <div className="space-x-2">
-                <button
-                  onClick={() => handleEditCountry(country.id)}
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        <div className="overflow-x-auto shadow-md rounded-lg">
+          <table className="min-w-full table-auto bg-white border border-gray-300">
+            <thead className="bg-gray-100">
+              <tr>
+                <th
+                  className="px-4 py-2 text-left font-medium text-gray-600 cursor-pointer"
+                  onClick={() => handleSort('name')}
                 >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteCountry(country.id)}
-                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                  Country Name{' '}
+                  {sortKey === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
+                </th>
+                <th
+                  className="px-4 py-2 text-left font-medium text-gray-600 cursor-pointer"
+                  onClick={() => handleSort('abbreviation')}
                 >
-                  Delete
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+                  Abbreviation{' '}
+                  {sortKey === 'abbreviation' &&
+                    (sortOrder === 'asc' ? '↑' : '↓')}
+                </th>
+                <th className="px-4 py-2 text-left font-medium text-gray-600">
+                  Latitude
+                </th>
+                <th className="px-4 py-2 text-left font-medium text-gray-600">
+                  Longitude
+                </th>
+                <th className="px-4 py-2 text-left font-medium text-gray-600">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedCountries.map((country, index) => (
+                <tr
+                  key={country.id}
+                  className={`${
+                    index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                  } hover:bg-gray-100`}
+                >
+                  <td className="px-4 py-2 text-gray-800">{country.name}</td>
+                  <td className="px-4 py-2 text-gray-800">
+                    {country.abbreviation}
+                  </td>
+                  <td className="px-4 py-2 text-gray-800">{country.lat}</td>
+                  <td className="px-4 py-2 text-gray-800">{country.lng}</td>
+                  <td className="px-4 py-2 text-gray-800 space-x-2">
+                    <button
+                      onClick={() =>
+                        (window.location.href = `/admin/country?id=${country.id}`)
+                      }
+                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCountry(country.id)}
+                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
       <Footer />
     </>

@@ -4,14 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
-
-interface Country {
-  id: number;
-  name: string;
-  abbreviation: string;
-  lat: number;
-  lng: number;
-}
+import { Country } from '@/components/types';
 
 export default function CountryPage() {
   const searchParams = useSearchParams();
