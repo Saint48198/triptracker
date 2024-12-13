@@ -20,4 +20,5 @@ export interface State {
   name: string;
   abbr?: string;
   country_id: number;
+  country_name?: string;
 }

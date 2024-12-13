@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import db from '../../../database/db';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { id } = req.query;
+  const id = Number(req.query.id);
 
   if (req.method === 'GET') {
     // Fetch a single state by id

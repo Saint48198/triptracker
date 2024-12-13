@@ -42,6 +42,9 @@ export default function StatePage() {
         setName(data.name);
         setAbbr(data.abbr || '');
         setCountryId(data.country_id.toString());
+      } else {
+        console.error('Failed to delete state:', response.statusText);
+        // Handle failure (e.g., show error message)
       }
     } catch (error) {
       console.error('Failed to fetch state:', error);
@@ -58,7 +61,7 @@ export default function StatePage() {
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, abbr, country_id: countryId }),
+        body: JSON.stringify({ name, abbr, country_id: Number(countryId) }),
       });
 
       if (response.ok) {

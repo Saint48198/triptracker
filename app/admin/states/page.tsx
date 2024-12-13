@@ -9,7 +9,6 @@ import { State, Country } from '@/components/types';
 export default function StatesPage() {
   const router = useRouter();
   const [states, setStates] = useState([]);
-  const [countries, setCountries] = useState<Country[]>([]);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -20,25 +19,11 @@ export default function StatesPage() {
     try {
       const response = await fetch('/api/states');
       const data = await response.json();
+      console.log(data);
       setStates(data);
     } catch (error) {
       console.error('Failed to fetch states:', error);
     }
-  };
-
-  const fetchCountries = async () => {
-    try {
-      const response = await fetch('/api/countries');
-      const data = await response.json();
-      setCountries(data);
-    } catch (error) {
-      console.error('Failed to fetch countries:', error);
-    }
-  };
-
-  const getCountryName = (countryId: number) => {
-    const country = countries.find((country) => country.id === countryId);
-    return country ? country.name : 'Unknown Country';
   };
 
   const handleDeleteState = async (id: number) => {
@@ -99,7 +84,7 @@ export default function StatesPage() {
                     {state.abbr || '-'}
                   </td>
                   <td className="px-4 py-2 text-gray-800">
-                    {getCountryName(state.country_id)}
+                    {state.country_name || '-'}
                   </td>
                   <td className="px-4 py-2 text-gray-800 space-x-2">
                     <button
