@@ -140,6 +140,13 @@ export default function StatePage() {
           >
             {id ? 'Update State' : 'Add State'}
           </button>
+          &nbsp;
+          <button
+            onClick={() => router.push('/admin/states')}
+            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+          >
+            Cancel
+          </button>
         </form>
       </main>
       <Footer />

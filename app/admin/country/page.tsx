@@ -83,6 +83,7 @@ export default function CountryPage() {
         <h1 className="text-2xl font-bold my-4">
           {editingCountry ? 'Edit Country' : 'Add Country'}
         </h1>
+        {message && <p className="mt-4">{message}</p>}
         <form onSubmit={handleAddOrUpdateCountry} className="space-y-4">
           <div>
             <label htmlFor="name" className="block font-medium">
@@ -142,16 +143,14 @@ export default function CountryPage() {
           >
             {editingCountry ? 'Update Country' : 'Add Country'}
           </button>
-        </form>
-        {message && <p className="mt-4">{message}</p>}
-        <div className="mt-4">
+          &nbsp;
           <button
             onClick={() => router.push('/admin/countries')}
             className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
           >
-            View All Countries
+            Cancel
           </button>
-        </div>
+        </form>
       </main>
       <Footer></Footer>
     </>
