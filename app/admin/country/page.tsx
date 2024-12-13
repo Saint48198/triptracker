@@ -79,7 +79,7 @@ export default function CountryPage() {
   return (
     <>
       <Navbar></Navbar>
-      <div className="container mx-auto px-4">
+      <main className="container mx-auto px-4">
         <h1 className="text-2xl font-bold my-4">
           {editingCountry ? 'Edit Country' : 'Add Country'}
         </h1>
@@ -152,7 +152,7 @@ export default function CountryPage() {
             View All Countries
           </button>
         </div>
-      </div>
+      </main>
       <Footer></Footer>
     </>
   );

@@ -14,3 +14,10 @@ export interface Trip {
   endDate: string;
   notes?: string;
 }
+
+export interface State {
+  id: number;
+  name: string;
+  abbr?: string;
+  country_id: number;
+}

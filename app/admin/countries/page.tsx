@@ -77,7 +77,7 @@ export default function CountriesPage() {
   return (
     <>
       <Navbar />
-      <div className="container mx-auto px-4">
+      <main className="container mx-auto px-4">
         <h1 className="text-2xl font-bold my-4">Countries</h1>
         {message && <p className="mt-4">{message}</p>}
         <div className="flex justify-end mb-4">
@@ -153,7 +153,7 @@ export default function CountriesPage() {
             </tbody>
           </table>
         </div>
-      </div>
+      </main>
       <Footer />
     </>
   );

@@ -26,4 +26,15 @@ db.exec(`
     );
 `);
 
+// states TABLE
+db.exec(`
+    CREATE TABLE IF NOT EXISTS states (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        abbr TEXT,
+        country_id INTEGER NOT NULL,
+        FOREIGN KEY (country_id) REFERENCES countries(id)
+    );
+`);
+
 console.log('Database initialized');
