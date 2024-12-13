@@ -22,3 +22,14 @@ export interface State {
   country_id: number;
   country_name?: string;
 }
+
+export interface City {
+  id: number;
+  name: string;
+  lat: number;
+  lng: number;
+  state_id?: number;
+  state_name?: string;
+  country_id: number;
+  country_name?: string;
+}

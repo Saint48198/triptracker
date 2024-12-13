@@ -7,9 +7,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
       const states = db
         .prepare(
-          `SELECT states.id, states.name, states.abbr, countries.name as country_name 
+          `SELECT states.id, states.name, states.abbr, states.country_id, countries.name as country_name 
           FROM states 
-          JOIN countries ON states.country_id = countries.id`
+          JOIN countries ON states.country_id = countries.id
+          ORDER BY states.name ASC`
         )
         .all();
       res.status(200).json(states);

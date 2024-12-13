@@ -19,10 +19,16 @@ export default function AdminLandingPage() {
             Manage Visited Countries
           </Link>
           <Link
-            href="/admin/state"
+            href="/admin/states"
             className="block bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
           >
             Manage Visited States/Provinces
+          </Link>
+          <Link
+            href="/admin/cities"
+            className="block bg-green-500 text-white px-4 py-2 rounded hover:bg-green-300"
+          >
+            Manage Visited Cities
           </Link>
           <Link
             href="/admin/trip"

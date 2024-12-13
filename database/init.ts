@@ -37,4 +37,18 @@ db.exec(`
     );
 `);
 
+// cities TABLE
+db.exec(`
+    CREATE TABLE IF NOT EXISTS cities (
+                                          id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                          name TEXT NOT NULL,
+                                          lat REAL NOT NULL,
+                                          lng REAL NOT NULL,
+                                          state_id INTEGER,
+                                          country_id INTEGER NOT NULL,
+                                          FOREIGN KEY (state_id) REFERENCES states(id),
+        FOREIGN KEY (country_id) REFERENCES countries(id)
+        );
+`);
+
 console.log('Database initialized');
