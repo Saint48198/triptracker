@@ -12,6 +12,7 @@ export default function StatePage() {
   const [name, setName] = useState('');
   const [abbr, setAbbr] = useState('');
   const [countryId, setCountryId] = useState('');
+  const [lastVisited, setLastVisited] = useState('');
   const [message, setMessage] = useState('');
   const [countries, setCountries] = useState([]);
   const id = searchParams ? searchParams.get('id') : null; // Get the ID from the query string
@@ -133,6 +134,18 @@ export default function StatePage() {
                 </option>
               ))}
             </select>
+          </div>
+          <div>
+            <label htmlFor="lastVisited" className="block font-medium">
+              Last Visited
+            </label>
+            <input
+              type="text"
+              id="lastVisited"
+              value={lastVisited}
+              readOnly
+              className="w-full border px-4 py-2 rounded bg-gray-100"
+            />
           </div>
           <button
             type="submit"

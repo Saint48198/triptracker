@@ -114,6 +114,9 @@ export default function CountriesPage() {
                   Longitude
                 </th>
                 <th className="px-4 py-2 text-left font-medium text-gray-600">
+                  Last Visited
+                </th>
+                <th className="px-4 py-2 text-left font-medium text-gray-600">
                   Actions
                 </th>
               </tr>
@@ -132,6 +135,7 @@ export default function CountriesPage() {
                   </td>
                   <td className="px-4 py-2 text-gray-800">{country.lat}</td>
                   <td className="px-4 py-2 text-gray-800">{country.lng}</td>
+                  <td className="px-4 py-2">{country.last_visited || '-'}</td>
                   <td className="px-4 py-2 text-gray-800 space-x-2">
                     <button
                       onClick={() =>

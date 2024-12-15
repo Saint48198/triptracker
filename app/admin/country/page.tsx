@@ -14,6 +14,7 @@ export default function CountryPage() {
   const [abbreviation, setAbbreviation] = useState('');
   const [lat, setLat] = useState('');
   const [lng, setLng] = useState('');
+  const [lastVisited, setLastVisited] = useState(''); // State for last_visited
   const [message, setMessage] = useState('');
 
   const id = searchParams ? searchParams.get('id') : null; // Get `id` from query parameters
@@ -135,6 +136,18 @@ export default function CountryPage() {
               onChange={(e) => setLng(e.target.value)}
               className="w-full border px-4 py-2 rounded"
               required
+            />
+          </div>
+          <div>
+            <label htmlFor="lastVisited" className="block font-medium">
+              Last Visited
+            </label>
+            <input
+              type="text"
+              id="lastVisited"
+              value={lastVisited}
+              readOnly
+              className="w-full border px-4 py-2 rounded bg-gray-100"
             />
           </div>
           <button

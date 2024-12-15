@@ -9,7 +9,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
       const state = db
         .prepare(
-          `SELECT states.id, states.name, states.abbr, states.country_id, countries.name as country_name 
+          `SELECT states.id, states.name, states.abbr, states.country_id, states.last_visited, countries.name as country_name 
           FROM states 
           JOIN countries ON states.country_id = countries.id
           WHERE states.id = ?`
@@ -27,7 +27,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     }
   } else if (req.method === 'PUT') {
     // Update a state by id
-    const { name, abbr, country_id } = req.body;
+    const { name, abbr, country_id, last_visited } = req.body;
 
     if (!name || !country_id) {
       return res
@@ -37,9 +37,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
     try {
       const stmt = db.prepare(
-        'UPDATE states SET name = ?, abbr = ?, country_id = ? WHERE id = ?'
+        'UPDATE states SET name = ?, abbr = ?, country_id = ?, last_visited = ? WHERE id = ?'
       );
-      const result = stmt.run(name, abbr || null, country_id, id);
+      const result = stmt.run(name, abbr || null, country_id, last_visited, id);
 
       if (result.changes === 0) {
         return res.status(404).json({ error: 'State not found.' });

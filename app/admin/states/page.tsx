@@ -72,6 +72,9 @@ export default function StatesPage() {
                   Country
                 </th>
                 <th className="px-4 py-2 text-left font-medium text-gray-600">
+                  Last Visited
+                </th>
+                <th className="px-4 py-2 text-left font-medium text-gray-600">
                   Actions
                 </th>
               </tr>
@@ -86,6 +89,7 @@ export default function StatesPage() {
                   <td className="px-4 py-2 text-gray-800">
                     {state.country_name || '-'}
                   </td>
+                  <td className="px-4 py-2">{state.last_visited || '-'}</td>
                   <td className="px-4 py-2 text-gray-800 space-x-2">
                     <button
                       onClick={() => router.push(`/admin/state?id=${state.id}`)}

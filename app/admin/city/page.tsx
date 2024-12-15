@@ -17,6 +17,7 @@ export default function CityPage() {
   const [lng, setLng] = useState('');
   const [countryId, setCountryId] = useState('');
   const [stateId, setStateId] = useState('');
+  const [lastVisited, setLastVisited] = useState('');
   const [message, setMessage] = useState('');
   const id = searchParams ? searchParams.get('id') : null; // Get the city ID from the query parameter
 
@@ -78,6 +79,7 @@ export default function CityPage() {
         setLng(data.lng.toString());
         setCountryId(data.country_id.toString());
         setStateId(data.state_id?.toString() || '');
+        setLastVisited(data.last_visited || '');
       }
     } catch (error) {
       console.error('Failed to fetch city:', error);
@@ -105,6 +107,7 @@ export default function CityPage() {
           lng,
           state_id: stateId || null,
           country_id: countryId,
+          last_visited: lastVisited || null,
         }),
       });
 
@@ -209,6 +212,18 @@ export default function CityPage() {
               </select>
             </div>
           )}
+          <div>
+            <label htmlFor="lastVisited" className="block font-medium">
+              Last Visited
+            </label>
+            <input
+              type="datetime-local"
+              id="lastVisited"
+              value={lastVisited}
+              onChange={(e) => setLastVisited(e.target.value)}
+              className="w-full border px-4 py-2 rounded"
+            />
+          </div>
           <button
             type="submit"
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"

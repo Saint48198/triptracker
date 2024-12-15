@@ -23,7 +23,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     }
   } else if (req.method === 'POST') {
     // Add a new city
-    const { name, lat, lng, state_id, country_id } = req.body;
+    const { name, lat, lng, state_id, country_id, last_visited } = req.body;
 
     if (!name || !lat || !lng || !country_id) {
       return res.status(400).json({
@@ -33,9 +33,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
     try {
       const stmt = db.prepare(
-        'INSERT INTO cities (name, lat, lng, state_id, country_id) VALUES (?, ?, ?, ?, ?)'
+        'INSERT INTO cities (name, lat, lng, state_id, country_id, last_visited) VALUES (?, ?, ?, ?, ?, ?)'
       );
-      stmt.run(name, lat, lng, state_id || null, country_id);
+      stmt.run(name, lat, lng, state_id || null, country_id, last_visited);
       res.status(201).json({ message: 'City added successfully.' });
     } catch (error) {
       console.error(error);

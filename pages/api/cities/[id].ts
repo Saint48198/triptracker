@@ -9,7 +9,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
       const city = db
         .prepare(
-          `SELECT cities.id, cities.name, cities.lat, cities.lng, 
+          `SELECT cities.id, cities.name, cities.lat, cities.lng, cities.last_visited,
                   countries.name AS country_name, 
                   states.name AS state_name
            FROM cities
@@ -30,7 +30,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     }
   } else if (req.method === 'PUT') {
     // Update a city by id
-    const { name, lat, lng, state_id, country_id } = req.body;
+    const { name, lat, lng, state_id, country_id, last_visited } = req.body;
 
     if (!name || !lat || !lng || !country_id) {
       return res.status(400).json({
@@ -40,9 +40,17 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
     try {
       const stmt = db.prepare(
-        'UPDATE cities SET name = ?, lat = ?, lng = ?, state_id = ?, country_id = ? WHERE id = ?'
+        'UPDATE cities SET name = ?, lat = ?, lng = ?, state_id = ?, country_id = ?, last_visited = ? WHERE id = ?'
       );
-      const result = stmt.run(name, lat, lng, state_id || null, country_id, id);
+      const result = stmt.run(
+        name,
+        lat,
+        lng,
+        state_id || null,
+        country_id,
+        last_visited,
+        id
+      );
 
       if (result.changes === 0) {
         return res.status(404).json({ error: 'City not found.' });

@@ -9,7 +9,8 @@ db.exec(`
                                              abbreviation TEXT NOT NULL,
                                              lat REAL NOT NULL,
                                               lng REAL NOT NULL,
-                                              slug TEXT NOT NULL
+                                              slug TEXT NOT NULL,
+                                             last_visited DATETIME
     );
 `);
 
@@ -32,6 +33,7 @@ db.exec(`
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         abbr TEXT,
+        last_visited DATETIME,
         country_id INTEGER NOT NULL,
         FOREIGN KEY (country_id) REFERENCES countries(id)
     );
@@ -44,6 +46,7 @@ db.exec(`
                                           name TEXT NOT NULL,
                                           lat REAL NOT NULL,
                                           lng REAL NOT NULL,
+                                          last_visited DATETIME,
                                           state_id INTEGER,
                                           country_id INTEGER NOT NULL,
                                           FOREIGN KEY (state_id) REFERENCES states(id),

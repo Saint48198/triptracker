@@ -77,6 +77,9 @@ export default function CitiesPage() {
                   State
                 </th>
                 <th className="px-4 py-2 text-left font-medium text-gray-600">
+                  Last Visited
+                </th>
+                <th className="px-4 py-2 text-left font-medium text-gray-600">
                   Actions
                 </th>
               </tr>
@@ -89,6 +92,7 @@ export default function CitiesPage() {
                   <td className="px-4 py-2">{city.lng}</td>
                   <td className="px-4 py-2">{city.country_name}</td>
                   <td className="px-4 py-2">{city.state_name || '-'}</td>
+                  <td className="px-4 py-2">{city.last_visited || '-'}</td>
                   <td className="px-4 py-2 space-x-2">
                     <button
                       onClick={() => router.push(`/admin/city?id=${city.id}`)}

@@ -5,6 +5,7 @@ export interface Country {
   lat: number;
   lng: number;
   slug: string;
+  last_visited?: string;
 }
 
 export interface Trip {
@@ -21,6 +22,7 @@ export interface State {
   abbr?: string;
   country_id: number;
   country_name?: string;
+  last_visited?: string;
 }
 
 export interface City {
@@ -32,4 +34,5 @@ export interface City {
   state_name?: string;
   country_id: number;
   country_name?: string;
+  last_visited?: string;
 }
