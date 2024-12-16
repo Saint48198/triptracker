@@ -16,19 +16,25 @@ export default function AdminLandingPage() {
             href="/admin/countries"
             className="block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
-            Manage Visited Countries
+            Manage Countries
           </Link>
           <Link
             href="/admin/states"
-            className="block bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            className="block bg-green-300 text-white px-4 py-2 rounded hover:bg-green-600"
           >
-            Manage Visited States/Provinces
+            Manage States/Provinces
           </Link>
           <Link
             href="/admin/cities"
             className="block bg-green-500 text-white px-4 py-2 rounded hover:bg-green-300"
           >
-            Manage Visited Cities
+            Manage Cities
+          </Link>
+          <Link
+            href="/admin/attractions"
+            className="block bg-green-900 text-white px-4 py-2 rounded hover:bg-green-600"
+          >
+            Manage Attractions
           </Link>
           <Link
             href="/admin/trip"

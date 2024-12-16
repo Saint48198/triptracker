@@ -36,3 +36,15 @@ export interface City {
   country_name?: string;
   last_visited?: string;
 }
+
+export interface Attraction {
+  id: number;
+  name: string;
+  lat: number;
+  lng: number;
+  is_unesco: boolean;
+  is_national_park: boolean;
+  last_visited?: string;
+  country_id: number;
+  country_name?: string;
+}

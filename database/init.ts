@@ -54,4 +54,19 @@ db.exec(`
         );
 `);
 
+// attractions TABLE
+db.exec(`
+    CREATE TABLE IF NOT EXISTS attractions (
+                                               id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                               name TEXT NOT NULL,
+                                               lat REAL NOT NULL,
+                                               lng REAL NOT NULL,
+                                               country_id INTEGER NOT NULL,
+                                               is_unesco BOOLEAN DEFAULT 0,
+                                               is_national_park BOOLEAN DEFAULT 0,
+                                                last_visited DATETIME,
+                                               FOREIGN KEY (country_id) REFERENCES countries(id)
+    );
+`);
+
 console.log('Database initialized');
