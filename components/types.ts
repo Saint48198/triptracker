@@ -48,3 +48,9 @@ export interface Attraction {
   country_id: number;
   country_name?: string;
 }
+
+export interface GeocodeResult {
+  lat: number;
+  lng: number;
+  displayName?: string; // Optional field for a human-readable location name
+}
