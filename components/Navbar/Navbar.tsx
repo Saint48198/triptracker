@@ -24,7 +24,7 @@ const Navbar = () => {
                 styles.textBorder
               )}
             >
-              TravelTracker
+              <Link href={'/'}>TravelTracker</Link>
             </h1>
           </div>
           <div className="hidden md:block">
