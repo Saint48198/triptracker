@@ -20,6 +20,12 @@ export default function CitiesPage() {
   );
   const [limit] = useState(10);
   const [total, setTotal] = useState(0);
+  const [sortBy, setSortBy] = useState(
+    searchParams ? searchParams.get('sortBy') : ''
+  );
+  const [sort, setSort] = useState(
+    searchParams ? searchParams.get('sort') : ''
+  ); // Sorting state
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -29,7 +35,7 @@ export default function CitiesPage() {
   useEffect(() => {
     fetchCities();
     updateURL();
-  }, [page, countryId]);
+  }, [countryId, page, sortBy, sort]);
 
   const fetchCountries = async () => {
     const response = await fetch('/api/countries');
@@ -41,6 +47,8 @@ export default function CitiesPage() {
     try {
       const query = new URLSearchParams({
         ...(countryId && { country_id: countryId }),
+        ...(sortBy && { sortBy }),
+        ...(sort && { sort }),
         page: page.toString(),
         limit: limit.toString(),
       }).toString();
@@ -59,9 +67,18 @@ export default function CitiesPage() {
     const params = new URLSearchParams();
     if (countryId) params.set('country_id', countryId);
     params.set('page', page.toString());
-    const queryString = params.toString();
+    if (sortBy) params.set('sortBy', sortBy);
+    if (sort) params.set('sort', sort);
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
 
-    router.push(`?${queryString}`, { scroll: false });
+  const handleSort = (column: string) => {
+    if (sortBy === column) {
+      setSort(sort === 'asc' ? 'desc' : 'asc'); // Toggle sorting direction
+    } else {
+      setSortBy(column);
+      setSort('asc'); // Default to ascending when switching columns
+    }
   };
 
   const handleCountryFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -134,8 +151,12 @@ export default function CitiesPage() {
                 <th className="px-4 py-2 text-left font-medium text-gray-600">
                   Longitude
                 </th>
-                <th className="px-4 py-2 text-left font-medium text-gray-600">
-                  Country
+                <th
+                  className="px-4 py-2 text-left cursor-pointer hover:text-blue-600"
+                  onClick={() => handleSort('country')}
+                >
+                  Country{' '}
+                  {sortBy === 'country' && (sort === 'asc' ? '⬆️' : '⬇️')}
                 </th>
                 <th className="px-4 py-2 text-left font-medium text-gray-600">
                   State

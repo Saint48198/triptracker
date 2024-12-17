@@ -3,16 +3,18 @@ import db from '../../../database/db';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
-    const { country_id, page = 1, limit = 25 } = req.query;
+    const { country_id, page = 1, limit = 25, sortBy, sort } = req.query;
     const offset = (Number(page) - 1) * Number(limit);
+    const order = sort === 'desc' ? 'DESC' : 'ASC';
 
     // Fetch all cities with their associated country and state
     try {
       // Base query
       let query = `
-        SELECT cities.id, cities.name, cities.lat, cities.lng, countries.name AS country_name
-        FROM cities
-        JOIN countries ON cities.country_id = countries.id
+          SELECT cities.id, cities.name, cities.lat, cities.lng, countries.name AS country_name, states.name AS state_name
+          FROM cities
+          JOIN countries ON cities.country_id = countries.id
+          LEFT JOIN states ON cities.state_id = states.id
       `;
 
       const params = [];
@@ -21,6 +23,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       if (country_id) {
         query += ` WHERE cities.country_id = ?`;
         params.push(Number(country_id));
+      }
+
+      // Optional Sorting
+      if (sortBy && sort) {
+        query += ` ORDER BY ${sortBy === 'country' ? 'countries.name' : 'cities.name'} ${order}`;
       }
 
       // Add LIMIT and OFFSET for pagination

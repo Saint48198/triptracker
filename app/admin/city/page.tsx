@@ -258,6 +258,26 @@ export default function CityPage() {
               required
             />
           </div>
+          {filteredStates.length > 0 && (
+            <div>
+              <label htmlFor="stateId" className="block font-medium">
+                State
+              </label>
+              <select
+                id="stateId"
+                value={stateId}
+                onChange={(e) => setStateId(e.target.value)}
+                className="w-full border px-4 py-2 rounded"
+              >
+                <option value="">Select a state</option>
+                {filteredStates.map((state) => (
+                  <option key={state.id} value={state.id}>
+                    {state.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <div>
             <label htmlFor="countryId" className="block font-medium">
               Country
@@ -316,26 +336,6 @@ export default function CityPage() {
               required
             />
           </div>
-          {filteredStates.length > 0 && (
-            <div>
-              <label htmlFor="stateId" className="block font-medium">
-                State
-              </label>
-              <select
-                id="stateId"
-                value={stateId}
-                onChange={(e) => setStateId(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
-              >
-                <option value="">Select a state</option>
-                {filteredStates.map((state) => (
-                  <option key={state.id} value={state.id}>
-                    {state.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
           <div>
             <label htmlFor="lastVisited" className="block font-medium">
               Last Visited

@@ -10,11 +10,13 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       const city = db
         .prepare(
           `SELECT cities.id, cities.name, cities.lat, cities.lng, cities.last_visited,
-                  countries.name AS country_name, 
+                  cities.country_id AS country_id,
+                  countries.name AS country_name,
+                  cities.state_id AS state_id,
                   states.name AS state_name
            FROM cities
-           LEFT JOIN countries ON cities.country_id = countries.id
-           LEFT JOIN states ON cities.state_id = states.id
+                    LEFT JOIN countries ON cities.country_id = countries.id
+                    LEFT JOIN states ON cities.state_id = states.id
            WHERE cities.id = ?`
         )
         .get(id);
