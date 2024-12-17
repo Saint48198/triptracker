@@ -1,29 +1,76 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
-import { City } from '@/components/types';
+import { City, Country } from '@/components/types';
 
 export default function CitiesPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [cities, setCities] = useState([]);
+  const [countries, setCountries] = useState([]);
+  const [countryId, setCountryId] = useState(
+    searchParams ? searchParams.get('country_id') || '' : ''
+  );
+  const [page, setPage] = useState(
+    searchParams ? Number(searchParams.get('page')) || 1 : 1
+  );
+  const [limit] = useState(10);
+  const [total, setTotal] = useState(0);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    fetchCities();
+    fetchCountries();
   }, []);
+
+  useEffect(() => {
+    fetchCities();
+    updateURL();
+  }, [page, countryId]);
+
+  const fetchCountries = async () => {
+    const response = await fetch('/api/countries');
+    const data = await response.json();
+    setCountries(data);
+  };
 
   const fetchCities = async () => {
     try {
-      const response = await fetch('/api/cities');
+      const query = new URLSearchParams({
+        ...(countryId && { country_id: countryId }),
+        page: page.toString(),
+        limit: limit.toString(),
+      }).toString();
+
+      const response = await fetch(`/api/cities?${query}`);
       const data = await response.json();
-      setCities(data);
+
+      setCities(data.cities);
+      setTotal(data.total);
     } catch (error) {
       console.error('Failed to fetch cities:', error);
     }
   };
+
+  const updateURL = () => {
+    const params = new URLSearchParams();
+    if (countryId) params.set('country_id', countryId);
+    params.set('page', page.toString());
+    const queryString = params.toString();
+
+    router.push(`?${queryString}`, { scroll: false });
+  };
+
+  const handleCountryFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedCountry = e.target.value;
+    setCountryId(selectedCountry); // Update country filter state
+    setPage(1); // Reset page to 1 when the filter changes
+  };
+
+  const totalPages = Math.ceil(total / limit);
 
   const handleDeleteCity = async (id: number) => {
     try {
@@ -49,13 +96,30 @@ export default function CitiesPage() {
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Cities</h1>
         {message && <p className="mb-4 text-green-500">{message}</p>}
-        <div className="mb-4 flex justify-end">
-          <button
-            onClick={() => router.push('/admin/city')}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-          >
-            Add City
-          </button>
+        <div className="flex justify-between mb-4">
+          <div>
+            <label className="block mb-2 font-medium">Filter by Country</label>
+            <select
+              value={countryId}
+              onChange={handleCountryFilter}
+              className="border px-4 py-2 rounded"
+            >
+              <option value="">All Countries</option>
+              {countries.map((country: Country) => (
+                <option key={country.id} value={country.id}>
+                  {country.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="mb-4 flex justify-end">
+            <button
+              onClick={() => router.push('/admin/city')}
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            >
+              Add City
+            </button>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full table-auto bg-white border border-gray-300">
@@ -109,8 +173,36 @@ export default function CitiesPage() {
                   </td>
                 </tr>
               ))}
+              {cities.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="text-center py-4">
+                    No cities found
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
+
+          {/* Pagination Controls */}
+          <div className="flex justify-between mt-4">
+            <button
+              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+              disabled={page === 1}
+              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <span>
+              Page {page} of {totalPages}
+            </span>
+            <button
+              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={page >= totalPages}
+              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </main>
       <Footer />
