@@ -12,18 +12,22 @@ export default async function handler(
       .end(`Method ${req.method} Not Allowed`);
   }
 
-  const { city, country } = req.body;
+  const { city, country, place } = req.body;
 
-  if (!city || !country) {
-    return res.status(400).json({ error: 'City and country are required.' });
+  if ((!city || !country) && !place) {
+    return res
+      .status(400)
+      .json({ error: 'At least one of city, country, or place is required.' });
   }
+
+  const query = place || `${city || ''}, ${country || ''}`.trim();
 
   try {
     const response = await axios.get(
       'https://api.opencagedata.com/geocode/v1/json',
       {
         params: {
-          q: `${city}, ${country}`,
+          q: query,
           key: process.env.OPENCAGE_API_KEY, // Ensure the key is in `.env.local`
         },
       }
