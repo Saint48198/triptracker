@@ -6,6 +6,11 @@ import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import { Attraction, Country, GeocodeResult } from '@/components/types';
 import { FaSpinner } from 'react-icons/fa';
+import dynamic from 'next/dynamic';
+
+const MapComponent = dynamic(() => import('@/components/Map/Map'), {
+  ssr: false,
+});
 
 export default function AttractionPage() {
   const searchParams = useSearchParams();
@@ -263,6 +268,15 @@ export default function AttractionPage() {
             />
           </div>
           <hr />
+          {lat && lng && (
+            <div>
+              <MapComponent
+                lat={parseFloat(lat)}
+                lng={parseFloat(lng)}
+                zoom={11}
+              />
+            </div>
+          )}
           <button
             type="button"
             onClick={handleGeocode}

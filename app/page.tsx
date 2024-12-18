@@ -6,39 +6,16 @@ import Navbar from '@/components/Navbar/Navbar';
 import { Country } from '@/components/types';
 import Footer from '@/components/Footer/Footer';
 
-interface MapComponentProps {
-  countries?: Country[];
-}
-
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
 });
-
-const countries: Country[] = [
-  {
-    id: 1,
-    name: 'France',
-    abbreviation: 'FR',
-    lat: 46.603354,
-    lng: 1.888334,
-    slug: 'france',
-  },
-  {
-    id: 2,
-    name: 'Japan',
-    abbreviation: 'JP',
-    lat: 36.204824,
-    lng: 138.252924,
-    slug: 'japan',
-  },
-];
 
 export default function Home() {
   return (
     <>
       <Navbar />
       <main>
-        <MapComponent />
+        <MapComponent lat={39.8283} lng={-98.5795} />
       </main>
       <Footer />
     </>
