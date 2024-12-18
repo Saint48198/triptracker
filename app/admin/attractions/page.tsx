@@ -1,25 +1,64 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
-import { Attraction } from '@/components/types';
+import { Attraction, Country } from '@/components/types';
 
 export default function AttractionsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [attractions, setAttractions] = useState([]);
+  const [countries, setCountries] = useState([]);
+  const [countryId, setCountryId] = useState(
+    searchParams ? searchParams.get('country_id') : ''
+  );
+  const [page, setPage] = useState(
+    searchParams ? Number(searchParams.get('page')) : 1
+  );
+  const [limit] = useState(25);
+  const [total, setTotal] = useState(0);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    fetchAttractions();
+    fetchCountries();
   }, []);
+
+  useEffect(() => {
+    fetchAttractions();
+    updateURL();
+  }, [countryId, page]);
+
+  const fetchCountries = async () => {
+    try {
+      const response = await fetch('/api/countries');
+      const data = await response.json();
+      setCountries(data);
+    } catch (error) {
+      console.error('Failed to fetch countries:', error);
+    }
+  };
 
   const fetchAttractions = async () => {
     try {
-      const response = await fetch('/api/attractions');
+      const query = new URLSearchParams({
+        ...(countryId && { country_id: countryId }),
+        page: page.toString(),
+        limit: limit.toString(),
+      }).toString();
+
+      const response = await fetch(`/api/attractions?${query}`);
       const data = await response.json();
-      setAttractions(data);
+
+      setAttractions(data.attractions);
+      setTotal(data.total);
+
+      // Ensure page starts from 1 if total items are less than limit
+      if (data.total <= limit && page !== 1) {
+        setPage(1);
+      }
     } catch (error) {
       console.error('Failed to fetch attractions:', error);
     }
@@ -43,12 +82,44 @@ export default function AttractionsPage() {
     }
   };
 
+  const updateURL = () => {
+    const params = new URLSearchParams();
+    if (countryId) params.set('country_id', countryId);
+    params.set('page', page.toString());
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
+  const handleCountryFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCountryId(e.target.value);
+    setPage(1); // Reset to the first page when filter changes
+  };
+
+  const totalPages = Math.ceil(total / limit);
+
   return (
     <>
       <Navbar />
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Attractions</h1>
         {message && <p className="mb-4 text-green-500">{message}</p>}
+        {/* Filter */}
+        <div className="flex justify-between mb-4">
+          <div>
+            <label className="block mb-2 font-medium">Filter by Country</label>
+            <select
+              value={countryId ?? ''}
+              onChange={handleCountryFilter}
+              className="border px-4 py-2 rounded"
+            >
+              <option value="">All Countries</option>
+              {countries.map((country: Country) => (
+                <option key={country.id} value={country.id}>
+                  {country.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
         <div className="mb-4 flex justify-end">
           <button
             onClick={() => router.push('/admin/attraction')}
@@ -109,8 +180,35 @@ export default function AttractionsPage() {
                   </td>
                 </tr>
               ))}
+              {attractions.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="text-center py-4">
+                    No attractions found
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
+        </div>
+        {/* Pagination Controls */}
+        <div className="flex justify-between mt-4">
+          <button
+            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+            disabled={page === 1}
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <span>
+            Page {page} of {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={page >= totalPages}
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+          >
+            Next
+          </button>
         </div>
       </main>
       <Footer />

@@ -3,18 +3,45 @@ import db from '../../../database/db';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
+    const { country_id, page = 1, limit = 25 } = req.query;
+
+    const offset = (Number(page) - 1) * Number(limit);
+
     // Fetch all attractions
     try {
-      const attractions = db
-        .prepare(
-          `SELECT attractions.id, attractions.name, attractions.is_unesco, attractions.is_national_park,
-                  attractions.lat, attractions.lng, attractions.last_visited, countries.name as country_name
-           FROM attractions
-           JOIN countries ON attractions.country_id = countries.id`
-        )
-        .all();
+      let query = `
+        SELECT attractions.id, attractions.name, attractions.lat, attractions.lng, countries.name AS country_name
+        FROM attractions
+        JOIN countries ON attractions.country_id = countries.id
+      `;
 
-      res.status(200).json(attractions);
+      const params: (string | number)[] = [];
+
+      if (country_id) {
+        query += ` WHERE attractions.country_id = ?`;
+        params.push(Number(country_id));
+      }
+
+      query += ` LIMIT ? OFFSET ?`;
+      params.push(Number(limit), offset);
+
+      const attractions = db.prepare(query).all(...params);
+
+      let countQuery = `SELECT COUNT(*) as total FROM attractions`;
+      if (country_id) {
+        countQuery += ` WHERE country_id = ?`;
+      }
+
+      const totalCount = db
+        .prepare(countQuery)
+        .get(...(country_id ? [Number(country_id)] : []));
+
+      res.status(200).json({
+        attractions,
+        total: totalCount.total,
+        page: Number(page),
+        limit: Number(limit),
+      });
     } catch (error) {
       console.error('Failed to fetch attractions:', error);
       res.status(500).json({ error: 'Failed to fetch attractions.' });
