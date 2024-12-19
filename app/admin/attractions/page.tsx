@@ -16,7 +16,9 @@ export default function AttractionsPage() {
     searchParams ? searchParams.get('country_id') : ''
   );
   const [page, setPage] = useState(
-    searchParams ? Number(searchParams.get('page')) : 1
+    searchParams && searchParams.get('page')
+      ? Number(searchParams.get('page'))
+      : 1
   );
   const [limit] = useState(25);
   const [total, setTotal] = useState(0);
@@ -55,8 +57,8 @@ export default function AttractionsPage() {
       setAttractions(data.attractions);
       setTotal(data.total);
 
-      // Ensure page starts from 1 if total items are less than limit
-      if (data.total <= limit && page !== 1) {
+      // Ensure page starts from 1 if total items are less than limit and not empty
+      if (data.total > 0 && data.total <= limit && page !== 1) {
         setPage(1);
       }
     } catch (error) {
@@ -199,9 +201,11 @@ export default function AttractionsPage() {
           >
             Previous
           </button>
-          <span>
-            Page {page} of {totalPages}
-          </span>
+          {total > 0 && (
+            <span>
+              Page {page} of {totalPages}
+            </span>
+          )}
           <button
             onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
             disabled={page >= totalPages}
