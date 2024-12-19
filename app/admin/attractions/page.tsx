@@ -22,6 +22,16 @@ export default function AttractionsPage() {
   );
   const [limit] = useState(25);
   const [total, setTotal] = useState(0);
+  const [sortBy, setSortBy] = useState(
+    searchParams && searchParams.get('sortBy')
+      ? searchParams.get('sortBy')
+      : 'name'
+  );
+  const [sortOrder, setSortOrder] = useState(
+    searchParams && searchParams.get('sortOrder')
+      ? searchParams.get('sortOrder')
+      : 'asc'
+  );
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -31,7 +41,7 @@ export default function AttractionsPage() {
   useEffect(() => {
     fetchAttractions();
     updateURL();
-  }, [countryId, page]);
+  }, [countryId, page, sortBy, sortOrder]);
 
   const fetchCountries = async () => {
     try {
@@ -39,6 +49,7 @@ export default function AttractionsPage() {
       const data = await response.json();
       setCountries(data);
     } catch (error) {
+      setMessage('Failed to fetch countries.');
       console.error('Failed to fetch countries:', error);
     }
   };
@@ -49,6 +60,8 @@ export default function AttractionsPage() {
         ...(countryId && { country_id: countryId }),
         page: page.toString(),
         limit: limit.toString(),
+        sortBy: sortBy ?? '',
+        sortOrder: sortOrder ?? '',
       }).toString();
 
       const response = await fetch(`/api/attractions?${query}`);
@@ -88,12 +101,25 @@ export default function AttractionsPage() {
     const params = new URLSearchParams();
     if (countryId) params.set('country_id', countryId);
     params.set('page', page.toString());
+    if (sortBy && sortOrder) {
+      params.set('sortBy', sortBy);
+      params.set('sortOrder', sortOrder);
+    }
     router.push(`?${params.toString()}`, { scroll: false });
   };
 
   const handleCountryFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setCountryId(e.target.value);
     setPage(1); // Reset to the first page when filter changes
+  };
+
+  const handleSort = (column: string) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(column);
+      setSortOrder('asc');
+    }
   };
 
   const totalPages = Math.ceil(total / limit);
@@ -122,6 +148,7 @@ export default function AttractionsPage() {
             </select>
           </div>
         </div>
+        <div>Total: {total}</div>
         <div className="mb-4 flex justify-end">
           <button
             onClick={() => router.push('/admin/attraction')}
@@ -134,11 +161,19 @@ export default function AttractionsPage() {
           <table className="min-w-full table-auto bg-white border border-gray-300">
             <thead className="bg-gray-100">
               <tr>
-                <th className="px-4 py-2 text-left font-medium text-gray-600">
-                  Name
+                <th
+                  className="px-4 py-2 text-left cursor-pointer hover:text-blue-600"
+                  onClick={() => handleSort('name')}
+                >
+                  Name{' '}
+                  {sortBy === 'name' && (sortOrder === 'asc' ? '⬆️' : '⬇️')}
                 </th>
-                <th className="px-4 py-2 text-left font-medium text-gray-600">
-                  Country
+                <th
+                  className="px-4 py-2 text-left cursor-pointer hover:text-blue-600"
+                  onClick={() => handleSort('country')}
+                >
+                  Country{' '}
+                  {sortBy === 'country' && (sortOrder === 'asc' ? '⬆️' : '⬇️')}
                 </th>
                 <th className="px-4 py-2 text-left font-medium text-gray-600">
                   Latitude

@@ -3,9 +3,18 @@ import db from '../../../database/db';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
-    const { country_id, page = 1, limit = 25 } = req.query;
+    const {
+      country_id,
+      page = 1,
+      limit = 25,
+      sortBy = 'name',
+      sortOrder = 'asc',
+    } = req.query;
 
     const offset = (Number(page) - 1) * Number(limit);
+    const orderBy =
+      sortBy === 'country' ? 'countries.name' : 'attractions.name';
+    const orderDirection = sortOrder === 'desc' ? 'DESC' : 'ASC';
 
     // Fetch all attractions
     try {
@@ -22,7 +31,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         params.push(Number(country_id));
       }
 
-      query += ` LIMIT ? OFFSET ?`;
+      query += ` ORDER BY ${orderBy} ${orderDirection}, attractions.name ASC LIMIT ? OFFSET ?`;
       params.push(Number(limit), offset);
 
       const attractions = db.prepare(query).all(...params);
