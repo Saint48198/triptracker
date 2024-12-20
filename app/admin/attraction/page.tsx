@@ -271,8 +271,13 @@ export default function AttractionPage() {
           {lat && lng && (
             <div>
               <MapComponent
-                lat={parseFloat(lat)}
-                lng={parseFloat(lng)}
+                markers={[
+                  {
+                    lat: parseFloat(lat),
+                    lng: parseFloat(lng),
+                    popupText: name,
+                  },
+                ]}
                 zoom={11}
               />
             </div>

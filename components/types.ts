@@ -54,9 +54,3 @@ export interface GeocodeResult {
   lng: number;
   displayName?: string; // Optional field for a human-readable location name
 }
-
-export interface MapProps {
-  lat?: number;
-  lng?: number;
-  zoom?: number;
-}

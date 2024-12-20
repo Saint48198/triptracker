@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { LatLngExpression } from 'leaflet';
 import L from 'leaflet';
 import styles from './Map.module.scss';
-import { MapProps } from '@/components/types';
+import { MapProps } from './Map.types';
 
 // Fix the default icon path
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -16,9 +16,12 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
 });
 
-const Map: React.FC<MapProps> = ({ lat, lng, zoom }) => {
+const Map: React.FC<MapProps> = ({ markers, zoom }) => {
   // Set the initial center of the map and zoom level
-  const center: LatLngExpression = [lat ?? 39.8283, lng ?? -98.5795]; // Center of North America (approximate)
+  const center: LatLngExpression =
+    markers && markers.length > 0
+      ? [markers[0].lat, markers[0].lng]
+      : [39.8283, -98.5795]; // Default to the center of North America
   const zoomVal = zoom ?? 3; // Zoom level
 
   return (
@@ -31,9 +34,11 @@ const Map: React.FC<MapProps> = ({ lat, lng, zoom }) => {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
-      <Marker position={center}>
-        <Popup>A popup for this marker.</Popup>
-      </Marker>
+      {markers.map((marker, index) => (
+        <Marker key={index} position={[marker.lat, marker.lng]}>
+          {marker.popupText && <Popup>{marker.popupText}</Popup>}
+        </Marker>
+      ))}
     </MapContainer>
   );
 };
