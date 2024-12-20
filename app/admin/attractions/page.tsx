@@ -4,7 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
-import { Attraction, Country } from '@/components/types';
+import DataTable from '@/components/DataTable/DataTable';
+import { Column } from '@/components/DataTable/DataTable.types';
+import { Country } from '@/components/types';
 
 export default function AttractionsPage() {
   const router = useRouter();
@@ -33,6 +35,11 @@ export default function AttractionsPage() {
       : 'asc'
   );
   const [message, setMessage] = useState('');
+
+  const columns: Column[] = [
+    { key: 'name', label: 'Name' },
+    { key: 'country_name', label: 'Country' },
+  ];
 
   useEffect(() => {
     fetchCountries();
@@ -113,9 +120,9 @@ export default function AttractionsPage() {
     setPage(1); // Reset to the first page when filter changes
   };
 
-  const handleSort = (column: string) => {
+  const handleSort = (column: string, sortOrder: 'asc' | 'desc') => {
     if (sortBy === column) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+      setSortOrder(sortOrder);
     } else {
       setSortBy(column);
       setSortOrder('asc');
@@ -158,74 +165,27 @@ export default function AttractionsPage() {
           </button>
         </div>
         <div className="overflow-x-auto">
-          <table className="min-w-full table-auto bg-white border border-gray-300">
-            <thead className="bg-gray-100">
-              <tr>
-                <th
-                  className="px-4 py-2 text-left cursor-pointer hover:text-blue-600"
-                  onClick={() => handleSort('name')}
+          <DataTable
+            columns={columns}
+            data={attractions}
+            onSort={handleSort}
+            actions={(row) => (
+              <>
+                <button
+                  onClick={() => router.push(`/admin/attraction?id=${row.id}`)}
+                  className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
                 >
-                  Name{' '}
-                  {sortBy === 'name' && (sortOrder === 'asc' ? '⬆️' : '⬇️')}
-                </th>
-                <th
-                  className="px-4 py-2 text-left cursor-pointer hover:text-blue-600"
-                  onClick={() => handleSort('country')}
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDeleteAttraction(row.id)}
+                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
                 >
-                  Country{' '}
-                  {sortBy === 'country' && (sortOrder === 'asc' ? '⬆️' : '⬇️')}
-                </th>
-                <th className="px-4 py-2 text-left font-medium text-gray-600">
-                  Latitude
-                </th>
-                <th className="px-4 py-2 text-left font-medium text-gray-600">
-                  Longitude
-                </th>
-                <th className="px-4 py-2 text-left font-medium text-gray-600">
-                  Last Visited
-                </th>
-                <th className="px-4 py-2 text-left font-medium text-gray-600">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {attractions.map((attraction: Attraction) => (
-                <tr key={attraction.id} className="hover:bg-gray-100">
-                  <td className="px-4 py-2">{attraction.name}</td>
-                  <td className="px-4 py-2">{attraction.country_name}</td>
-                  <td className="px-4 py-2">{attraction.lat}</td>
-                  <td className="px-4 py-2">{attraction.lng}</td>
-                  <td className="px-4 py-2">
-                    {attraction.last_visited || 'Never Visited'}
-                  </td>
-                  <td className="px-4 py-2 space-x-2">
-                    <button
-                      onClick={() =>
-                        router.push(`/admin/attraction?id=${attraction.id}`)
-                      }
-                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteAttraction(attraction.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {attractions.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="text-center py-4">
-                    No attractions found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                  Delete
+                </button>
+              </>
+            )}
+          />
         </div>
         {/* Pagination Controls */}
         <div className="flex justify-between mt-4">
