@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
+import DataTable from '@/components/DataTable/DataTable';
+import Pagination from '@/components/Pagination/Pagination';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -15,6 +17,12 @@ const markers = [{ lat: 39.8283, lng: -98.5795 }];
 const HomePage: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [page, setPage] = useState(
+    searchParams ? Number(searchParams.get('page')) || 1 : 1
+  );
+  const [limit] = useState(25);
+  const [total, setTotal] = useState(0);
+  const [hasPageProperty, setHasPageProperty] = useState(false);
 
   const [selectedOption, setSelectedOption] = useState(() => {
     const urlOption = searchParams ? searchParams.get('view') : null;
@@ -26,26 +34,54 @@ const HomePage: React.FC = () => {
   // Fetch data based on selected option
   useEffect(() => {
     fetchData(selectedOption);
-    updateURL(selectedOption);
-  }, [selectedOption]);
+    updateURL();
+  }, [selectedOption, page]);
 
   const fetchData = async (view: string) => {
     try {
       const response = await fetch(`/api/${view}`);
       const result = await response.json();
-      setData(result);
+      setHasPageProperty(!!(result && result.page));
+      setData(result[view] || result);
+      setTotal(result.total || result.length);
+      //hasPageProperty = result.page ? true : false;
     } catch (error) {
       console.error(`Failed to fetch ${view}:`, error);
     }
   };
 
-  const updateURL = (view: string) => {
+  const updateURL = () => {
     const params = new URLSearchParams(
       searchParams ? searchParams.toString() : ''
     );
-    params.set('view', view);
+    params.set('view', selectedOption);
+    params.set('page', page.toString());
     router.push(`?${params.toString()}`, { scroll: false });
   };
+
+  // Define columns dynamically based on selected option
+  const columns =
+    selectedOption === 'cities'
+      ? [
+          { key: 'name', label: 'City Name', sortable: true },
+          { key: 'state_name', label: 'State', sortable: true },
+          { key: 'country_name', label: 'Country', sortable: true },
+        ]
+      : selectedOption === 'states'
+        ? [
+            { key: 'abbr', label: 'Abbr', sortable: false },
+            { key: 'name', label: 'State Name', sortable: true },
+            { key: 'country_name', label: 'Country', sortable: true },
+          ]
+        : [{ key: 'name', label: 'Country Name', sortable: true }];
+
+  const handlePageChange = (page: number) => {
+    setPage(page);
+    console.log(`Changed to page: ${page}`);
+    // Add your logic to fetch new data based on the page
+  };
+
+  const totalPages = Math.ceil(total / limit);
 
   return (
     <>
@@ -68,6 +104,30 @@ const HomePage: React.FC = () => {
           ))}
         </div>
         <MapComponent markers={markers} />
+        {/* Data Table */}
+        <div className="bg-white shadow-md p-4 rounded">
+          <h2 className="text-xl font-bold mb-4">
+            {selectedOption.charAt(0).toUpperCase() + selectedOption.slice(1)}{' '}
+            Data
+          </h2>
+          <DataTable
+            columns={columns}
+            data={data}
+            onSort={(sortBy, sortOrder) => {
+              console.log(
+                `Sorting ${selectedOption} by ${sortBy} in ${sortOrder} order`
+              );
+              // Add sorting logic if needed
+            }}
+          />
+          {hasPageProperty && (
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          )}
+        </div>
       </main>
       <Footer />
     </>

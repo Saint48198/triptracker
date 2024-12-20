@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import { City, Country } from '@/components/types';
+import Pagination from '@/components/Pagination/Pagination';
 
 export default function CitiesPage() {
   const router = useRouter();
@@ -85,6 +86,12 @@ export default function CitiesPage() {
     const selectedCountry = e.target.value;
     setCountryId(selectedCountry); // Update country filter state
     setPage(1); // Reset page to 1 when the filter changes
+  };
+
+  const handlePageChange = (page: number) => {
+    setPage(page);
+    console.log(`Changed to page: ${page}`);
+    // Add your logic to fetch new data based on the page
   };
 
   const totalPages = Math.ceil(total / limit);
@@ -205,25 +212,11 @@ export default function CitiesPage() {
           </table>
 
           {/* Pagination Controls */}
-          <div className="flex justify-between mt-4">
-            <button
-              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-              disabled={page === 1}
-              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-            >
-              Previous
-            </button>
-            <span>
-              Page {page} of {totalPages}
-            </span>
-            <button
-              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={page >= totalPages}
-              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          ></Pagination>
         </div>
       </main>
       <Footer />
