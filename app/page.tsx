@@ -30,11 +30,15 @@ const HomePage: React.FC = () => {
   });
 
   const [data, setData] = useState([]);
+  const [geoJsonData, setGeoJsonData] = useState<any>(null);
 
   // Fetch data based on selected option
   useEffect(() => {
     fetchData(selectedOption);
     updateURL();
+    if (selectedOption === 'countries') {
+      fetchFilteredGeoJsonData();
+    }
   }, [selectedOption, page]);
 
   const fetchData = async (view: string) => {
@@ -47,6 +51,34 @@ const HomePage: React.FC = () => {
       //hasPageProperty = result.page ? true : false;
     } catch (error) {
       console.error(`Failed to fetch ${view}:`, error);
+    }
+  };
+
+  const fetchFilteredGeoJsonData = async () => {
+    try {
+      // Fetch countries from API
+      const response = await fetch('/api/countries');
+      const countries = await response.json();
+
+      // Fetch GeoJSON data
+      const geoJsonResponse = await fetch('/data/countries.json');
+      const geoJson = await geoJsonResponse.json();
+
+      // Filter GeoJSON features to include only matching countries
+      const filteredGeoJson = {
+        ...geoJson,
+        features: geoJson.features.filter((feature: any) =>
+          countries.some(
+            (country: any) =>
+              feature.properties.name.toLowerCase() ===
+              country.name.toLowerCase()
+          )
+        ),
+      };
+
+      setGeoJsonData(filteredGeoJson);
+    } catch (error) {
+      console.error('Failed to fetch filtered GeoJSON data:', error);
     }
   };
 
@@ -108,7 +140,11 @@ const HomePage: React.FC = () => {
             </button>
           ))}
         </div>
-        <MapComponent markers={markers} />
+        {selectedOption === 'countries' && geoJsonData ? (
+          <MapComponent geoJSON={geoJsonData} zoom={2} />
+        ) : (
+          <MapComponent markers={markers} />
+        )}
         {/* Data Table */}
         <div className="bg-white shadow-md p-4 rounded">
           <h2 className="text-xl font-bold mb-4">

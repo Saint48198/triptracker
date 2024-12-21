@@ -1,6 +1,9 @@
 export interface MapProps {
-  markers: MarkerProps[];
+  markers?: MarkerProps[];
+  geoJSON?: any;
   zoom?: number;
+  disableDragging?: boolean;
+  disableZoom?: boolean;
 }
 
 interface MarkerProps {
