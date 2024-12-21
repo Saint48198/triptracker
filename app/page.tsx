@@ -73,7 +73,12 @@ const HomePage: React.FC = () => {
             { key: 'name', label: 'State Name', sortable: true },
             { key: 'country_name', label: 'Country', sortable: true },
           ]
-        : [{ key: 'name', label: 'Country Name', sortable: true }];
+        : selectedOption === 'countries'
+          ? [{ key: 'name', label: 'Country Name', sortable: true }]
+          : [
+              { key: 'name', label: 'Site Name', sortable: true },
+              { key: 'country_name', label: 'Country', sortable: true },
+            ];
 
   const handlePageChange = (page: number) => {
     setPage(page);
@@ -89,7 +94,7 @@ const HomePage: React.FC = () => {
       <main>
         {/* Toggle Switch */}
         <div className="flex space-x-4 mb-6">
-          {['cities', 'states', 'countries'].map((option) => (
+          {['cities', 'states', 'countries', 'attractions'].map((option) => (
             <button
               key={option}
               onClick={() => setSelectedOption(option)}
