@@ -11,7 +11,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       res.status(500).json({ error: 'Failed to fetch countries.' });
     }
   } else if (req.method === 'POST') {
-    const { name, abbreviation, lat, lng, slug, last_visited } = req.body;
+    const { name, abbreviation, lat, lng, slug, last_visited, geo_map_id } =
+      req.body;
 
     if (!name) {
       return res.status(400).json({ error: 'Name is required.' });
@@ -20,9 +21,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
       const result = db
         .prepare(
-          'INSERT INTO countries (name, abbreviation, lat, lng, slug, last_visited) VALUES (?, ?, ?, ?, ?, ?)'
+          'INSERT INTO countries (name, abbreviation, lat, lng, slug, last_visited, geo_map_id) VALUES (?, ?, ?, ?, ?, ?, ?)'
         )
-        .run(name, abbreviation, lat, lng, slug, last_visited);
+        .run(name, abbreviation, lat, lng, slug, last_visited, geo_map_id);
       res.status(201).json({ id: result.lastInsertRowid });
     } catch (error) {
       console.error(error);

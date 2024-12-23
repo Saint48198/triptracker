@@ -13,12 +13,13 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   if (req.method === 'PUT') {
-    const { name, abbreviation, lat, lng, slug, last_visited } = req.body;
+    const { name, abbreviation, lat, lng, slug, last_visited, geo_map_id } =
+      req.body;
     const result = db
       .prepare(
-        'UPDATE countries SET name = ?, abbreviation = ?, lat = ?, lng = ?, slug = ?, last_visited = ? WHERE id = ?'
+        'UPDATE countries SET name = ?, abbreviation = ?, lat = ?, lng = ?, slug = ?, last_visited = ?, geo_map_id=? WHERE id = ?'
       )
-      .run(name, abbreviation, id, lat, lng, slug, last_visited);
+      .run(name, abbreviation, id, lat, lng, slug, last_visited, geo_map_id);
     return res.status(200).json({ changes: result.changes });
   }
 

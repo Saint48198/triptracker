@@ -7,6 +7,7 @@ import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import DataTable from '@/components/DataTable/DataTable';
 import Pagination from '@/components/Pagination/Pagination';
+import { Country } from '@/components/types';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -69,13 +70,10 @@ const HomePage: React.FC = () => {
         ...geoJson,
         features: geoJson.features.filter((feature: any) =>
           countries.some(
-            (country: any) =>
-              feature.properties.name.toLowerCase() ===
-              country.name.toLowerCase()
+            (country: Country) => feature.id === country.geo_map_id
           )
         ),
       };
-
       setGeoJsonData(filteredGeoJson);
     } catch (error) {
       console.error('Failed to fetch filtered GeoJSON data:', error);
@@ -141,7 +139,7 @@ const HomePage: React.FC = () => {
           ))}
         </div>
         {selectedOption === 'countries' && geoJsonData ? (
-          <MapComponent geoJSON={geoJsonData} zoom={2} />
+          <MapComponent geoJSON={geoJsonData} zoom={3} />
         ) : (
           <MapComponent markers={markers} />
         )}

@@ -6,6 +6,7 @@ export interface Country {
   lng: number;
   slug: string;
   last_visited?: string;
+  geo_map_id?: string;
 }
 
 export interface Trip {

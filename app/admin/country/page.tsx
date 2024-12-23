@@ -15,6 +15,7 @@ export default function CountryPage() {
   const [lat, setLat] = useState('');
   const [lng, setLng] = useState('');
   const [lastVisited, setLastVisited] = useState(''); // State for last_visited
+  const [geoMapId, setGeoMapId] = useState(''); // State for geo_map_id
   const [message, setMessage] = useState('');
 
   const id = searchParams ? searchParams.get('id') : null; // Get `id` from query parameters
@@ -35,6 +36,8 @@ export default function CountryPage() {
         setAbbreviation(data.abbreviation);
         setLat(data.lat.toString());
         setLng(data.lng.toString());
+        setLastVisited(data.last_visited ? data.last_visited : '');
+        setGeoMapId(data.geo_map_id ? data.geo_map_id.toString() : '');
       }
     } catch (error) {
       console.error('Failed to fetch country:', error);
@@ -67,6 +70,8 @@ export default function CountryPage() {
         setLat('');
         setLng('');
         setEditingCountry(null);
+        setLastVisited('');
+        setGeoMapId('');
         router.push('/admin/countries'); // Navigate to the list of countries
       } else {
         setMessage('Failed to save country.');
@@ -134,6 +139,19 @@ export default function CountryPage() {
               id="lng"
               value={lng}
               onChange={(e) => setLng(e.target.value)}
+              className="w-full border px-4 py-2 rounded"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="geoMapId" className="block font-medium">
+              GEO Map ID
+            </label>
+            <input
+              type="number"
+              id="geoMapId"
+              value={geoMapId}
+              onChange={(e) => setGeoMapId(e.target.value)}
               className="w-full border px-4 py-2 rounded"
               required
             />
