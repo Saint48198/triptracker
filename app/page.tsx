@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Navbar from '@/components/Navbar/Navbar';
@@ -13,8 +13,6 @@ const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
 });
 
-const markers = [{ lat: 39.8283, lng: -98.5795 }];
-
 const HomePage: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -23,10 +21,12 @@ const HomePage: React.FC = () => {
   );
   const [limit] = useState(25);
   const [total, setTotal] = useState(0);
+  const [markers, setMarkers] = useState([]);
   const [hasPageProperty, setHasPageProperty] = useState(false);
 
   const [selectedOption, setSelectedOption] = useState(() => {
     const urlOption = searchParams ? searchParams.get('view') : null;
+    setPage(1); // Reset page when view changes
     return urlOption || 'cities'; // Default to 'cities'
   });
 
@@ -35,21 +35,33 @@ const HomePage: React.FC = () => {
 
   // Fetch data based on selected option
   useEffect(() => {
-    fetchData(selectedOption);
+    fetchData(selectedOption, page);
     updateURL();
     if (selectedOption === 'countries') {
       fetchFilteredGeoJsonData();
     }
   }, [selectedOption, page]);
 
-  const fetchData = async (view: string) => {
+  const fetchData = async (view: string, page: number) => {
     try {
-      const response = await fetch(`/api/${view}`);
+      const url = page ? `/api/${view}?page=${page}` : `/api/${view}`;
+      const response = await fetch(url);
       const result = await response.json();
       setHasPageProperty(!!(result && result.page));
       setData(result[view] || result);
       setTotal(result.total || result.length);
-      //hasPageProperty = result.page ? true : false;
+
+      // Extract markers for cities or attractions
+      if (view === 'cities' || view === 'attractions') {
+        const extractedMarkers = result[view].map((item: any) => ({
+          lat: item.lat,
+          lng: item.lng,
+          popupText: item.name,
+        }));
+        setMarkers(extractedMarkers);
+      } else {
+        setMarkers([]);
+      }
     } catch (error) {
       console.error(`Failed to fetch ${view}:`, error);
     }
@@ -90,8 +102,8 @@ const HomePage: React.FC = () => {
   };
 
   // Define columns dynamically based on selected option
-  const columns =
-    selectedOption === 'cities'
+  const columns = useMemo(() => {
+    return selectedOption === 'cities'
       ? [
           { key: 'name', label: 'City Name', sortable: true },
           { key: 'state_name', label: 'State', sortable: true },
@@ -109,11 +121,11 @@ const HomePage: React.FC = () => {
               { key: 'name', label: 'Site Name', sortable: true },
               { key: 'country_name', label: 'Country', sortable: true },
             ];
+  }, [selectedOption]);
 
   const handlePageChange = (page: number) => {
     setPage(page);
-    console.log(`Changed to page: ${page}`);
-    // Add your logic to fetch new data based on the page
+    fetchData(selectedOption);
   };
 
   const totalPages = Math.ceil(total / limit);
@@ -124,17 +136,22 @@ const HomePage: React.FC = () => {
       <main>
         {/* Toggle Switch */}
         <div className="flex space-x-4 mb-6">
-          {['cities', 'states', 'countries', 'attractions'].map((option) => (
+          {[
+            { value: 'cities', label: 'Cities' },
+            { value: 'states', label: 'States' },
+            { value: 'countries', label: 'Countries' },
+            { value: 'attractions', label: 'Sites' },
+          ].map((option) => (
             <button
-              key={option}
-              onClick={() => setSelectedOption(option)}
+              key={option.value}
+              onClick={() => setSelectedOption(option.value)}
               className={`px-4 py-2 rounded ${
-                selectedOption === option
+                selectedOption === option.value
                   ? 'bg-blue-500 text-white'
                   : 'bg-gray-200 text-black'
               }`}
             >
-              {option.charAt(0).toUpperCase() + option.slice(1)}
+              {option.label}
             </button>
           ))}
         </div>
