@@ -125,7 +125,7 @@ const HomePage: React.FC = () => {
 
   const handlePageChange = (page: number) => {
     setPage(page);
-    fetchData(selectedOption);
+    fetchData(selectedOption, page);
   };
 
   const totalPages = Math.ceil(total / limit);
