@@ -1,18 +1,18 @@
 'use client';
 
-import { MapContainer, TileLayer, Marker, Popup, GeoJSON } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { LatLngExpression } from 'leaflet';
 import L from 'leaflet';
 import styles from './Map.module.scss';
-import { MapProps } from './Map.types';
+import { MapProps, MarkerProps } from './Map.types';
 import {
   Feature,
   FeatureCollection,
   Polygon,
   MultiPolygon,
   Position,
-  BBox,
 } from 'geojson';
+import { useEffect } from 'react';
 
 // Fix the default icon path
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -74,16 +74,47 @@ const wrapGeoJsonFeatures = (
   return { ...geoJson, features: wrappedFeatures };
 };
 
+const ResetLayerControl = ({
+  geoJSON,
+  adjustBounds,
+}: {
+  geoJSON: FeatureCollection | null;
+  adjustBounds: boolean;
+}) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!geoJSON) return;
+
+    // Clear existing layers
+    map.eachLayer((layer) => {
+      if (layer instanceof L.GeoJSON) {
+        map.removeLayer(layer);
+      }
+    });
+
+    // Add new GeoJSON layer
+    const geoJsonLayer = new L.GeoJSON(geoJSON);
+    geoJsonLayer.addTo(map);
+
+    // Adjust map bounds only if adjustBounds is true
+    if (adjustBounds) {
+      map.fitBounds(geoJsonLayer.getBounds());
+    }
+  }, [geoJSON, map, adjustBounds]);
+
+  return null;
+};
+
 const Map: React.FC<MapProps> = ({
   markers,
   geoJSON,
   zoom,
   disableDragging = true,
   disableZoom = true,
+  centerLocation = [20, 0], // Default center (around Africa)
 }) => {
-  // Set the initial center of the map and zoom level
-  const center: LatLngExpression =
-    markers && markers.length > 0 ? [markers[0].lat, markers[0].lng] : [20, 0]; // Default center (around Africa)
+  const center: LatLngExpression = centerLocation;
   const zoomVal = zoom ?? 3; // Zoom level
   const wrappedGeoJsonData = wrapGeoJsonFeatures(geoJSON);
 
@@ -102,10 +133,10 @@ const Map: React.FC<MapProps> = ({
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         noWrap={false}
       />
-      {wrappedGeoJsonData && <GeoJSON data={wrappedGeoJsonData} />}
+      <ResetLayerControl geoJSON={wrappedGeoJsonData} adjustBounds={false} />
       {markers &&
         markers.length > 0 &&
-        markers.map((marker, index) => (
+        markers.map((marker: MarkerProps, index: number) => (
           <Marker key={index} position={[marker.lat, marker.lng]}>
             {marker.popupText && <Popup>{marker.popupText}</Popup>}
           </Marker>

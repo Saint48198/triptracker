@@ -7,7 +7,7 @@ import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import DataTable from '@/components/DataTable/DataTable';
 import Pagination from '@/components/Pagination/Pagination';
-import { Country } from '@/components/types';
+import { Country, State } from '@/components/types';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -23,22 +23,41 @@ const HomePage: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [markers, setMarkers] = useState([]);
   const [hasPageProperty, setHasPageProperty] = useState(false);
+  const [zoom, setZoom] = useState(3);
+  const [center, setCenter] = useState<[number, number]>([20, 0]);
+  const [mapKey, setMapKey] = useState(0);
 
   const [selectedOption, setSelectedOption] = useState(() => {
     const urlOption = searchParams ? searchParams.get('view') : null;
-    setPage(1); // Reset page when view changes
-    return urlOption || 'cities'; // Default to 'cities'
+    return urlOption || 'cities';
   });
 
   const [data, setData] = useState([]);
   const [geoJsonData, setGeoJsonData] = useState<any>(null);
 
-  // Fetch data based on selected option
+  useEffect(() => {
+    setPage(1);
+    setMapKey((prevKey) => prevKey + 1);
+    if (selectedOption === 'countries' || selectedOption === 'states') {
+      setMarkers([]);
+    } else {
+      setGeoJsonData(null);
+    }
+
+    if (selectedOption === 'states') {
+      setZoom(4);
+      setCenter([37.09024, -95.712891]);
+    } else {
+      setZoom(3);
+      setCenter([20, 0]);
+    }
+  }, [selectedOption]);
+
   useEffect(() => {
     fetchData(selectedOption, page);
     updateURL();
-    if (selectedOption === 'countries') {
-      fetchFilteredGeoJsonData();
+    if (selectedOption === 'countries' || selectedOption === 'states') {
+      fetchFilteredGeoJsonData(selectedOption);
     }
   }, [selectedOption, page]);
 
@@ -51,7 +70,6 @@ const HomePage: React.FC = () => {
       setData(result[view] || result);
       setTotal(result.total || result.length);
 
-      // Extract markers for cities or attractions
       if (view === 'cities' || view === 'attractions') {
         const extractedMarkers = result[view].map((item: any) => ({
           lat: item.lat,
@@ -67,23 +85,28 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const fetchFilteredGeoJsonData = async () => {
+  const fetchFilteredGeoJsonData = async (type: string) => {
     try {
-      // Fetch countries from API
-      const response = await fetch('/api/countries');
-      const countries = await response.json();
+      const response = await fetch(`/api/${type}`);
+      const places = await response.json();
 
-      // Fetch GeoJSON data
-      const geoJsonResponse = await fetch('/data/countries.json');
+      const geoJsonResponse = await fetch(
+        type === 'countries'
+          ? '/data/countries.json'
+          : '/data/us_canada_states.geojson'
+      );
       const geoJson = await geoJsonResponse.json();
 
-      // Filter GeoJSON features to include only matching countries
       const filteredGeoJson = {
         ...geoJson,
         features: geoJson.features.filter((feature: any) =>
-          countries.some(
-            (country: Country) => feature.id === country.geo_map_id
-          )
+          type === 'countries'
+            ? places.some(
+                (country: Country) => feature.id === country.geo_map_id
+              )
+            : places.some(
+                (state: State) => feature.properties.name === state.name
+              )
         ),
       };
       setGeoJsonData(filteredGeoJson);
@@ -101,7 +124,6 @@ const HomePage: React.FC = () => {
     router.push(`?${params.toString()}`, { scroll: false });
   };
 
-  // Define columns dynamically based on selected option
   const columns = useMemo(() => {
     return selectedOption === 'cities'
       ? [
@@ -134,7 +156,6 @@ const HomePage: React.FC = () => {
     <>
       <Navbar />
       <main>
-        {/* Toggle Switch */}
         <div className="flex space-x-4 mb-6">
           {[
             { value: 'cities', label: 'Cities' },
@@ -155,12 +176,22 @@ const HomePage: React.FC = () => {
             </button>
           ))}
         </div>
-        {selectedOption === 'countries' && geoJsonData ? (
-          <MapComponent geoJSON={geoJsonData} zoom={3} />
+        {(selectedOption === 'countries' || selectedOption === 'states') &&
+        geoJsonData ? (
+          <MapComponent
+            geoJSON={geoJsonData}
+            zoom={zoom}
+            centerLocation={center}
+            key={mapKey}
+          />
         ) : (
-          <MapComponent markers={markers} />
+          <MapComponent
+            markers={markers}
+            centerLocation={center}
+            zoom={zoom}
+            key={mapKey}
+          />
         )}
-        {/* Data Table */}
         <div className="bg-white shadow-md p-4 rounded">
           <h2 className="text-xl font-bold mb-4">
             {selectedOption.charAt(0).toUpperCase() + selectedOption.slice(1)}{' '}
@@ -173,7 +204,6 @@ const HomePage: React.FC = () => {
               console.log(
                 `Sorting ${selectedOption} by ${sortBy} in ${sortOrder} order`
               );
-              // Add sorting logic if needed
             }}
           />
           {hasPageProperty && (

@@ -4,9 +4,10 @@ export interface MapProps {
   zoom?: number;
   disableDragging?: boolean;
   disableZoom?: boolean;
+  centerLocation?: [number, number];
 }
 
-interface MarkerProps {
+export interface MarkerProps {
   lat: number;
   lng: number;
   popupText?: string;
