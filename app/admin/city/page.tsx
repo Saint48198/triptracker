@@ -6,6 +6,7 @@ import { Country, GeocodeResult, State } from '@/components/types';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import { FaSpinner } from 'react-icons/fa';
+import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
 
 export default function CityPage() {
   const searchParams = useSearchParams();
@@ -163,6 +164,9 @@ export default function CityPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Scroll to the top of the page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
     if (isNorthAmericanCountry(countryId) && !stateId) {
       setMessage('State is required for cities in the US or Canada.');
       setMessageType('error');
@@ -191,7 +195,6 @@ export default function CityPage() {
           id ? 'City updated successfully!' : 'City added successfully!'
         );
         setMessageType('success');
-        if (!id) router.push('/admin/cities');
       } else {
         setMessage('Failed to save city.');
         setMessageType('error');
@@ -207,162 +210,167 @@ export default function CityPage() {
     <>
       <Navbar />
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">
-          {id ? 'Edit City' : 'Add City'}
-        </h1>
-        {message && (
-          <div
-            role="alert"
-            aria-live="assertive"
-            className={`mb-4 p-4 border rounded ${
-              messageType === 'error'
-                ? 'text-red-700 bg-red-100 border-red-400'
-                : 'text-green-700 bg-green-100 border-green-400'
-            }`}
-          >
-            <div>{message}</div>
-            {geocodeResults.length > 0 && (
-              <div className="mt-6">
-                <h2 className="text-lg font-semibold mb-4">
-                  Select a Location
-                </h2>
-                <ul className="space-y-2">
-                  {geocodeResults.map((result: GeocodeResult, index) => (
-                    <li key={index}>
-                      <button
-                        onClick={() =>
-                          handleSelectResult(result.lat, result.lng)
-                        }
-                        className="text-blue-500 underline hover:text-blue-700"
-                      >
-                        {result.lat}, {result.lng}
-                      </button>
-                    </li>
+        <aside>
+          <AdminLocalNav currentSection={'city'} />
+        </aside>
+        <div className={'PageContent'}>
+          <h1 className="text-2xl font-bold mb-6">
+            {id ? 'Edit City' : 'Add City'}
+          </h1>
+          {message && (
+            <div
+              role="alert"
+              aria-live="assertive"
+              className={`mb-4 p-4 border rounded ${
+                messageType === 'error'
+                  ? 'text-red-700 bg-red-100 border-red-400'
+                  : 'text-green-700 bg-green-100 border-green-400'
+              }`}
+            >
+              <div>{message}</div>
+              {geocodeResults.length > 0 && (
+                <div className="mt-6">
+                  <h2 className="text-lg font-semibold mb-4">
+                    Select a Location
+                  </h2>
+                  <ul className="space-y-2">
+                    {geocodeResults.map((result: GeocodeResult, index) => (
+                      <li key={index}>
+                        <button
+                          onClick={() =>
+                            handleSelectResult(result.lat, result.lng)
+                          }
+                          className="text-blue-500 underline hover:text-blue-700"
+                        >
+                          {result.lat}, {result.lng}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block font-medium">
+                City Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full border px-4 py-2 rounded"
+                required
+              />
+            </div>
+            {filteredStates.length > 0 && (
+              <div>
+                <label htmlFor="stateId" className="block font-medium">
+                  State
+                </label>
+                <select
+                  id="stateId"
+                  value={stateId}
+                  onChange={(e) => setStateId(e.target.value)}
+                  className="w-full border px-4 py-2 rounded"
+                >
+                  <option value="">Select a state</option>
+                  {filteredStates.map((state) => (
+                    <option key={state.id} value={state.id}>
+                      {state.name}
+                    </option>
                   ))}
-                </ul>
+                </select>
               </div>
             )}
-          </div>
-        )}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="name" className="block font-medium">
-              City Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full border px-4 py-2 rounded"
-              required
-            />
-          </div>
-          {filteredStates.length > 0 && (
             <div>
-              <label htmlFor="stateId" className="block font-medium">
-                State
+              <label htmlFor="countryId" className="block font-medium">
+                Country
               </label>
               <select
-                id="stateId"
-                value={stateId}
-                onChange={(e) => setStateId(e.target.value)}
+                id="countryId"
+                value={countryId}
+                onChange={(e) => setCountryId(e.target.value)}
                 className="w-full border px-4 py-2 rounded"
+                required
               >
-                <option value="">Select a state</option>
-                {filteredStates.map((state) => (
-                  <option key={state.id} value={state.id}>
-                    {state.name}
+                <option value="">Select a country</option>
+                {countries.map((country) => (
+                  <option key={country.id} value={country.id}>
+                    {country.name}
                   </option>
                 ))}
               </select>
             </div>
-          )}
-          <div>
-            <label htmlFor="countryId" className="block font-medium">
-              Country
-            </label>
-            <select
-              id="countryId"
-              value={countryId}
-              onChange={(e) => setCountryId(e.target.value)}
-              className="w-full border px-4 py-2 rounded"
-              required
+            <hr />
+            <button
+              type="button"
+              onClick={handleGeocode}
+              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 flex items-center"
+              disabled={loading} // Disable button while loading
             >
-              <option value="">Select a country</option>
-              {countries.map((country) => (
-                <option key={country.id} value={country.id}>
-                  {country.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <hr />
-          <button
-            type="button"
-            onClick={handleGeocode}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 flex items-center"
-            disabled={loading} // Disable button while loading
-          >
-            {loading ? (
-              <FaSpinner className="animate-spin mr-2" /> // Show spinner icon while loading
-            ) : (
-              'Look Up Lat/Lng'
-            )}
-          </button>
-          <div>
-            <label htmlFor="lat" className="block font-medium">
-              Latitude
-            </label>
-            <input
-              type="number"
-              id="lat"
-              value={lat}
-              onChange={(e) => setLat(e.target.value)}
-              className="w-full border px-4 py-2 rounded"
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="lng" className="block font-medium">
-              Longitude
-            </label>
-            <input
-              type="number"
-              id="lng"
-              value={lng}
-              onChange={(e) => setLng(e.target.value)}
-              className="w-full border px-4 py-2 rounded"
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="lastVisited" className="block font-medium">
-              Last Visited
-            </label>
-            <input
-              type="datetime-local"
-              id="lastVisited"
-              value={lastVisited}
-              onChange={(e) => setLastVisited(e.target.value)}
-              className="w-full border px-4 py-2 rounded"
-            />
-          </div>
-          <hr />
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            {id ? 'Update City' : 'Add City'}
-          </button>
-          &nbsp;
-          <button
-            onClick={() => router.push('/admin/cities')}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-          >
-            Cancel
-          </button>
-        </form>
+              {loading ? (
+                <FaSpinner className="animate-spin mr-2" /> // Show spinner icon while loading
+              ) : (
+                'Look Up Lat/Lng'
+              )}
+            </button>
+            <div>
+              <label htmlFor="lat" className="block font-medium">
+                Latitude
+              </label>
+              <input
+                type="number"
+                id="lat"
+                value={lat}
+                onChange={(e) => setLat(e.target.value)}
+                className="w-full border px-4 py-2 rounded"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="lng" className="block font-medium">
+                Longitude
+              </label>
+              <input
+                type="number"
+                id="lng"
+                value={lng}
+                onChange={(e) => setLng(e.target.value)}
+                className="w-full border px-4 py-2 rounded"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="lastVisited" className="block font-medium">
+                Last Visited
+              </label>
+              <input
+                type="datetime-local"
+                id="lastVisited"
+                value={lastVisited}
+                onChange={(e) => setLastVisited(e.target.value)}
+                className="w-full border px-4 py-2 rounded"
+              />
+            </div>
+            <hr />
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              {id ? 'Update City' : 'Add City'}
+            </button>
+            &nbsp;
+            <button
+              onClick={() => router.push('/admin/cities')}
+              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+          </form>
+        </div>
       </main>
       <Footer />
     </>

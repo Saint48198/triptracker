@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Country } from '@/components/types';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
+import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
 
 export default function StatePage() {
   const searchParams = useSearchParams();
@@ -54,11 +55,14 @@ export default function StatePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Scroll to the top of the page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
     const method = id ? 'PUT' : 'POST';
     const url = id ? `/api/states/${id}` : '/api/states';
 
     try {
-      console.log({ name, abbr, countryId });
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
@@ -72,7 +76,6 @@ export default function StatePage() {
         setName('');
         setAbbr('');
         setCountryId('');
-        if (!id) router.push('/admin/states'); // Redirect after adding a new state
       } else {
         setMessage('Failed to save state.');
       }
@@ -86,81 +89,86 @@ export default function StatePage() {
     <>
       <Navbar />
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">
-          {id ? 'Edit State' : 'Add State'}
-        </h1>
-        {message && <p className="mb-4 text-green-500">{message}</p>}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="name" className="block font-medium">
-              State Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full border px-4 py-2 rounded"
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="abbr" className="block font-medium">
-              Abbreviation
-            </label>
-            <input
-              type="text"
-              id="abbr"
-              value={abbr}
-              onChange={(e) => setAbbr(e.target.value)}
-              className="w-full border px-4 py-2 rounded"
-            />
-          </div>
-          <div>
-            <label htmlFor="countryId" className="block font-medium">
-              Country
-            </label>
-            <select
-              id="countryId"
-              value={countryId}
-              onChange={(e) => setCountryId(e.target.value)}
-              className="w-full border px-4 py-2 rounded"
-              required
+        <aside>
+          <AdminLocalNav currentSection={'state'} />
+        </aside>
+        <div className={'pageContent'}>
+          <h1 className="text-2xl font-bold mb-6">
+            {id ? 'Edit State' : 'Add State'}
+          </h1>
+          {message && <p className="mb-4 text-green-500">{message}</p>}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block font-medium">
+                State Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full border px-4 py-2 rounded"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="abbr" className="block font-medium">
+                Abbreviation
+              </label>
+              <input
+                type="text"
+                id="abbr"
+                value={abbr}
+                onChange={(e) => setAbbr(e.target.value)}
+                className="w-full border px-4 py-2 rounded"
+              />
+            </div>
+            <div>
+              <label htmlFor="countryId" className="block font-medium">
+                Country
+              </label>
+              <select
+                id="countryId"
+                value={countryId}
+                onChange={(e) => setCountryId(e.target.value)}
+                className="w-full border px-4 py-2 rounded"
+                required
+              >
+                <option value="">Select a country</option>
+                {countries.map((country: Country) => (
+                  <option key={country.id} value={country.id}>
+                    {country.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="lastVisited" className="block font-medium">
+                Last Visited
+              </label>
+              <input
+                type="text"
+                id="lastVisited"
+                value={lastVisited}
+                readOnly
+                className="w-full border px-4 py-2 rounded bg-gray-100"
+              />
+            </div>
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             >
-              <option value="">Select a country</option>
-              {countries.map((country: Country) => (
-                <option key={country.id} value={country.id}>
-                  {country.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label htmlFor="lastVisited" className="block font-medium">
-              Last Visited
-            </label>
-            <input
-              type="text"
-              id="lastVisited"
-              value={lastVisited}
-              readOnly
-              className="w-full border px-4 py-2 rounded bg-gray-100"
-            />
-          </div>
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            {id ? 'Update State' : 'Add State'}
-          </button>
-          &nbsp;
-          <button
-            onClick={() => router.push('/admin/states')}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-          >
-            Cancel
-          </button>
-        </form>
+              {id ? 'Update State' : 'Add State'}
+            </button>
+            &nbsp;
+            <button
+              onClick={() => router.push('/admin/states')}
+              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+          </form>
+        </div>
       </main>
       <Footer />
     </>

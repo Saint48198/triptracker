@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import { Country } from '@/components/types';
+import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
 
 export default function CountryPage() {
   const searchParams = useSearchParams();
@@ -47,6 +48,9 @@ export default function CountryPage() {
   const handleAddOrUpdateCountry = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Scroll to the top of the page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
     const method = editingCountry ? 'PUT' : 'POST';
     const url = editingCountry
       ? `/api/countries/${editingCountry.id}`
@@ -72,7 +76,6 @@ export default function CountryPage() {
         setEditingCountry(null);
         setLastVisited('');
         setGeoMapId('');
-        router.push('/admin/countries'); // Navigate to the list of countries
       } else {
         setMessage('Failed to save country.');
       }
@@ -86,102 +89,107 @@ export default function CountryPage() {
     <>
       <Navbar></Navbar>
       <main className="container mx-auto px-4">
-        <h1 className="text-2xl font-bold my-4">
-          {editingCountry ? 'Edit Country' : 'Add Country'}
-        </h1>
-        {message && <p className="mt-4">{message}</p>}
-        <form onSubmit={handleAddOrUpdateCountry} className="space-y-4">
-          <div>
-            <label htmlFor="name" className="block font-medium">
-              Country Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full border px-4 py-2 rounded"
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="abbreviation" className="block font-medium">
-              Abbreviation
-            </label>
-            <input
-              type="text"
-              id="abbreviation"
-              value={abbreviation}
-              onChange={(e) => setAbbreviation(e.target.value)}
-              className="w-full border px-4 py-2 rounded"
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="lat" className="block font-medium">
-              Latitude
-            </label>
-            <input
-              type="number"
-              id="lat"
-              value={lat}
-              onChange={(e) => setLat(e.target.value)}
-              className="w-full border px-4 py-2 rounded"
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="lng" className="block font-medium">
-              Longitude
-            </label>
-            <input
-              type="number"
-              id="lng"
-              value={lng}
-              onChange={(e) => setLng(e.target.value)}
-              className="w-full border px-4 py-2 rounded"
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="geoMapId" className="block font-medium">
-              GEO Map ID
-            </label>
-            <input
-              type="number"
-              id="geoMapId"
-              value={geoMapId}
-              onChange={(e) => setGeoMapId(e.target.value)}
-              className="w-full border px-4 py-2 rounded"
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="lastVisited" className="block font-medium">
-              Last Visited
-            </label>
-            <input
-              type="text"
-              id="lastVisited"
-              value={lastVisited}
-              readOnly
-              className="w-full border px-4 py-2 rounded bg-gray-100"
-            />
-          </div>
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            {editingCountry ? 'Update Country' : 'Add Country'}
-          </button>
-          &nbsp;
-          <button
-            onClick={() => router.push('/admin/countries')}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-          >
-            Cancel
-          </button>
-        </form>
+        <aside>
+          <AdminLocalNav currentSection={'country'}></AdminLocalNav>
+        </aside>
+        <div className={'pageContent'}>
+          <h1 className="text-2xl font-bold my-4">
+            {editingCountry ? 'Edit Country' : 'Add Country'}
+          </h1>
+          {message && <p className="mt-4">{message}</p>}
+          <form onSubmit={handleAddOrUpdateCountry} className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block font-medium">
+                Country Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full border px-4 py-2 rounded"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="abbreviation" className="block font-medium">
+                Abbreviation
+              </label>
+              <input
+                type="text"
+                id="abbreviation"
+                value={abbreviation}
+                onChange={(e) => setAbbreviation(e.target.value)}
+                className="w-full border px-4 py-2 rounded"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="lat" className="block font-medium">
+                Latitude
+              </label>
+              <input
+                type="number"
+                id="lat"
+                value={lat}
+                onChange={(e) => setLat(e.target.value)}
+                className="w-full border px-4 py-2 rounded"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="lng" className="block font-medium">
+                Longitude
+              </label>
+              <input
+                type="number"
+                id="lng"
+                value={lng}
+                onChange={(e) => setLng(e.target.value)}
+                className="w-full border px-4 py-2 rounded"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="geoMapId" className="block font-medium">
+                GEO Map ID
+              </label>
+              <input
+                type="text"
+                id="geoMapId"
+                value={geoMapId}
+                onChange={(e) => setGeoMapId(e.target.value)}
+                className="w-full border px-4 py-2 rounded"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="lastVisited" className="block font-medium">
+                Last Visited
+              </label>
+              <input
+                type="text"
+                id="lastVisited"
+                value={lastVisited}
+                readOnly
+                className="w-full border px-4 py-2 rounded bg-gray-100"
+              />
+            </div>
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              {editingCountry ? 'Update Country' : 'Add Country'}
+            </button>
+            &nbsp;
+            <button
+              onClick={() => router.push('/admin/countries')}
+              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+          </form>
+        </div>
       </main>
       <Footer></Footer>
     </>
