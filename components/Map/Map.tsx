@@ -45,20 +45,54 @@ const wrapGeoJsonFeatures = (
     const wrapRight: Feature = JSON.parse(JSON.stringify(feature));
 
     if (wrapLeft.geometry.type === 'Polygon') {
-      wrapLeft.geometry.coordinates = wrapLeft.geometry.coordinates.map(
-        (ring) => ring.map(([lon, lat]) => [lon - 360, lat])
+      (wrapLeft.geometry as Polygon).coordinates = (
+        wrapLeft.geometry as Polygon
+      ).coordinates.map((ring: Position[]) =>
+        ring.map((pos: Position) => {
+          if (pos.length === 2) {
+            const [lon, lat] = pos as [number, number];
+            return [lon - 360, lat];
+          }
+          return pos;
+        })
       );
-      wrapRight.geometry.coordinates = wrapRight.geometry.coordinates.map(
-        (ring) => ring.map(([lon, lat]) => [lon + 360, lat])
+      (wrapRight.geometry as Polygon).coordinates = (
+        wrapRight.geometry as Polygon
+      ).coordinates.map((ring: Position[]) =>
+        ring.map((pos: Position) => {
+          if (pos.length === 2) {
+            const [lon, lat] = pos as [number, number];
+            return [lon + 360, lat];
+          }
+          return pos;
+        })
       );
     } else if (wrapLeft.geometry.type === 'MultiPolygon') {
-      wrapLeft.geometry.coordinates = wrapLeft.geometry.coordinates.map(
-        (polygon) =>
-          polygon.map((ring) => ring.map(([lon, lat]) => [lon - 360, lat]))
+      (wrapLeft.geometry as MultiPolygon).coordinates = (
+        wrapLeft.geometry as MultiPolygon
+      ).coordinates.map((polygon: Position[][]) =>
+        polygon.map((ring: Position[]) =>
+          ring.map((pos: Position) => {
+            if (pos.length === 2) {
+              const [lon, lat] = pos as [number, number];
+              return [lon - 360, lat];
+            }
+            return pos;
+          })
+        )
       );
-      wrapRight.geometry.coordinates = wrapRight.geometry.coordinates.map(
-        (polygon) =>
-          polygon.map((ring) => ring.map(([lon, lat]) => [lon + 360, lat]))
+      (wrapRight.geometry as MultiPolygon).coordinates = (
+        wrapRight.geometry as MultiPolygon
+      ).coordinates.map((polygon: Position[][]) =>
+        polygon.map((ring: Position[]) =>
+          ring.map((pos: Position) => {
+            if (pos.length === 2) {
+              const [lon, lat] = pos as [number, number];
+              return [lon + 360, lat];
+            }
+            return pos;
+          })
+        )
       );
     }
 
