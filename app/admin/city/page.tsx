@@ -366,7 +366,7 @@ export default function CityPage() {
                 Last Visited
               </label>
               <input
-                type="datetime-local"
+                type="month"
                 id="lastVisited"
                 value={lastVisited}
                 onChange={(e) => setLastVisited(e.target.value)}

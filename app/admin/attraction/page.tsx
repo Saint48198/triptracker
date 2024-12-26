@@ -335,7 +335,7 @@ export default function AttractionPage() {
                 Last Visited
               </label>
               <input
-                type="date"
+                type="month"
                 id="lastVisited"
                 value={lastVisited}
                 onChange={(e) => setLastVisited(e.target.value)}
