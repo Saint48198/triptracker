@@ -7,7 +7,6 @@ import Footer from '@/components/Footer/Footer';
 import { Attraction, Country, GeocodeResult } from '@/components/types';
 import { FaSpinner } from 'react-icons/fa';
 import dynamic from 'next/dynamic';
-import L from 'leaflet';
 import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {

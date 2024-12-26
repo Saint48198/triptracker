@@ -7,6 +7,11 @@ import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import { FaSpinner } from 'react-icons/fa';
 import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
+import dynamic from 'next/dynamic';
+
+const MapComponent = dynamic(() => import('@/components/Map/Map'), {
+  ssr: false,
+});
 
 export default function CityPage() {
   const searchParams = useSearchParams();
@@ -40,7 +45,6 @@ export default function CityPage() {
     if (isNorthAmericanCountry(countryId)) {
       setFilteredStates(
         states.filter((state) => {
-          console.log(state, countryId);
           return state.country_id && state.country_id.toString() === countryId;
         })
       );
@@ -305,6 +309,20 @@ export default function CityPage() {
               </select>
             </div>
             <hr />
+            {lat && lng && (
+              <div>
+                <MapComponent
+                  markers={[
+                    {
+                      lat: parseFloat(lat),
+                      lng: parseFloat(lng),
+                      popupText: `${name}${stateId ? ', ' + states.find((state) => state.id.toString() === stateId)?.abbr : ''}, ${countries.find((country) => country.id.toString() === countryId)?.name}`,
+                    },
+                  ]}
+                  zoom={8}
+                />
+              </div>
+            )}
             <button
               type="button"
               onClick={handleGeocode}
