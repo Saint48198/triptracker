@@ -12,7 +12,7 @@ import {
   MultiPolygon,
   Position,
 } from 'geojson';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 // Fix the default icon path
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -106,6 +106,18 @@ const ResetLayerControl = ({
   return null;
 };
 
+const UpdateMapCenter: React.FC<{ center: LatLngExpression }> = ({
+  center,
+}) => {
+  const map = useMap();
+
+  useEffect(() => {
+    map.setView(center);
+  }, [center, map]);
+
+  return null;
+};
+
 const Map: React.FC<MapProps> = ({
   markers,
   geoJSON,
@@ -114,9 +126,17 @@ const Map: React.FC<MapProps> = ({
   disableZoom = true,
   centerLocation = [20, 0], // Default center (around Africa)
 }: MapProps) => {
-  const center: LatLngExpression = centerLocation;
+  const [center, setCenter] = useState<LatLngExpression>(centerLocation);
   const zoomVal = zoom ?? 3; // Zoom level
   const wrappedGeoJsonData = wrapGeoJsonFeatures(geoJSON);
+
+  useEffect(() => {
+    if (markers && markers.length === 1) {
+      setCenter([markers[0].lat, markers[0].lng]);
+    } else {
+      setCenter(centerLocation);
+    }
+  }, [markers, centerLocation]);
 
   return (
     <MapContainer
@@ -141,6 +161,7 @@ const Map: React.FC<MapProps> = ({
             {marker.popupText && <Popup>{marker.popupText}</Popup>}
           </Marker>
         ))}
+      <UpdateMapCenter center={center} />
     </MapContainer>
   );
 };

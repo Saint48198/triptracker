@@ -175,7 +175,7 @@ export default function AttractionPage() {
       <Navbar />
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6">
-          {attractionId ? 'Edit Attraction' : 'Add Attraction'}
+          {attractionId ? 'Edit Site' : 'Add Site'}
         </h1>
         {message && (
           <div
@@ -214,7 +214,7 @@ export default function AttractionPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="name" className="block font-medium">
-              Attraction Name
+              Site Name
             </label>
             <input
               type="text"
@@ -278,7 +278,7 @@ export default function AttractionPage() {
                     popupText: name,
                   },
                 ]}
-                zoom={11}
+                zoom={8}
               />
             </div>
           )}
