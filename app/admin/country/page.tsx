@@ -64,18 +64,16 @@ export default function CountryPage() {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        const newAttractionId = data.id;
+
         setMessage(
           editingCountry
             ? 'Country updated successfully!'
             : 'Country added successfully!'
         );
-        setName('');
-        setAbbreviation('');
-        setLat('');
-        setLng('');
-        setEditingCountry(null);
-        setLastVisited('');
-        setGeoMapId('');
+        // Update the URL to include the new countryId
+        router.push(`/admin/country?id=${newAttractionId}`);
       } else {
         setMessage('Failed to save country.');
       }

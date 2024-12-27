@@ -8,6 +8,8 @@ import DataTable from '@/components/DataTable/DataTable';
 import { Column } from '@/components/DataTable/DataTable.types';
 import { Country } from '@/components/types';
 import Pagination from '@/components/Pagination/Pagination';
+import FilterBy from '@/components/FilterBy/FilterBy';
+import { FilterOption } from '@/components/FilterBy/FilterBy.types';
 
 export default function AttractionsPage() {
   const router = useRouter();
@@ -116,8 +118,8 @@ export default function AttractionsPage() {
     router.push(`?${params.toString()}`, { scroll: false });
   };
 
-  const handleCountryFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setCountryId(e.target.value);
+  const handleCountryFilter = (selected: string[]) => {
+    setCountryId(selected[0]);
     setPage(1); // Reset to the first page when filter changes
   };
 
@@ -132,8 +134,6 @@ export default function AttractionsPage() {
 
   const handlePageChange = (page: number) => {
     setPage(page);
-    console.log(`Changed to page: ${page}`);
-    // Add your logic to fetch new data based on the page
   };
 
   const totalPages = Math.ceil(total / limit);
@@ -146,21 +146,20 @@ export default function AttractionsPage() {
         {message && <p className="mb-4 text-green-500">{message}</p>}
         {/* Filter */}
         <div className="flex justify-between mb-4">
-          <div>
-            <label className="block mb-2 font-medium">Filter by Country</label>
-            <select
-              value={countryId ?? ''}
-              onChange={handleCountryFilter}
-              className="border px-4 py-2 rounded"
-            >
-              <option value="">All Countries</option>
-              {countries.map((country: Country) => (
-                <option key={country.id} value={country.id}>
-                  {country.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <FilterBy
+            options={
+              countries.map((country: Country) => ({
+                id: country.id.toString(),
+                value: country.id.toString(),
+                label: country.name,
+              })) as FilterOption[]
+            }
+            selectedFilters={countryId ? [countryId] : []}
+            onFilterChange={handleCountryFilter}
+            multiple={false} // Single selection mode
+            includeSelectAll={true}
+            selectAllLabel="Select Country"
+          />
         </div>
         <div>Total: {total}</div>
         <div className="mb-4 flex justify-end">

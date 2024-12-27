@@ -158,12 +158,16 @@ export default function AttractionPage() {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        const newAttractionId = data.id;
+
         setMessage(
           attractionId
             ? 'Attraction updated successfully!'
             : 'Attraction added successfully!'
         );
-        if (!attractionId) router.push('/admin/attractions');
+        // Update the URL to include the new attractionId
+        router.push(`/admin/attraction?id=${newAttractionId}`);
       } else {
         setMessage('Failed to save attraction.');
         setMessageType('error');

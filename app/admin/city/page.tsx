@@ -195,10 +195,16 @@ export default function CityPage() {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        const newAttractionId = data.id;
+
         setMessage(
           id ? 'City updated successfully!' : 'City added successfully!'
         );
         setMessageType('success');
+
+        // Update the URL to include the new cityId
+        router.push(`/admin/city?id=${newAttractionId}`);
       } else {
         setMessage('Failed to save city.');
         setMessageType('error');

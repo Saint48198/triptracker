@@ -70,12 +70,15 @@ export default function StatePage() {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        const newAttractionId = data.id;
+
         setMessage(
           id ? 'State updated successfully!' : 'State added successfully!'
         );
-        setName('');
-        setAbbr('');
-        setCountryId('');
+
+        // Update the URL to include the new stateId
+        router.push(`/admin/state?id=${newAttractionId}`);
       } else {
         setMessage('Failed to save state.');
       }
