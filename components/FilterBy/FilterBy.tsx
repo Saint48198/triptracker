@@ -27,7 +27,15 @@ const FilterBy: React.FC<FilterByProps> = ({
       <h3>Filter By</h3>
       <select
         multiple={multiple}
-        value={selectedFilters.length ? selectedFilters : ['']}
+        value={
+          multiple
+            ? selectedFilters.length
+              ? selectedFilters
+              : ['']
+            : selectedFilters.length
+              ? selectedFilters[0]
+              : ''
+        }
         onChange={handleChange}
       >
         {includeSelectAll && <option value="">{selectAllLabel}</option>}

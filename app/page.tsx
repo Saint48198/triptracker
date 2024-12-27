@@ -8,6 +8,8 @@ import Footer from '@/components/Footer/Footer';
 import DataTable from '@/components/DataTable/DataTable';
 import Pagination from '@/components/Pagination/Pagination';
 import { Country, State } from '@/components/types';
+import FilterBy from '@/components/FilterBy/FilterBy';
+import { FilterOption } from '@/components/FilterBy/FilterBy.types';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -27,48 +29,71 @@ const HomePage: React.FC = () => {
   const [center, setCenter] = useState<[number, number]>([20, 0]);
   const [mapKey, setMapKey] = useState(0);
 
-  const [selectedOption, setSelectedOption] = useState(() => {
+  const [mapType, setMapType] = useState(() => {
     const urlOption = searchParams ? searchParams.get('view') : null;
     return urlOption || 'cities';
   });
 
   const [data, setData] = useState([]);
   const [geoJsonData, setGeoJsonData] = useState<any>(null);
+  const [countries, setCountries] = useState<FilterOption[]>([]);
+  const [selectedCountry, setSelectedCountry] = useState<string>('');
 
   useEffect(() => {
     setPage(1);
     setMapKey((prevKey) => prevKey + 1);
-    if (selectedOption === 'countries' || selectedOption === 'states') {
+    if (mapType === 'countries' || mapType === 'states') {
       setMarkers([]);
     } else {
       setGeoJsonData(null);
     }
 
-    if (selectedOption === 'states') {
+    if (mapType === 'states') {
       setZoom(4);
       setCenter([37.09024, -95.712891]);
     } else {
       setZoom(3);
       setCenter([20, 0]);
     }
-  }, [selectedOption]);
+  }, [mapType]);
 
   useEffect(() => {
-    fetchData(selectedOption, page);
-    updateURL();
-    if (selectedOption === 'countries' || selectedOption === 'states') {
-      fetchFilteredGeoJsonData(selectedOption);
+    if (
+      (mapType === 'cities' || mapType === 'attractions') &&
+      countries.length === 0
+    ) {
+      fetchCountries();
     }
-  }, [selectedOption, page]);
 
-  const fetchData = async (view: string, page: number) => {
+    fetchData(mapType, page);
+    updateURL();
+    if (mapType === 'countries' || mapType === 'states') {
+      fetchFilteredGeoJsonData(mapType);
+    }
+  }, [mapType, page]);
+
+  const fetchData = async (view: string, page: number, country?: string) => {
     try {
-      const url = page ? `/api/${view}?page=${page}` : `/api/${view}`;
+      let url = page ? `/api/${view}?page=${page}` : `/api/${view}`;
+      if (country) {
+        url += `&country_id=${country}`;
+      }
+
       const response = await fetch(url);
       const result = await response.json();
       setHasPageProperty(!!(result && result.page));
       setData(result[view] || result);
       setTotal(result.total || result.length);
+
+      if (view === 'countries') {
+        setCountries(
+          result.countries.map((country: Country) => ({
+            id: country.id.toString(),
+            label: country.name,
+            value: country.id.toString(),
+          }))
+        );
+      }
 
       if (view === 'cities' || view === 'attractions') {
         const extractedMarkers = result[view].map((item: any) => ({
@@ -82,6 +107,22 @@ const HomePage: React.FC = () => {
       }
     } catch (error) {
       console.error(`Failed to fetch ${view}:`, error);
+    }
+  };
+
+  const fetchCountries = async () => {
+    try {
+      const response = await fetch('/api/countries');
+      const result = await response.json();
+      setCountries(
+        result.map((country: Country) => ({
+          id: country.id.toString(),
+          label: country.name,
+          value: country.id.toString(),
+        }))
+      );
+    } catch (error) {
+      console.error('Failed to fetch countries:', error);
     }
   };
 
@@ -119,35 +160,42 @@ const HomePage: React.FC = () => {
     const params = new URLSearchParams(
       searchParams ? searchParams.toString() : ''
     );
-    params.set('view', selectedOption);
+    params.set('view', mapType);
     params.set('page', page.toString());
     router.push(`?${params.toString()}`, { scroll: false });
   };
 
   const columns = useMemo(() => {
-    return selectedOption === 'cities'
+    return mapType === 'cities'
       ? [
           { key: 'name', label: 'City Name', sortable: true },
           { key: 'state_name', label: 'State', sortable: true },
           { key: 'country_name', label: 'Country', sortable: true },
         ]
-      : selectedOption === 'states'
+      : mapType === 'states'
         ? [
             { key: 'abbr', label: 'Abbr', sortable: false },
             { key: 'name', label: 'State Name', sortable: true },
             { key: 'country_name', label: 'Country', sortable: true },
           ]
-        : selectedOption === 'countries'
+        : mapType === 'countries'
           ? [{ key: 'name', label: 'Country Name', sortable: true }]
           : [
               { key: 'name', label: 'Site Name', sortable: true },
               { key: 'country_name', label: 'Country', sortable: true },
             ];
-  }, [selectedOption]);
+  }, [mapType]);
 
   const handlePageChange = (page: number) => {
     setPage(page);
-    fetchData(selectedOption, page);
+    fetchData(mapType, page);
+  };
+
+  const handleFilterChange = (selectedFilters: string[]) => {
+    const newSelectedCountry = selectedFilters[0];
+    setSelectedCountry(newSelectedCountry);
+    setPage(1);
+    fetchData(mapType, 1, newSelectedCountry);
   };
 
   const totalPages = Math.ceil(total / limit);
@@ -165,9 +213,9 @@ const HomePage: React.FC = () => {
           ].map((option) => (
             <button
               key={option.value}
-              onClick={() => setSelectedOption(option.value)}
+              onClick={() => setMapType(option.value)}
               className={`px-4 py-2 rounded ${
-                selectedOption === option.value
+                mapType === option.value
                   ? 'bg-blue-500 text-white'
                   : 'bg-gray-200 text-black'
               }`}
@@ -176,8 +224,7 @@ const HomePage: React.FC = () => {
             </button>
           ))}
         </div>
-        {(selectedOption === 'countries' || selectedOption === 'states') &&
-        geoJsonData ? (
+        {(mapType === 'countries' || mapType === 'states') && geoJsonData ? (
           <MapComponent
             geoJSON={geoJsonData}
             zoom={zoom}
@@ -194,15 +241,26 @@ const HomePage: React.FC = () => {
         )}
         <div className="bg-white shadow-md p-4 rounded">
           <h2 className="text-xl font-bold mb-4">
-            {selectedOption.charAt(0).toUpperCase() + selectedOption.slice(1)}{' '}
-            Data
+            {mapType.charAt(0).toUpperCase() + mapType.slice(1)} Data
           </h2>
+          {(mapType === 'cities' || mapType === 'attractions') &&
+            countries &&
+            countries.length > 0 && (
+              <FilterBy
+                options={countries}
+                selectedFilters={selectedCountry ? [selectedCountry] : []}
+                onFilterChange={handleFilterChange}
+                includeSelectAll={true}
+                selectAllLabel={'Select Country'}
+                multiple={false}
+              />
+            )}
           <DataTable
             columns={columns}
             data={data}
             onSort={(sortBy, sortOrder) => {
               console.log(
-                `Sorting ${selectedOption} by ${sortBy} in ${sortOrder} order`
+                `Sorting ${mapType} by ${sortBy} in ${sortOrder} order`
               );
             }}
           />
