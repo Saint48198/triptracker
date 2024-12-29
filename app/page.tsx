@@ -36,7 +36,7 @@ const HomePage: React.FC = () => {
 
   const [data, setData] = useState([]);
   const [geoJsonData, setGeoJsonData] = useState<any>(null);
-  const [countries, setCountries] = useState<FilterOption[]>([]);
+  const [countries, setCountries] = useState<Country[]>([]);
   const [selectedCountry, setSelectedCountry] = useState<string>('');
 
   useEffect(() => {
@@ -86,13 +86,7 @@ const HomePage: React.FC = () => {
       setTotal(result.total || result.length);
 
       if (view === 'countries') {
-        setCountries(
-          result.countries.map((country: Country) => ({
-            id: country.id.toString(),
-            label: country.name,
-            value: country.id.toString(),
-          }))
-        );
+        setCountries(countries);
       }
 
       if (view === 'cities' || view === 'attractions') {
@@ -114,13 +108,7 @@ const HomePage: React.FC = () => {
     try {
       const response = await fetch('/api/countries');
       const result = await response.json();
-      setCountries(
-        result.map((country: Country) => ({
-          id: country.id.toString(),
-          label: country.name,
-          value: country.id.toString(),
-        }))
-      );
+      setCountries(result);
     } catch (error) {
       console.error('Failed to fetch countries:', error);
     }
@@ -195,8 +183,42 @@ const HomePage: React.FC = () => {
     const newSelectedCountry = selectedFilters[0];
     setSelectedCountry(newSelectedCountry);
     setPage(1);
+
+    if (newSelectedCountry) {
+      // Find the selected country's details from the list of countries
+      const selectedCountryData = countries.find(
+        (country) => country.id.toString() === newSelectedCountry
+      );
+
+      if (
+        selectedCountryData &&
+        selectedCountryData.lat &&
+        selectedCountryData.lng
+      ) {
+        console.log(selectedCountryData);
+        // Update the map center
+        setCenter([selectedCountryData.lat, selectedCountryData.lng]);
+        setZoom(5); // Adjust the zoom level as needed
+      }
+    } else {
+      // Reset to the default map view
+      setCenter([20, 0]);
+      setZoom(3);
+    }
+
     fetchData(mapType, 1, newSelectedCountry);
   };
+  const handleMapTypeChange = (type: string) => {
+    setMapType(type);
+    setSelectedCountry('');
+    setPage(1);
+  };
+
+  const filterOptions: FilterOption[] = countries.map((country: Country) => ({
+    id: country.id.toString(),
+    label: country.name,
+    value: country.name,
+  }));
 
   const totalPages = Math.ceil(total / limit);
 
@@ -213,7 +235,7 @@ const HomePage: React.FC = () => {
           ].map((option) => (
             <button
               key={option.value}
-              onClick={() => setMapType(option.value)}
+              onClick={() => handleMapTypeChange(option.value)}
               className={`px-4 py-2 rounded ${
                 mapType === option.value
                   ? 'bg-blue-500 text-white'
@@ -247,7 +269,7 @@ const HomePage: React.FC = () => {
             countries &&
             countries.length > 0 && (
               <FilterBy
-                options={countries}
+                options={filterOptions}
                 selectedFilters={selectedCountry ? [selectedCountry] : []}
                 onFilterChange={handleFilterChange}
                 includeSelectAll={true}

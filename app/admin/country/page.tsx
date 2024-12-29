@@ -60,20 +60,32 @@ export default function CountryPage() {
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, abbreviation, lat, lng }),
+        body: JSON.stringify({
+          name,
+          abbreviation,
+          lat: parseFloat(lat),
+          lng: parseFloat(lng),
+          slug: geoMapId ?? name.toLowerCase().replace(/ /g, '-'),
+          geo_map_id: geoMapId ? geoMapId : null,
+        }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        const newAttractionId = data.id;
 
-        setMessage(
-          editingCountry
-            ? 'Country updated successfully!'
-            : 'Country added successfully!'
-        );
-        // Update the URL to include the new countryId
-        router.push(`/admin/country?id=${newAttractionId}`);
+        if (data.changes) {
+          const newCountryId = data.id ?? editingCountry?.id;
+
+          setMessage(
+            editingCountry
+              ? 'Country updated successfully!'
+              : 'Country added successfully!'
+          );
+          // Update the URL to include the new countryId
+          router.push(`/admin/country?id=${newCountryId}`);
+        } else {
+          setMessage('Failed to save country. No changes were made.');
+        }
       } else {
         setMessage('Failed to save country.');
       }
