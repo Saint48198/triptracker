@@ -8,6 +8,8 @@ import Footer from '@/components/Footer/Footer';
 import { FaSpinner } from 'react-icons/fa';
 import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
 import dynamic from 'next/dynamic';
+import Message from '@/components/Message/Message';
+import { handleResponse } from '@/utils/handleResponse';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -65,6 +67,8 @@ export default function CityPage() {
       setCountries(data);
     } catch (error) {
       console.error('Failed to fetch countries:', error);
+      setMessage('Failed to fetch countries.');
+      setMessageType('error');
     }
   };
 
@@ -75,6 +79,8 @@ export default function CityPage() {
       setStates(data);
     } catch (error) {
       console.error('Failed to fetch states:', error);
+      setMessage('Failed to fetch states.');
+      setMessageType('error');
     }
   };
 
@@ -92,6 +98,8 @@ export default function CityPage() {
       }
     } catch (error) {
       console.error('Failed to fetch city:', error);
+      setMessage('Failed to fetch city.');
+      setMessageType('error');
     }
   };
 
@@ -158,13 +166,6 @@ export default function CityPage() {
     }
   };
 
-  const handleSelectResult = (lat: number, lng: number) => {
-    setLat(lat.toString());
-    setLng(lng.toString());
-    setGeocodeResults([]);
-    setMessage(''); // Clear the message
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -194,21 +195,14 @@ export default function CityPage() {
         }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        const newAttractionId = data.id;
-
-        setMessage(
-          id ? 'City updated successfully!' : 'City added successfully!'
-        );
-        setMessageType('success');
-
-        // Update the URL to include the new cityId
-        router.push(`/admin/city?id=${newAttractionId}`);
-      } else {
-        setMessage('Failed to save city.');
-        setMessageType('error');
-      }
+      await handleResponse({
+        response,
+        entity: 'city',
+        editingEntity: id,
+        setMessage,
+        setMessageType,
+        router,
+      });
     } catch (error) {
       console.error('Failed to save city:', error);
       setMessage('An error occurred.');
@@ -227,40 +221,7 @@ export default function CityPage() {
           <h1 className="text-2xl font-bold mb-6">
             {id ? 'Edit City' : 'Add City'}
           </h1>
-          {message && (
-            <div
-              role="alert"
-              aria-live="assertive"
-              className={`mb-4 p-4 border rounded ${
-                messageType === 'error'
-                  ? 'text-red-700 bg-red-100 border-red-400'
-                  : 'text-green-700 bg-green-100 border-green-400'
-              }`}
-            >
-              <div>{message}</div>
-              {geocodeResults.length > 0 && (
-                <div className="mt-6">
-                  <h2 className="text-lg font-semibold mb-4">
-                    Select a Location
-                  </h2>
-                  <ul className="space-y-2">
-                    {geocodeResults.map((result: GeocodeResult, index) => (
-                      <li key={index}>
-                        <button
-                          onClick={() =>
-                            handleSelectResult(result.lat, result.lng)
-                          }
-                          className="text-blue-500 underline hover:text-blue-700"
-                        >
-                          {result.lat}, {result.lng}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
+          {message && <Message message={message} type={messageType}></Message>}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="name" className="block font-medium">

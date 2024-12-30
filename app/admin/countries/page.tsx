@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import { Country } from '@/components/types';
+import Message from '@/components/Message/Message';
 
 type SortKey = 'name' | 'abbreviation';
 type SortOrder = 'asc' | 'desc';
@@ -27,6 +28,7 @@ export default function CountriesPage() {
       setCountries(data);
     } catch (error) {
       console.error('Failed to fetch countries:', error);
+      setMessage('Failed to fetch countries.');
     }
   };
 
@@ -79,7 +81,7 @@ export default function CountriesPage() {
       <Navbar />
       <main className="container mx-auto px-4">
         <h1 className="text-2xl font-bold my-4">Countries</h1>
-        {message && <p className="mt-4">{message}</p>}
+        {message && <Message message={message} type="error"></Message>}
         <div className="flex justify-end mb-4">
           <button
             onClick={handleAddCountry}

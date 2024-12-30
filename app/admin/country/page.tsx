@@ -6,6 +6,8 @@ import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import { Country } from '@/components/types';
 import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
+import Message from '@/components/Message/Message';
+import { handleResponse } from '@/utils/handleResponse';
 
 export default function CountryPage() {
   const searchParams = useSearchParams();
@@ -18,6 +20,7 @@ export default function CountryPage() {
   const [lastVisited, setLastVisited] = useState(''); // State for last_visited
   const [geoMapId, setGeoMapId] = useState(''); // State for geo_map_id
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<'error' | 'success' | ''>('');
 
   const id = searchParams ? searchParams.get('id') : null; // Get `id` from query parameters
 
@@ -42,6 +45,8 @@ export default function CountryPage() {
       }
     } catch (error) {
       console.error('Failed to fetch country:', error);
+      setMessage('Failed to fetch country.');
+      setMessageType('error');
     }
   };
 
@@ -70,28 +75,18 @@ export default function CountryPage() {
         }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-
-        if (data.changes) {
-          const newCountryId = data.id ?? editingCountry?.id;
-
-          setMessage(
-            editingCountry
-              ? 'Country updated successfully!'
-              : 'Country added successfully!'
-          );
-          // Update the URL to include the new countryId
-          router.push(`/admin/country?id=${newCountryId}`);
-        } else {
-          setMessage('Failed to save country. No changes were made.');
-        }
-      } else {
-        setMessage('Failed to save country.');
-      }
+      await handleResponse({
+        response,
+        entity: 'country',
+        editingEntity: editingCountry,
+        setMessage,
+        setMessageType,
+        router,
+      });
     } catch (error) {
       console.error('Failed to save country:', error);
       setMessage('An error occurred.');
+      setMessageType('error');
     }
   };
 
@@ -106,7 +101,7 @@ export default function CountryPage() {
           <h1 className="text-2xl font-bold my-4">
             {editingCountry ? 'Edit Country' : 'Add Country'}
           </h1>
-          {message && <p className="mt-4">{message}</p>}
+          {message && <Message message={message} type={messageType}></Message>}
           <form onSubmit={handleAddOrUpdateCountry} className="space-y-4">
             <div>
               <label htmlFor="name" className="block font-medium">

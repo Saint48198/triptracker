@@ -8,6 +8,8 @@ import { Attraction, Country, GeocodeResult } from '@/components/types';
 import { FaSpinner } from 'react-icons/fa';
 import dynamic from 'next/dynamic';
 import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
+import Message from '@/components/Message/Message';
+import { handleResponse } from '@/utils/handleResponse';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -25,9 +27,9 @@ export default function AttractionPage() {
   const [lat, setLat] = useState('');
   const [lng, setLng] = useState('');
   const [lastVisited, setLastVisited] = useState('');
-  const [messageType, setMessageType] = useState<'error' | 'success' | ''>('');
   const [geocodeResults, setGeocodeResults] = useState<GeocodeResult[]>([]);
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<'error' | 'success' | ''>('');
   const [loading, setLoading] = useState(false); // Add loading state
 
   useEffect(() => {
@@ -42,6 +44,7 @@ export default function AttractionPage() {
       setCountries(data);
     } catch (error) {
       console.error('Failed to fetch countries:', error);
+      setMessage('Failed to fetch countries.');
     }
   };
 
@@ -63,13 +66,6 @@ export default function AttractionPage() {
       setMessage('Failed to fetch attraction.');
       console.error('Failed to fetch attraction:', error);
     }
-  };
-
-  const handleSelectResult = (lat: number, lng: number) => {
-    setLat(lat.toString());
-    setLng(lng.toString());
-    setGeocodeResults([]);
-    setMessage(''); // Clear the message
   };
 
   const handleGeocode = async () => {
@@ -157,21 +153,14 @@ export default function AttractionPage() {
         }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        const newAttractionId = data.id;
-
-        setMessage(
-          attractionId
-            ? 'Attraction updated successfully!'
-            : 'Attraction added successfully!'
-        );
-        // Update the URL to include the new attractionId
-        router.push(`/admin/attraction?id=${newAttractionId}`);
-      } else {
-        setMessage('Failed to save attraction.');
-        setMessageType('error');
-      }
+      await handleResponse({
+        response,
+        entity: 'attraction',
+        editingEntity: attractionId,
+        setMessage,
+        setMessageType,
+        router,
+      });
     } catch (error) {
       console.error('Failed to save attraction:', error);
       setMessage('An error occurred.');
@@ -190,40 +179,7 @@ export default function AttractionPage() {
           <h1 className="text-2xl font-bold mb-6">
             {attractionId ? 'Edit Site' : 'Add Site'}
           </h1>
-          {message && (
-            <div
-              role="alert"
-              aria-live="assertive"
-              className={`mb-4 p-4 border rounded ${
-                messageType === 'error'
-                  ? 'text-red-700 bg-red-100 border-red-400'
-                  : 'text-green-700 bg-green-100 border-green-400'
-              }`}
-            >
-              <div>{message}</div>
-              {geocodeResults.length > 0 && (
-                <div className="mt-6">
-                  <h2 className="text-lg font-semibold mb-4">
-                    Select a Location
-                  </h2>
-                  <ul className="space-y-2">
-                    {geocodeResults.map((result: GeocodeResult, index) => (
-                      <li key={index}>
-                        <button
-                          onClick={() =>
-                            handleSelectResult(result.lat, result.lng)
-                          }
-                          className="text-blue-500 underline hover:text-blue-700"
-                        >
-                          {result.lat}, {result.lng}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
+          {message && <Message message={message} type={messageType}></Message>}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="name" className="block font-medium">

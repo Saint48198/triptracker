@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import { City, Country } from '@/components/types';
 import Pagination from '@/components/Pagination/Pagination';
+import Message from '@/components/Message/Message';
 
 export default function CitiesPage() {
   const router = useRouter();
@@ -61,6 +62,7 @@ export default function CitiesPage() {
       setTotal(data.total);
     } catch (error) {
       console.error('Failed to fetch cities:', error);
+      setMessage('Failed to fetch cities.');
     }
   };
 
@@ -90,8 +92,6 @@ export default function CitiesPage() {
 
   const handlePageChange = (page: number) => {
     setPage(page);
-    console.log(`Changed to page: ${page}`);
-    // Add your logic to fetch new data based on the page
   };
 
   const totalPages = Math.ceil(total / limit);
@@ -119,7 +119,7 @@ export default function CitiesPage() {
       <Navbar />
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Cities</h1>
-        {message && <p className="mb-4 text-green-500">{message}</p>}
+        {message && <Message message={message} type="error"></Message>}
         <div className="flex justify-between mb-4">
           <div>
             <label className="block mb-2 font-medium">Filter by Country</label>

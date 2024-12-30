@@ -10,6 +10,7 @@ import { Country } from '@/components/types';
 import Pagination from '@/components/Pagination/Pagination';
 import FilterBy from '@/components/FilterBy/FilterBy';
 import { FilterOption } from '@/components/FilterBy/FilterBy.types';
+import Message from '@/components/Message/Message';
 
 export default function AttractionsPage() {
   const router = useRouter();
@@ -85,6 +86,7 @@ export default function AttractionsPage() {
         setPage(1);
       }
     } catch (error) {
+      setMessage('Failed to fetch attractions.');
       console.error('Failed to fetch attractions:', error);
     }
   };
@@ -143,7 +145,7 @@ export default function AttractionsPage() {
       <Navbar />
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Attractions</h1>
-        {message && <p className="mb-4 text-green-500">{message}</p>}
+        {message && <Message message={message} type="error"></Message>}
         {/* Filter */}
         <div className="flex justify-between mb-4">
           <FilterBy

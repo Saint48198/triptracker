@@ -6,6 +6,8 @@ import { Country } from '@/components/types';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
+import { handleResponse } from '@/utils/handleResponse';
+import Message from '@/components/Message/Message';
 
 export default function StatePage() {
   const searchParams = useSearchParams();
@@ -15,6 +17,7 @@ export default function StatePage() {
   const [countryId, setCountryId] = useState('');
   const [lastVisited, setLastVisited] = useState('');
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<'error' | 'success' | ''>('');
   const [countries, setCountries] = useState([]);
   const id = searchParams ? searchParams.get('id') : null; // Get the ID from the query string
 
@@ -33,6 +36,8 @@ export default function StatePage() {
       setCountries(data);
     } catch (error) {
       console.error('Failed to fetch countries:', error);
+      setMessage('Failed to fetch countries.');
+      setMessageType('error');
     }
   };
 
@@ -46,10 +51,13 @@ export default function StatePage() {
         setCountryId(data.country_id.toString());
       } else {
         console.error('Failed to delete state:', response.statusText);
-        // Handle failure (e.g., show error message)
+        setMessage('Failed to fetch state.');
+        setMessageType('error');
       }
     } catch (error) {
       console.error('Failed to fetch state:', error);
+      setMessage('Failed to fetch state.');
+      setMessageType('error');
     }
   };
 
@@ -69,22 +77,18 @@ export default function StatePage() {
         body: JSON.stringify({ name, abbr, country_id: Number(countryId) }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        const newAttractionId = data.id;
-
-        setMessage(
-          id ? 'State updated successfully!' : 'State added successfully!'
-        );
-
-        // Update the URL to include the new stateId
-        router.push(`/admin/state?id=${newAttractionId}`);
-      } else {
-        setMessage('Failed to save state.');
-      }
+      await handleResponse({
+        response,
+        entity: 'state',
+        editingEntity: id,
+        setMessage,
+        setMessageType,
+        router,
+      });
     } catch (error) {
       console.error('Failed to save state:', error);
       setMessage('An error occurred.');
+      setMessageType('error');
     }
   };
 
@@ -99,7 +103,7 @@ export default function StatePage() {
           <h1 className="text-2xl font-bold mb-6">
             {id ? 'Edit State' : 'Add State'}
           </h1>
-          {message && <p className="mb-4 text-green-500">{message}</p>}
+          {message && <Message message={message} type={messageType}></Message>}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="name" className="block font-medium">

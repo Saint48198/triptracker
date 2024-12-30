@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import { State, Country } from '@/components/types';
+import Message from '@/components/Message/Message';
 
 export default function StatesPage() {
   const router = useRouter();
@@ -19,10 +20,11 @@ export default function StatesPage() {
     try {
       const response = await fetch('/api/states');
       const data = await response.json();
-      console.log(data);
+
       setStates(data);
     } catch (error) {
       console.error('Failed to fetch states:', error);
+      setMessage('Failed to fetch states.');
     }
   };
 
@@ -49,7 +51,7 @@ export default function StatesPage() {
       <Navbar />
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">States</h1>
-        {message && <p className="mb-4 text-green-500">{message}</p>}
+        {message && <Message message={message} type="error"></Message>}
         <div className="mb-4 flex justify-end">
           <button
             onClick={() => router.push('/admin/state')}
