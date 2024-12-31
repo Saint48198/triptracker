@@ -27,6 +27,7 @@ export default function CityPage() {
   const [countryId, setCountryId] = useState('');
   const [stateId, setStateId] = useState('');
   const [lastVisited, setLastVisited] = useState('');
+  const [wikiTerm, setWikiTerm] = useState(''); // Add state for wiki_term
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'error' | 'success' | ''>('');
   const [geocodeResults, setGeocodeResults] = useState<GeocodeResult[]>([]); // Store geocode results
@@ -95,6 +96,7 @@ export default function CityPage() {
         setCountryId(data.country_id.toString());
         setStateId(data.state_id?.toString() || '');
         setLastVisited(data.last_visited || '');
+        setWikiTerm(data.wiki_term || ''); // Set wiki_term
       }
     } catch (error) {
       console.error('Failed to fetch city:', error);
@@ -192,6 +194,7 @@ export default function CityPage() {
           state_id: stateId || null,
           country_id: countryId,
           last_visited: lastVisited || null,
+          wiki_term: wikiTerm, // Include wiki_term in the request body
         }),
       });
 
@@ -276,6 +279,56 @@ export default function CityPage() {
               </select>
             </div>
             <hr />
+            <div className="mx-auto">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <label
+                    htmlFor="lat"
+                    className="text-gray-700 font-medium whitespace-nowrap"
+                  >
+                    Latitude:
+                  </label>
+                  <input
+                    type="number"
+                    id="lat"
+                    value={lat}
+                    onChange={(e) => setLat(e.target.value)}
+                    className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                    required
+                  />
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <label
+                    htmlFor="lng"
+                    className="text-gray-700 font-medium whitespace-nowrap"
+                  >
+                    Longitude:
+                  </label>
+                  <input
+                    type="number"
+                    id="lng"
+                    value={lng}
+                    onChange={(e) => setLng(e.target.value)}
+                    className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                    required
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleGeocode}
+                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 flex items-center"
+                  disabled={loading} // Disable button while loading
+                >
+                  {loading ? (
+                    <FaSpinner className="animate-spin mr-2" /> // Show spinner icon while loading
+                  ) : (
+                    'Look Up Lat/Lng'
+                  )}
+                </button>
+              </div>
+            </div>
             {lat && lng && (
               <div>
                 <MapComponent
@@ -290,44 +343,7 @@ export default function CityPage() {
                 />
               </div>
             )}
-            <button
-              type="button"
-              onClick={handleGeocode}
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 flex items-center"
-              disabled={loading} // Disable button while loading
-            >
-              {loading ? (
-                <FaSpinner className="animate-spin mr-2" /> // Show spinner icon while loading
-              ) : (
-                'Look Up Lat/Lng'
-              )}
-            </button>
-            <div>
-              <label htmlFor="lat" className="block font-medium">
-                Latitude
-              </label>
-              <input
-                type="number"
-                id="lat"
-                value={lat}
-                onChange={(e) => setLat(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="lng" className="block font-medium">
-                Longitude
-              </label>
-              <input
-                type="number"
-                id="lng"
-                value={lng}
-                onChange={(e) => setLng(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
-                required
-              />
-            </div>
+            <hr />
             <div>
               <label htmlFor="lastVisited" className="block font-medium">
                 Last Visited
@@ -339,6 +355,22 @@ export default function CityPage() {
                 onChange={(e) => setLastVisited(e.target.value)}
                 className="w-full border px-4 py-2 rounded"
               />
+            </div>
+            <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
+              <input
+                type="text"
+                id="wikiTerm"
+                value={wikiTerm}
+                onChange={(e) => setWikiTerm(e.target.value)}
+                className="flex-grow px-4 py-2 text-gray-700 focus:outline-none"
+                aria-label={'Wiki Term'}
+              />
+              <button
+                type="button"
+                className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
+              >
+                Get Wiki Info
+              </button>
             </div>
             <hr />
             <button

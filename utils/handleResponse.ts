@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 interface HandleResponseParams {
   response: Response;
   entity: 'city' | 'attraction' | 'country' | 'state';
-  editingEntity: string;
+  editingEntity: string | null;
   setMessage: (message: string) => void;
   setMessageType: (type: 'error' | 'success' | '') => void;
   router: ReturnType<typeof useRouter>;

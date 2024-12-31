@@ -19,9 +19,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     // Fetch all attractions
     try {
       let query = `
-        SELECT attractions.id, attractions.name, attractions.lat, attractions.lng, countries.name AS country_name
-        FROM attractions
-        JOIN countries ON attractions.country_id = countries.id
+          SELECT attractions.id, attractions.name, attractions.lat, attractions.lng, attractions.wiki_term, countries.name AS country_name
+          FROM attractions
+                   JOIN countries ON attractions.country_id = countries.id
       `;
 
       const params: (string | number)[] = [];
@@ -65,6 +65,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       lat,
       lng,
       last_visited,
+      wiki_term,
     } = req.body;
 
     if (!name || !country_id || !lat || !lng) {
@@ -75,8 +76,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
     try {
       const stmt = db.prepare(
-        `INSERT INTO attractions (name, country_id, is_unesco, is_national_park, lat, lng, last_visited)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO attractions (name, country_id, is_unesco, is_national_park, lat, lng, last_visited, wiki_term)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
       );
 
       // Ensure correct data types
@@ -87,7 +88,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         is_national_park ? 1 : 0, // Convert boolean to integer
         parseFloat(lat), // Convert latitude to a float
         parseFloat(lng), // Convert longitude to a float
-        last_visited || null // Convert empty or undefined values to null
+        last_visited || null, // Convert empty or undefined values to null
+        wiki_term
       );
 
       res.status(201).json({ message: 'Attraction added successfully.' });

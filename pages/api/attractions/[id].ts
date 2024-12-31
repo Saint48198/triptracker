@@ -5,10 +5,10 @@ const getAttractionById = (id: string) => {
   return db
     .prepare(
       `SELECT attractions.id, attractions.name, attractions.is_unesco, attractions.is_national_park,
-            attractions.lat, attractions.lng, attractions.last_visited, countries.id as country_id
-     FROM attractions
-     JOIN countries ON attractions.country_id = countries.id
-     WHERE attractions.id = ?`
+              attractions.lat, attractions.lng, attractions.last_visited, attractions.wiki_term, countries.id as country_id
+       FROM attractions
+                JOIN countries ON attractions.country_id = countries.id
+       WHERE attractions.id = ?`
     )
     .get(id);
 };
@@ -44,6 +44,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       lat,
       lng,
       last_visited,
+      wiki_term,
     } = req.body;
 
     if (!name || !country_id || !lat || !lng) {
@@ -55,7 +56,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
       const stmt = db.prepare(
         `UPDATE attractions
-         SET name = ?, country_id = ?, is_unesco = ?, is_national_park = ?, lat = ?, lng = ?, last_visited = ?
+         SET name = ?, country_id = ?, is_unesco = ?, is_national_park = ?, lat = ?, lng = ?, last_visited = ?, wiki_term = ?
          WHERE id = ?`
       );
 
@@ -67,6 +68,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         parseFloat(lat), // Convert latitude to a float
         parseFloat(lng), // Convert longitude to a float
         last_visited || null, // Convert empty or undefined values to null
+        wiki_term,
         id
       );
 

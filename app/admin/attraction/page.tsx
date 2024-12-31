@@ -27,6 +27,7 @@ export default function AttractionPage() {
   const [lat, setLat] = useState('');
   const [lng, setLng] = useState('');
   const [lastVisited, setLastVisited] = useState('');
+  const [wikiTerm, setWikiTerm] = useState(''); // Add state for wiki_text
   const [geocodeResults, setGeocodeResults] = useState<GeocodeResult[]>([]);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'error' | 'success' | ''>('');
@@ -60,6 +61,7 @@ export default function AttractionPage() {
         setLat(data.lat.toString());
         setLng(data.lng.toString());
         setLastVisited(data.last_visited || '');
+        setWikiTerm(data.wiki_term || '');
       }
     } catch (error) {
       setMessageType('error');
@@ -150,6 +152,7 @@ export default function AttractionPage() {
           lat,
           lng,
           last_visited: lastVisited || null,
+          wiki_term: wikiTerm, // Include wiki_term in the request body
         }),
       });
 
@@ -299,6 +302,17 @@ export default function AttractionPage() {
                 id="lastVisited"
                 value={lastVisited}
                 onChange={(e) => setLastVisited(e.target.value)}
+                className="w-full border px-4 py-2 rounded"
+              />
+            </div>
+            <div>
+              <label htmlFor="wikiTerm" className="block font-medium">
+                Wiki Text
+              </label>
+              <textarea
+                id="wikiTerm"
+                value={wikiTerm}
+                onChange={(e) => setWikiTerm(e.target.value)}
                 className="w-full border px-4 py-2 rounded"
               />
             </div>

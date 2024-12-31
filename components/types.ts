@@ -48,6 +48,7 @@ export interface Attraction {
   last_visited?: string;
   country_id: number;
   country_name?: string;
+  wiki_term?: string;
 }
 
 export interface GeocodeResult {

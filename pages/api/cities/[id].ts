@@ -13,7 +13,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
                   cities.country_id AS country_id,
                   countries.name AS country_name,
                   cities.state_id AS state_id,
-                  states.name AS state_name
+                  states.name AS state_name,
+                  cities.wiki_term
            FROM cities
                     LEFT JOIN countries ON cities.country_id = countries.id
                     LEFT JOIN states ON cities.state_id = states.id
@@ -32,7 +33,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     }
   } else if (req.method === 'PUT') {
     // Update a city by id
-    const { name, lat, lng, state_id, country_id, last_visited } = req.body;
+    const { name, lat, lng, state_id, country_id, last_visited, wiki_term } =
+      req.body;
 
     if (!name || !lat || !lng || !country_id) {
       return res.status(400).json({
@@ -42,7 +44,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
     try {
       const stmt = db.prepare(
-        'UPDATE cities SET name = ?, lat = ?, lng = ?, state_id = ?, country_id = ?, last_visited = ? WHERE id = ?'
+        'UPDATE cities SET name = ?, lat = ?, lng = ?, state_id = ?, country_id = ?, last_visited = ?, wiki_term = ? WHERE id = ?'
       );
       const result = stmt.run(
         name,
@@ -51,6 +53,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         state_id || null,
         country_id,
         last_visited,
+        wiki_term,
         id
       );
 
