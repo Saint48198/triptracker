@@ -5,7 +5,6 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Country, GeocodeResult, State } from '@/components/types';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
-import { FaSpinner } from 'react-icons/fa';
 import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
 import dynamic from 'next/dynamic';
 import Message from '@/components/Message/Message';
@@ -16,6 +15,12 @@ import ActionButton from '@/components/ActionButton/ActionButton';
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
 });
+
+interface WikiInfo {
+  title: string;
+  intro: string;
+  url: string;
+}
 
 export default function CityPage() {
   const searchParams = useSearchParams();
@@ -29,7 +34,8 @@ export default function CityPage() {
   const [countryId, setCountryId] = useState('');
   const [stateId, setStateId] = useState('');
   const [lastVisited, setLastVisited] = useState('');
-  const [wikiTerm, setWikiTerm] = useState(''); // Add state for wiki_term
+  const [wikiTerm, setWikiTerm] = useState('');
+  const [wikiInfo, setWikiInfo] = useState<WikiInfo | null>(null);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'error' | 'success' | ''>('');
   const [geocodeResults, setGeocodeResults] = useState<GeocodeResult[]>([]); // Store geocode results
@@ -44,6 +50,12 @@ export default function CityPage() {
       fetchCity(id);
     }
   }, [id]);
+
+  useEffect(() => {
+    if (wikiTerm && wikiTerm.trim()) {
+      handleWikiLookup();
+    }
+  }, [wikiTerm]);
 
   useEffect(() => {
     // Filter states when countryId changes
@@ -167,6 +179,24 @@ export default function CityPage() {
       setMessageType('error');
     } finally {
       setLoading(false); // Set loading to false after the API call
+    }
+  };
+
+  const handleWikiLookup = async () => {
+    try {
+      const response = await fetch(`/api/info?query=${wikiTerm}`);
+      if (response.ok) {
+        const data: WikiInfo = await response.json();
+        setWikiInfo(data);
+      } else {
+        console.error('Failed to fetch wiki info');
+        setMessage('Failed to fetch wiki info.');
+        setMessageType('error');
+      }
+    } catch (error) {
+      console.error('Error fetching wiki info:', error);
+      setMessage('An error occurred.');
+      setMessageType('error');
     }
   };
 
@@ -331,10 +361,27 @@ export default function CityPage() {
               <button
                 type="button"
                 className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
+                onClick={handleWikiLookup}
               >
                 Get Wiki Info
               </button>
             </div>
+            <article className="mt-4">
+              {wikiInfo && (
+                <div>
+                  <h3 className="text-lg font-bold">{wikiInfo.title}</h3>
+                  <p>{wikiInfo.intro}</p>
+                  <a
+                    href={wikiInfo.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:underline"
+                  >
+                    Read more
+                  </a>
+                </div>
+              )}
+            </article>
             <hr />
             <ActionButton type={'submit'} disabled={loading}>
               {id ? 'Update City' : 'Add City'}
