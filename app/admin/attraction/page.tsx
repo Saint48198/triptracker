@@ -10,6 +10,7 @@ import dynamic from 'next/dynamic';
 import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
 import Message from '@/components/Message/Message';
 import { handleResponse } from '@/utils/handleResponse';
+import LatLngField from '@/components/LatLngField/LatLngField';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -184,6 +185,7 @@ export default function AttractionPage() {
           </h1>
           {message && <Message message={message} type={messageType}></Message>}
           <form onSubmit={handleSubmit} className="space-y-4">
+            <h2 className="text-lg font-semibold underline">Details</h2>
             <div>
               <label htmlFor="name" className="block font-medium">
                 Site Name
@@ -197,7 +199,7 @@ export default function AttractionPage() {
                 required
               />
             </div>
-            <hr />
+            <h2 className="text-xl font-bold">Details</h2>
             <div>
               <label htmlFor="countryId" className="block font-medium">
                 Country
@@ -239,7 +241,29 @@ export default function AttractionPage() {
                 onChange={(e) => setIsNationalPark(e.target.checked)}
               />
             </div>
-            <hr />
+            <div>
+              <label htmlFor="lastVisited" className="block font-medium">
+                Last Visited
+              </label>
+              <input
+                type="month"
+                id="lastVisited"
+                value={lastVisited}
+                onChange={(e) => setLastVisited(e.target.value)}
+                className="w-full border px-4 py-2 rounded"
+              />
+            </div>
+            <h2 className="text-xl font-bold">Location</h2>
+            <LatLngField
+              latLabel="Latitude"
+              lat={parseFloat(lat)}
+              lngLabel="Longitude"
+              lng={parseFloat(lng)}
+              isLoading={loading}
+              onLatChange={(lat) => setLat(lat.toString())}
+              onLngChange={(lng) => setLng(lng.toString())}
+              onLookup={handleGeocode}
+            />
             {lat && lng && (
               <div>
                 <MapComponent
@@ -254,57 +278,7 @@ export default function AttractionPage() {
                 />
               </div>
             )}
-            <button
-              type="button"
-              onClick={handleGeocode}
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 flex items-center"
-              disabled={loading} // Disable button while loading
-            >
-              {loading ? (
-                <FaSpinner className="animate-spin mr-2" /> // Show spinner icon while loading
-              ) : (
-                'Look Up Lat/Lng'
-              )}
-            </button>
-            <div>
-              <label htmlFor="lat" className="block font-medium">
-                Latitude
-              </label>
-              <input
-                type="number"
-                id="lat"
-                value={lat}
-                onChange={(e) => setLat(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="lng" className="block font-medium">
-                Longitude
-              </label>
-              <input
-                type="number"
-                id="lng"
-                value={lng}
-                onChange={(e) => setLng(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
-                required
-              />
-            </div>
-            <hr />
-            <div>
-              <label htmlFor="lastVisited" className="block font-medium">
-                Last Visited
-              </label>
-              <input
-                type="month"
-                id="lastVisited"
-                value={lastVisited}
-                onChange={(e) => setLastVisited(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
-              />
-            </div>
+            <h2 className="text-xl font-bold">Info</h2>
             <div>
               <label htmlFor="wikiTerm" className="block font-medium">
                 Wiki Text
