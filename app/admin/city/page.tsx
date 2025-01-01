@@ -11,6 +11,7 @@ import dynamic from 'next/dynamic';
 import Message from '@/components/Message/Message';
 import { handleResponse } from '@/utils/handleResponse';
 import LatLngField from '@/components/LatLngField/LatLngField';
+import ActionButton from '@/components/ActionButton/ActionButton';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -335,12 +336,9 @@ export default function CityPage() {
               </button>
             </div>
             <hr />
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
+            <ActionButton type={'submit'} disabled={loading}>
               {id ? 'Update City' : 'Add City'}
-            </button>
+            </ActionButton>
             &nbsp;
             <button
               onClick={() => router.push('/admin/cities')}

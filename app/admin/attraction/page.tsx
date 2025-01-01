@@ -11,6 +11,7 @@ import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
 import Message from '@/components/Message/Message';
 import { handleResponse } from '@/utils/handleResponse';
 import LatLngField from '@/components/LatLngField/LatLngField';
+import ActionButton from '@/components/ActionButton/ActionButton';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -290,12 +291,9 @@ export default function AttractionPage() {
                 className="w-full border px-4 py-2 rounded"
               />
             </div>
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
+            <ActionButton type={'submit'} disabled={loading}>
               {attractionId ? 'Update Attraction' : 'Add Attraction'}
-            </button>
+            </ActionButton>
             &nbsp;
             <button
               onClick={() => router.push('/admin/attractions')}
