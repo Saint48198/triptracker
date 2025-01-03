@@ -3,17 +3,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-interface Role {
-  id: number;
-  name: string;
-}
-
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  roles: Role[];
-}
+import { Role, User } from '@/types/UserTypes';
 
 const UsersPage = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -215,33 +205,40 @@ const UsersPage = () => {
       )}
       <div className="mt-8">
         <h2 className="text-xl font-bold mb-4">Users</h2>
-        <ul className="bg-white shadow rounded divide-y">
-          {users.map((user) => (
-            <li key={user.id} className="p-4 flex justify-between items-center">
-              <div>
-                <p className="font-medium">{user.username}</p>
-                <p className="text-sm text-gray-600">{user.email}</p>
-                <p className="text-sm text-gray-600">
-                  Roles: {user.roles.map((role) => role.name).join(', ')}
-                </p>
-              </div>
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => handleEditUser(user)}
-                  className="bg-yellow-500 text-white px-4 py-2 rounded"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteUser(user.id)}
-                  className="bg-red-500 text-white px-4 py-2 rounded"
-                >
-                  Delete
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+        {users.length === 0 ? (
+          <p className="text-gray-500">No users available.</p>
+        ) : (
+          <ul className="bg-white shadow rounded divide-y">
+            {users.map((user) => (
+              <li
+                key={user.id}
+                className="p-4 flex justify-between items-center"
+              >
+                <div>
+                  <p className="font-medium">{user.username}</p>
+                  <p className="text-sm text-gray-600">{user.email}</p>
+                  <p className="text-sm text-gray-600">
+                    Roles: {user.roles.map((role) => role.name).join(', ')}
+                  </p>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleEditUser(user)}
+                    className="bg-yellow-500 text-white px-4 py-2 rounded"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteUser(user.id)}
+                    className="bg-red-500 text-white px-4 py-2 rounded"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

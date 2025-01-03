@@ -2,11 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-
-interface Role {
-  id: number;
-  name: string;
-}
+import { Role } from '@/types/UserTypes';
 
 const RolesPage = () => {
   const [roles, setRoles] = useState<Role[]>([]);
@@ -111,29 +107,36 @@ const RolesPage = () => {
       )}
       <div className="mt-8">
         <h2 className="text-xl font-bold mb-4">Roles</h2>
-        <ul className="bg-white shadow rounded divide-y">
-          {roles.map((role) => (
-            <li key={role.id} className="p-4 flex justify-between items-center">
-              <div>
-                <p className="font-medium">{role.name}</p>
-              </div>
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => handleEditRole(role)}
-                  className="bg-yellow-500 text-white px-4 py-2 rounded"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteRole(role.id)}
-                  className="bg-red-500 text-white px-4 py-2 rounded"
-                >
-                  Delete
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+        {roles.length === 0 ? (
+          <p className="text-gray-500">No roles available.</p>
+        ) : (
+          <ul className="bg-white shadow rounded divide-y">
+            {roles.map((role) => (
+              <li
+                key={role.id}
+                className="p-4 flex justify-between items-center"
+              >
+                <div>
+                  <p className="font-medium">{role.name}</p>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleEditRole(role)}
+                    className="bg-yellow-500 text-white px-4 py-2 rounded"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteRole(role.id)}
+                    className="bg-red-500 text-white px-4 py-2 rounded"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
