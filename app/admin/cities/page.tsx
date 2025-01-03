@@ -4,9 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
-import { City, Country } from '@/components/types';
 import Pagination from '@/components/Pagination/Pagination';
 import Message from '@/components/Message/Message';
+import { Country, City } from '@/types/ContentTypes';
 
 export default function CitiesPage() {
   const router = useRouter();

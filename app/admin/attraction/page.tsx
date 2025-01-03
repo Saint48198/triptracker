@@ -4,14 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
-import { Attraction, Country, GeocodeResult } from '@/components/types';
-import { FaSpinner } from 'react-icons/fa';
 import dynamic from 'next/dynamic';
 import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
 import Message from '@/components/Message/Message';
 import { handleResponse } from '@/utils/handleResponse';
 import LatLngField from '@/components/LatLngField/LatLngField';
 import ActionButton from '@/components/ActionButton/ActionButton';
+import { Country, Attraction } from '@/types/ContentTypes';
+import { GeocodeResult } from '@/types/MapTypes';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,

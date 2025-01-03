@@ -6,11 +6,11 @@ import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import DataTable from '@/components/DataTable/DataTable';
 import { Column } from '@/components/DataTable/DataTable.types';
-import { Country } from '@/components/types';
 import Pagination from '@/components/Pagination/Pagination';
 import FilterBy from '@/components/FilterBy/FilterBy';
 import { FilterOption } from '@/components/FilterBy/FilterBy.types';
 import Message from '@/components/Message/Message';
+import { Country } from '@/types/ContentTypes';
 
 export default function AttractionsPage() {
   const router = useRouter();
