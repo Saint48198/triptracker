@@ -34,7 +34,11 @@ const UsersPage = () => {
   const fetchUsers = async () => {
     try {
       const { data } = await axios.get('/api/users');
-      setUsers(data);
+      const usersArray = data.map((user: any) => ({
+        ...user,
+        roles: user.roles.split(','),
+      }));
+      setUsers(usersArray);
     } catch (error) {
       console.error('Failed to fetch users:', error);
     }
@@ -290,7 +294,7 @@ const UsersPage = () => {
               <tr key={user.id} className="border-t">
                 <td className="border px-4 py-2">{user.username}</td>
                 <td className="border px-4 py-2">{user.email}</td>
-                <td className="border px-4 py-2">{user.roles}</td>
+                <td className="border px-4 py-2">{user.roles.join(', ')}</td>
                 <td className="border px-4 py-2 space-x-2">
                   <button
                     onClick={() => {
