@@ -1,40 +1,112 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
-type Role = { id: number; name: string };
-type User = { id?: number; username: string; roles: string[] };
+interface Role {
+  id: number;
+  name: string;
+}
 
-const ManageUserPage: React.FC = () => {
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  roles: Role[];
+}
+
+const UsersPage = () => {
+  const [users, setUsers] = useState<User[]>([]);
+  const [formVisible, setFormVisible] = useState(false);
+  const [formData, setFormData] = useState<{
+    id: number | null;
+    username: string;
+    email: string;
+    password: string;
+    roles: string[];
+  }>({
+    id: null,
+    username: '',
+    email: '',
+    password: '',
+    roles: ['user'],
+  });
   const [roles, setRoles] = useState<Role[]>([]);
-  const [user, setUser] = useState<User>({ username: '', roles: [] });
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const router = useRouter();
-  const userId = router.query.id as string;
 
   useEffect(() => {
-    const fetchRoles = async () => {
-      const res = await fetch('/api/admin/roles');
-      const data = await res.json();
-      setRoles(data.roles);
-    };
-
-    const fetchUser = async () => {
-      if (!userId) return;
-
-      const res = await fetch(`/api/admin/user?id=${userId}`);
-      const data = await res.json();
-      setUser({ username: data.username, roles: data.roles });
-    };
-
+    fetchUsers();
     fetchRoles();
-    if (userId) fetchUser();
-  }, [userId]);
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const { data } = await axios.get('/api/users');
+      setUsers(data);
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
+    }
+  };
+
+  const fetchRoles = async () => {
+    try {
+      const { data } = await axios.get('/api/roles');
+      setRoles(data);
+    } catch (error) {
+      console.error('Failed to fetch roles:', error);
+    }
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (formData.id) {
+        await axios.put(`/api/users/${formData.id}`, formData);
+      } else {
+        const { password, ...rest } = formData;
+        await axios.post('/api/users', { ...rest, password });
+      }
+      fetchUsers();
+      resetForm();
+    } catch (error) {
+      console.error('Failed to save user:', error);
+    }
+  };
+
+  const handleDeleteUser = async (id: number) => {
+    if (confirm('Are you sure you want to delete this user?')) {
+      try {
+        await axios.delete(`/api/users/${id}`);
+        fetchUsers();
+      } catch (error) {
+        console.error('Failed to delete user:', error);
+      }
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      id: null,
+      username: '',
+      email: '',
+      password: '',
+      roles: ['user'],
+    });
+    setFormVisible(false);
+  };
+
+  const handleEditUser = (user: User) => {
+    setFormData({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      password: '',
+      roles: user.roles.map((role) => role.name),
+    });
+    setFormVisible(true);
+  };
 
   const handleRoleChange = (role: string) => {
-    setUser((prev) => ({
+    setFormData((prev) => ({
       ...prev,
       roles: prev.roles.includes(role)
         ? prev.roles.filter((r) => r !== role)
@@ -42,82 +114,137 @@ const ManageUserPage: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const res = await fetch('/api/admin/manage-user', {
-        method: userId ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...user, id: userId }),
-      });
-
-      if (!res.ok) {
-        throw new Error(await res.text());
-      }
-
-      setSuccess(
-        userId ? 'User updated successfully!' : 'User created successfully!'
-      );
-      setTimeout(() => router.push('/admin/users'), 2000);
-    } catch (err: any) {
-      setError(err.message || 'An error occurred');
-    }
-  };
-
   return (
-    <div className="max-w-2xl mx-auto py-10">
-      <h1 className="text-2xl font-semibold mb-6">
-        {userId ? 'Update User' : 'Create User'}
-      </h1>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {error && <div className="text-red-500">{error}</div>}
-        {success && <div className="text-green-500">{success}</div>}
-        <div>
-          <label
-            htmlFor="username"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Username
-          </label>
-          <input
-            type="text"
-            id="username"
-            value={user.username}
-            onChange={(e) => setUser({ ...user, username: e.target.value })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            required
-          />
-        </div>
-        <div>
-          <p className="block text-sm font-medium text-gray-700">Roles</p>
-          <div className="mt-2 space-y-2">
+    <div className="container mx-auto p-4">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">User Management</h1>
+        <button
+          onClick={() => setFormVisible(!formVisible)}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          {formVisible ? 'Cancel' : 'Add User'}
+        </button>
+      </div>
+      {formVisible && (
+        <form
+          onSubmit={handleFormSubmit}
+          className="bg-gray-100 p-4 mt-4 rounded shadow"
+        >
+          <div className="mb-4">
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Username
+            </label>
+            <input
+              type="text"
+              id="username"
+              value={formData.username}
+              onChange={(e) =>
+                setFormData({ ...formData, username: e.target.value })
+              }
+              required
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+              required
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
+            />
+          </div>
+          {!formData.id && (
+            <div className="mb-4">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Password
+              </label>
+              <input
+                type="password"
+                id="password"
+                value={formData.password}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
+                required
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
+              />
+            </div>
+          )}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">
+              Roles
+            </label>
             {roles.map((role) => (
-              <label key={role.id} className="flex items-center space-x-2">
+              <div key={role.id} className="flex items-center">
                 <input
                   type="checkbox"
-                  checked={user.roles.includes(role.name)}
+                  id={`role-${role.id}`}
+                  value={role.name}
+                  checked={formData.roles.includes(role.name)}
                   onChange={() => handleRoleChange(role.name)}
-                  className="rounded text-blue-600 focus:ring-blue-500"
+                  disabled={role.name === 'user'}
+                  className="mr-2"
                 />
-                <span className="text-gray-700">{role.name}</span>
-              </label>
+                <label htmlFor={`role-${role.id}`}>{role.name}</label>
+              </div>
             ))}
           </div>
-        </div>
-        <div>
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="bg-green-500 text-white px-4 py-2 rounded mt-2"
           >
-            {userId ? 'Update User' : 'Create User'}
+            Save User
           </button>
-        </div>
-      </form>
+        </form>
+      )}
+      <div className="mt-8">
+        <h2 className="text-xl font-bold mb-4">Users</h2>
+        <ul className="bg-white shadow rounded divide-y">
+          {users.map((user) => (
+            <li key={user.id} className="p-4 flex justify-between items-center">
+              <div>
+                <p className="font-medium">{user.username}</p>
+                <p className="text-sm text-gray-600">{user.email}</p>
+                <p className="text-sm text-gray-600">
+                  Roles: {user.roles.map((role) => role.name).join(', ')}
+                </p>
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => handleEditUser(user)}
+                  className="bg-yellow-500 text-white px-4 py-2 rounded"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDeleteUser(user.id)}
+                  className="bg-red-500 text-white px-4 py-2 rounded"
+                >
+                  Delete
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
 
-export default ManageUserPage;
+export default UsersPage;

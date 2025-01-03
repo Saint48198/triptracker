@@ -383,6 +383,8 @@ export default function CityPage() {
               )}
             </article>
             <hr />
+            <h2 className="text-lg font-semibold underline">Photos</h2>
+            <hr />
             <ActionButton type={'submit'} disabled={loading}>
               {id ? 'Update City' : 'Add City'}
             </ActionButton>

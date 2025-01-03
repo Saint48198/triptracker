@@ -77,6 +77,35 @@ db.exec(`
     );
 `);
 
+db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT NOT NULL UNIQUE,
+      email TEXT NOT NULL UNIQUE,
+      password_hash TEXT NOT NULL,
+      google_access_token TEXT,
+      google_refresh_token TEXT,
+      google_token_expiry DATETIME
+    );
+  `);
+
+db.exec(`
+    CREATE TABLE IF NOT EXISTS roles (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL UNIQUE
+    );
+  `);
+
+db.exec(`
+    CREATE TABLE IF NOT EXISTS user_roles (
+      user_id INTEGER NOT NULL,
+      role_id INTEGER NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users (id),
+      FOREIGN KEY (role_id) REFERENCES roles (id),
+      PRIMARY KEY (user_id, role_id)
+    );
+  `);
+
 // Trigger: Update `countries.last_visited` based on `attractions.last_visited`
 db.exec(`
   CREATE TRIGGER IF NOT EXISTS update_country_last_visited_from_attraction

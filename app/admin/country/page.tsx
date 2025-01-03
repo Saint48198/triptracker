@@ -12,7 +12,7 @@ import { handleResponse } from '@/utils/handleResponse';
 export default function CountryPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [editingCountry, setEditingCountry] = useState<Country | null>(null);
+  const [editingCountry, setEditingCountry] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [abbreviation, setAbbreviation] = useState('');
   const [lat, setLat] = useState('');
@@ -35,7 +35,7 @@ export default function CountryPage() {
       const response = await fetch(`/api/countries/${id}`);
       const data = await response.json();
       if (response.ok) {
-        setEditingCountry(data);
+        setEditingCountry(data.id.toString());
         setName(data.name);
         setAbbreviation(data.abbreviation);
         setLat(data.lat.toString());
@@ -58,7 +58,7 @@ export default function CountryPage() {
 
     const method = editingCountry ? 'PUT' : 'POST';
     const url = editingCountry
-      ? `/api/countries/${editingCountry.id}`
+      ? `/api/countries/${editingCountry}`
       : '/api/countries';
 
     try {
