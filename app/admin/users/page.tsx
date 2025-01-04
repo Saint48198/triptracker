@@ -34,9 +34,12 @@ const UsersPage = () => {
   const fetchUsers = async () => {
     try {
       const { data } = await axios.get('/api/users');
-      const usersArray = data.map((user: any) => ({
+
+      // use any for user is because service returns coma delimited string for roles and not an array of strings and if
+      // you try to use split on an array it will throw an error
+      const usersArray: User[] = data.map((user: any) => ({
         ...user,
-        roles: user.roles.split(','),
+        roles: Array.isArray(user.roles) ? user.roles.split(',') : user.roles,
       }));
       setUsers(usersArray);
     } catch (error) {
@@ -87,7 +90,7 @@ const UsersPage = () => {
     try {
       const passwordHash = await bcrypt.hash(formData.password, 10); // Hash the password
 
-      const roleIds = formData.roles.map((roleName) => {
+      const roleIds = formData.roles.map((roleName: string) => {
         const role = roles.find((r) => r.name === roleName);
         return role?.id; // Retrieve the role ID corresponding to the role name
       });
@@ -248,7 +251,7 @@ const UsersPage = () => {
               Roles
             </label>
             <div className="flex space-x-2">
-              {roles.map((role) => (
+              {roles.map((role: Role) => (
                 <label
                   key={role.id}
                   className="inline-flex items-center space-x-2"
@@ -294,17 +297,18 @@ const UsersPage = () => {
               <tr key={user.id} className="border-t">
                 <td className="border px-4 py-2">{user.username}</td>
                 <td className="border px-4 py-2">{user.email}</td>
-                <td className="border px-4 py-2">{user.roles.join(', ')}</td>
+                <td className="border px-4 py-2">{user.roles}</td>
                 <td className="border px-4 py-2 space-x-2">
                   <button
                     onClick={() => {
+                      console.log(user.roles);
                       setFormData({
                         id: user.id,
                         username: user.username,
                         email: user.email,
                         password: '',
                         confirmPassword: '',
-                        roles: user.roles.map((role: Role) => role.name),
+                        roles: user.roles,
                       });
                       setFormVisible(true);
                     }}
