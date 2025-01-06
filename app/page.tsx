@@ -7,9 +7,9 @@ import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import DataTable from '@/components/DataTable/DataTable';
 import Pagination from '@/components/Pagination/Pagination';
-import { Country, State } from '@/components/types';
 import FilterBy from '@/components/FilterBy/FilterBy';
 import { FilterOption } from '@/components/FilterBy/FilterBy.types';
+import { Country, State } from '@/types/ContentTypes';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,

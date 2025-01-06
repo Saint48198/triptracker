@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import bcrypt from 'bcrypt';
-import { generateToken } from '@/utils/jwt';
-import db from '../../../database/db';
+import jwt from 'jsonwebtoken';
+import { serialize } from 'cookie';
+import { verifyUser } from '@/utils/verifyUser';
 
 export default async function handler(
   req: NextApiRequest,
@@ -12,41 +12,37 @@ export default async function handler(
   }
 
   const { username, password } = req.body;
+  const { user, error, details } = await verifyUser(username, password);
 
-  if (!username || !password) {
+  if (error) {
     return res
-      .status(400)
-      .json({ error: 'Username and password are required' });
+      .status(error === 'Internal Server Error' ? 500 : 400)
+      .json({ error, details });
   }
 
-  try {
-    const user = await db.get('SELECT * FROM users WHERE username = ?', [
-      username,
-    ]);
-
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid username or password' });
+  if (user) {
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-
-    if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Invalid username or password' });
-    }
-
-    const token = generateToken({ id: user.id, roles: user.roles });
-
-    res.setHeader(
-      'Set-Cookie',
-      `token=${token}; HttpOnly; Path=/; Max-Age=3600; Secure; SameSite=Strict`
+    // Generate JWT
+    const token = jwt.sign(
+      { id: user.id, roles: user.roles },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
     );
 
-    res.status(200).json({
-      user: { id: user.id, username: user.username, roles: user.roles },
-    });
-  } catch (error: any) {
-    res
-      .status(500)
-      .json({ error: 'Internal Server Error', details: error.message });
+    res.setHeader('Set-Cookie', [
+      serialize('auth_token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/',
+      }),
+    ]);
+
+    res.status(200).json({ message: 'Login successful' });
+  } else {
+    res.status(401).json({ error: 'Invalid credentials' });
   }
 }
