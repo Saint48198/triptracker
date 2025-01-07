@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import jwt from 'jsonwebtoken';
-import { serialize } from 'cookie';
 import { verifyUser } from '@/utils/verifyUser';
+import db from '../../../database/db';
 
 export default async function handler(
   req: NextApiRequest,
@@ -21,27 +21,41 @@ export default async function handler(
   }
 
   if (user) {
+    // Fetch roles for the user
+    const roles = db
+      .prepare(
+        `SELECT roles.name 
+         FROM roles 
+         INNER JOIN user_roles ON roles.id = user_roles.role_id 
+         WHERE user_roles.user_id = ?`
+      )
+      .all(user.id)
+      .map((role: { name: string }) => role.name);
+
+    // Create JWT payload
+    const payload = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      roles,
+    };
+
     if (!process.env.JWT_SECRET) {
       return res.status(500).json({ error: 'Internal Server Error' });
     }
 
     // Generate JWT
-    const token = jwt.sign(
-      { id: user.id, roles: user.roles },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+    const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
+      expiresIn: '1h',
+    });
+
+    // Set token in HTTP-only cookie
+    res.setHeader(
+      'Set-Cookie',
+      `auth_token=${token}; HttpOnly; Path=/; Max-Age=3600`
     );
 
-    res.setHeader('Set-Cookie', [
-      serialize('auth_token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        path: '/',
-      }),
-    ]);
-
-    res.status(200).json({ message: 'Login successful' });
+    res.status(200).json({ message: 'Login successful', token });
   } else {
     res.status(401).json({ error: 'Invalid credentials' });
   }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { User } from '@/types/UserTypes';
 import { jwtVerify } from 'jose';
+import { JWTPayload } from '@/types/AuthTypes';
 
 export async function middleware(req: NextRequest) {
   const adminPaths = ['/admin']; // Define all admin paths
@@ -21,12 +21,14 @@ export async function middleware(req: NextRequest) {
       }
       // Verify the token
       const secret = new TextEncoder().encode(process.env.JWT_SECRET); // Ensure to set JWT_SECRET in env
-      const { payload } = await jwtVerify(token, secret);
-      console.log('JWT payload:', payload);
+      const { payload } = (await jwtVerify(token, secret)) as {
+        payload: JWTPayload;
+      };
+
       // Check if the user has the "admin" role
-      //if (!payload.roles.includes('admin')) {
-      //  return NextResponse.redirect(new URL('/403', req.url)); // Redirect to forbidden page
-      // }
+      if (!payload.roles.includes('admin')) {
+        return NextResponse.redirect(new URL('/403', req.url)); // Redirect to forbidden page
+      }
     } catch (err: unknown) {
       if (err instanceof Error) {
         console.error('JWT verification error:', err.message);
