@@ -106,6 +106,29 @@ db.exec(`
     );
   `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS user_google_accounts (
+    user_id INTEGER PRIMARY KEY,
+    google_account_id TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+`);
+
+db.exec(`
+    CREATE TABLE IF NOT EXISTS photos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        url TEXT NOT NULL,
+        user_id INTEGER NOT NULL,
+        city_id INTEGER,
+        attraction_id INTEGER,
+        caption TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (city_id) REFERENCES cities(id),
+        FOREIGN KEY (attraction_id) REFERENCES attractions(id)
+        );
+`);
+
 // Trigger: Update `countries.last_visited` based on `attractions.last_visited`
 db.exec(`
   CREATE TRIGGER IF NOT EXISTS update_country_last_visited_from_attraction

@@ -2,7 +2,7 @@ import { NextApiResponse } from 'next';
 import db from '../../../database/db';
 import { CustomNextApiRequest } from '@/types/AuthTypes';
 
-export default async function attachPhoto(
+export default async function index(
   req: CustomNextApiRequest,
   res: NextApiResponse
 ) {

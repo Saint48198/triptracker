@@ -1,11 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 import bcrypt from 'bcryptjs';
 import { User, Role } from '@/types/UserTypes';
+import LinkGoogleAccount from '@/components/LinkGoogleAccount/LinkGoogleAccount';
+import Message from '@/components/Message/Message';
 
 const UsersPage = () => {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const uid = searchParams ? searchParams.get('uid') : null;
+  const queryMessage = searchParams ? searchParams.get('message') : null;
+
   const [users, setUsers] = useState<User[]>([]);
   const [formVisible, setFormVisible] = useState(false);
   const [formData, setFormData] = useState<{
@@ -24,25 +32,28 @@ const UsersPage = () => {
     roles: ['user'],
   });
   const [roles, setRoles] = useState<Role[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState(queryMessage || '');
+  const [messageType, setMessageType] = useState<'error' | 'success' | ''>('');
 
   useEffect(() => {
     fetchUsers();
     fetchRoles();
-  }, []);
+    if (uid) {
+      fetchUserById(uid as string);
+    }
+  }, [uid]);
 
   const fetchUsers = async () => {
     try {
       const { data } = await axios.get('/api/users');
-
-      // use any for user is because service returns coma delimited string for roles and not an array of strings and if
-      // you try to use split on an array it will throw an error
       const usersArray: User[] = data.map((user: any) => ({
         ...user,
         roles: Array.isArray(user.roles) ? user.roles.split(',') : user.roles,
       }));
       setUsers(usersArray);
     } catch (error) {
+      setMessage('Failed to fetch users');
+      setMessageType('error');
       console.error('Failed to fetch users:', error);
     }
   };
@@ -52,7 +63,28 @@ const UsersPage = () => {
       const { data } = await axios.get('/api/roles');
       setRoles(data);
     } catch (error) {
+      setMessage('Failed to fetch roles');
+      setMessageType('error');
       console.error('Failed to fetch roles:', error);
+    }
+  };
+
+  const fetchUserById = async (id: string) => {
+    try {
+      const { data } = await axios.get(`/api/users/${id}`);
+      setFormData({
+        id: data.id,
+        username: data.username,
+        email: data.email,
+        password: '',
+        confirmPassword: '',
+        roles: Array.isArray(data.roles) ? data.roles.split(',') : data.roles,
+      });
+      setFormVisible(true);
+    } catch (error) {
+      setMessage('Failed to fetch user');
+      setMessageType('error');
+      console.error('Failed to fetch user:', error);
     }
   };
 
@@ -83,16 +115,17 @@ const UsersPage = () => {
       formData.confirmPassword
     );
     if (validationError) {
-      setError(validationError);
+      setMessage(validationError);
+      setMessageType('error');
       return;
     }
 
     try {
-      const passwordHash = await bcrypt.hash(formData.password, 10); // Hash the password
+      const passwordHash = await bcrypt.hash(formData.password, 10);
 
       const roleIds = formData.roles.map((roleName: string) => {
         const role = roles.find((r) => r.name === roleName);
-        return role?.id; // Retrieve the role ID corresponding to the role name
+        return role?.id;
       });
 
       if (!roleIds || roleIds.includes(undefined)) {
@@ -115,6 +148,8 @@ const UsersPage = () => {
       fetchUsers();
       resetForm();
     } catch (error) {
+      setMessage('Failed to save user');
+      setMessageType('error');
       console.error('Failed to save user:', error);
     }
   };
@@ -127,8 +162,14 @@ const UsersPage = () => {
       await axios.delete(`/api/users/${id}`);
       fetchUsers();
     } catch (error) {
+      setMessage('Failed to delete user');
+      setMessageType('error');
       console.error('Failed to delete user:', error);
     }
+  };
+
+  const handleEditUser = async (user: User) => {
+    router.push(`/admin/users?uid=${user.id}`);
   };
 
   const resetForm = () => {
@@ -140,7 +181,8 @@ const UsersPage = () => {
       confirmPassword: '',
       roles: ['user'],
     });
-    setError(null);
+    setMessage('');
+    setMessageType('');
     setFormVisible(false);
   };
 
@@ -163,7 +205,7 @@ const UsersPage = () => {
           onSubmit={handleFormSubmit}
           className="bg-gray-100 p-4 mt-4 rounded shadow"
         >
-          {error && <p className="text-red-500">{error}</p>}
+          {message && <Message message={message} type={messageType}></Message>}
           <div className="mb-4">
             <label
               htmlFor="username"
@@ -271,6 +313,12 @@ const UsersPage = () => {
                 </label>
               ))}
             </div>
+
+            {formData.id && (
+              <>
+                <LinkGoogleAccount />
+              </>
+            )}
           </div>
           <button
             type="submit"
@@ -300,18 +348,7 @@ const UsersPage = () => {
                 <td className="border px-4 py-2">{user.roles}</td>
                 <td className="border px-4 py-2 space-x-2">
                   <button
-                    onClick={() => {
-                      console.log(user.roles);
-                      setFormData({
-                        id: user.id,
-                        username: user.username,
-                        email: user.email,
-                        password: '',
-                        confirmPassword: '',
-                        roles: user.roles,
-                      });
-                      setFormVisible(true);
-                    }}
+                    onClick={() => handleEditUser(user)}
                     className="bg-blue-500 text-white px-2 py-1 rounded"
                   >
                     Edit

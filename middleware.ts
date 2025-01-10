@@ -25,6 +25,9 @@ export async function middleware(req: NextRequest) {
         payload: JWTPayload;
       };
 
+      // Attach user information to the request
+      (req as any).user = { id: payload.id, roles: payload.roles };
+
       // Check if the user has the "admin" role
       if (!payload.roles.includes('admin')) {
         return NextResponse.redirect(new URL('/403', req.url)); // Redirect to forbidden page
