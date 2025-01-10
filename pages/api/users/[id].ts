@@ -17,7 +17,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         const user = db
           .prepare(
             `
-          SELECT u.id, u.username, u.email, GROUP_CONCAT(r.name) as roles
+          SELECT u.id, u.username, u.email, u.google_access_token, u.google_refresh_token, u.google_token_expiry, GROUP_CONCAT(r.name) as roles
           FROM users u
           LEFT JOIN user_roles ur ON u.id = ur.user_id
           LEFT JOIN roles r ON ur.role_id = r.id

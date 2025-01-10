@@ -13,6 +13,11 @@ const UsersPage = () => {
   const router = useRouter();
   const uid = searchParams ? searchParams.get('uid') : null;
   const queryMessage = searchParams ? searchParams.get('message') : null;
+  const queryMessageType = (searchParams ? searchParams.get('type') : '') as
+    | ''
+    | 'error'
+    | 'success'
+    | (() => '' | 'error' | 'success');
 
   const [users, setUsers] = useState<User[]>([]);
   const [formVisible, setFormVisible] = useState(false);
@@ -23,6 +28,9 @@ const UsersPage = () => {
     password: string;
     confirmPassword: string;
     roles: string[];
+    googleAccessToken: string;
+    googleRefreshToken: string;
+    googleTokenExpiry: number;
   }>({
     id: null,
     username: '',
@@ -30,10 +38,15 @@ const UsersPage = () => {
     password: '',
     confirmPassword: '',
     roles: ['user'],
+    googleAccessToken: '',
+    googleRefreshToken: '',
+    googleTokenExpiry: 0,
   });
   const [roles, setRoles] = useState<Role[]>([]);
   const [message, setMessage] = useState(queryMessage || '');
-  const [messageType, setMessageType] = useState<'error' | 'success' | ''>('');
+  const [messageType, setMessageType] = useState<'error' | 'success' | ''>(
+    queryMessageType || ''
+  );
 
   useEffect(() => {
     fetchUsers();
@@ -79,6 +92,9 @@ const UsersPage = () => {
         password: '',
         confirmPassword: '',
         roles: Array.isArray(data.roles) ? data.roles.split(',') : data.roles,
+        googleAccessToken: data.google_access_token,
+        googleRefreshToken: data.google_refresh_token,
+        googleTokenExpiry: data.google_token_expiry,
       });
       setFormVisible(true);
     } catch (error) {
@@ -180,6 +196,9 @@ const UsersPage = () => {
       password: '',
       confirmPassword: '',
       roles: ['user'],
+      googleAccessToken: '',
+      googleRefreshToken: '',
+      googleTokenExpiry: 0,
     });
     setMessage('');
     setMessageType('');
@@ -316,7 +335,11 @@ const UsersPage = () => {
 
             {formData.id && (
               <>
-                <LinkGoogleAccount />
+                <LinkGoogleAccount
+                  userId={formData.id}
+                  googleAccessToken={formData.googleAccessToken}
+                  googleTokenExpiry={formData.googleTokenExpiry}
+                />
               </>
             )}
           </div>
