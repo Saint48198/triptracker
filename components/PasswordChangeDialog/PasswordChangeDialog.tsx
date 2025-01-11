@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { validatePassword } from '@/utils/validatePassword';
 
 const PasswordChangeDialog: React.FC<{
   isOpen: boolean;
@@ -10,20 +11,10 @@ const PasswordChangeDialog: React.FC<{
   const [error, setError] = useState('');
 
   const handleSubmit = () => {
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
+    const validationError = validatePassword(password, confirmPassword);
 
-    if (
-      password.length < 12 ||
-      !/\d/.test(password) ||
-      !/[a-zA-Z]/.test(password) ||
-      !/[!@#$%^&*]/.test(password)
-    ) {
-      setError(
-        'Password must be at least 12 characters long, include a number, a letter, and a special character.'
-      );
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
