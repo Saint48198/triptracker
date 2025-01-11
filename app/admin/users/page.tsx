@@ -21,7 +21,7 @@ const UsersPage = () => {
     | 'error'
     | 'success'
     | (() => '' | 'error' | 'success');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [openDialog, setOpenDialog] = useState<string | null>(null);
 
   const [users, setUsers] = useState<User[]>([]);
   const [formVisible, setFormVisible] = useState(false);
@@ -216,10 +216,18 @@ const UsersPage = () => {
     removeQueryParams();
   };
 
+  const handleOpenDialog = (dialogId: string) => {
+    setOpenDialog(dialogId);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(null);
+  };
+
   const handlePasswordChange = (password: string) => {
     // Call API to update the password
     console.log('New password:', password);
-    setIsDialogOpen(false);
+    handleCloseDialog();
   };
 
   return (
@@ -366,13 +374,13 @@ const UsersPage = () => {
                     <button
                       type={'button'}
                       className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
-                      onClick={() => setIsDialogOpen(true)}
+                      onClick={() => handleOpenDialog('dialog1')}
                     >
                       Change Password
                     </button>
                     <PasswordChangeDialog
-                      isOpen={isDialogOpen}
-                      onClose={() => setIsDialogOpen(false)}
+                      isOpen={openDialog === 'dialog1'}
+                      onClose={handleCloseDialog}
                       onSubmit={handlePasswordChange}
                     />
                   </>
