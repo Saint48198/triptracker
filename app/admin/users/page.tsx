@@ -224,10 +224,38 @@ const UsersPage = () => {
     setOpenDialog(null);
   };
 
-  const handlePasswordChange = (password: string) => {
-    // Call API to update the password
-    console.log('New password:', password);
-    handleCloseDialog();
+  const handlePasswordChange = async (
+    userId: number | null,
+    password: string
+  ) => {
+    if (!userId && !password) {
+      setMessage('Password cannot be empty');
+      setMessageType('error');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/users/${userId}/password`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      });
+
+      if (!response.ok) {
+        setMessage('Failed to change password');
+        setMessageType('error');
+      }
+
+      setMessage('Password changed successfully');
+      setMessageType('success');
+      handleCloseDialog();
+    } catch (error) {
+      console.error('Error changing password:', error);
+      setMessage('Failed to change password');
+      setMessageType('error');
+    }
   };
 
   return (
@@ -381,7 +409,9 @@ const UsersPage = () => {
                     <PasswordChangeDialog
                       isOpen={openDialog === 'dialog1'}
                       onClose={handleCloseDialog}
-                      onSubmit={handlePasswordChange}
+                      onSubmit={(password) =>
+                        handlePasswordChange(formData.id, password)
+                      }
                     />
                   </>
                 )}
