@@ -9,6 +9,7 @@ import LinkGoogleAccount from '@/components/LinkGoogleAccount/LinkGoogleAccount'
 import Message from '@/components/Message/Message';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
+import PasswordChangeDialog from '@/components/PasswordChangeDialog/PasswordChangeDialog';
 
 const UsersPage = () => {
   const searchParams = useSearchParams();
@@ -20,6 +21,7 @@ const UsersPage = () => {
     | 'error'
     | 'success'
     | (() => '' | 'error' | 'success');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const [users, setUsers] = useState<User[]>([]);
   const [formVisible, setFormVisible] = useState(false);
@@ -214,6 +216,12 @@ const UsersPage = () => {
     removeQueryParams();
   };
 
+  const handlePasswordChange = (password: string) => {
+    // Call API to update the password
+    console.log('New password:', password);
+    setIsDialogOpen(false);
+  };
+
   return (
     <>
       <Navbar></Navbar>
@@ -353,6 +361,19 @@ const UsersPage = () => {
                       userId={formData.id}
                       googleAccessToken={formData.googleAccessToken}
                       googleTokenExpiry={formData.googleTokenExpiry}
+                    />
+                    &nbsp;
+                    <button
+                      type={'button'}
+                      className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
+                      onClick={() => setIsDialogOpen(true)}
+                    >
+                      Change Password
+                    </button>
+                    <PasswordChangeDialog
+                      isOpen={isDialogOpen}
+                      onClose={() => setIsDialogOpen(false)}
+                      onSubmit={handlePasswordChange}
                     />
                   </>
                 )}
