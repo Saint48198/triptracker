@@ -9,8 +9,9 @@ const PasswordChangeDialog: React.FC<{
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const validationError = validatePassword(password, confirmPassword);
 
     if (validationError) {
@@ -19,7 +20,16 @@ const PasswordChangeDialog: React.FC<{
     }
 
     setError('');
-    onSubmit(password);
+    setIsLoading(true);
+
+    try {
+      await onSubmit(password);
+      setIsLoading(false);
+      onClose();
+    } catch (error) {
+      setError('Failed to change password');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -47,6 +57,7 @@ const PasswordChangeDialog: React.FC<{
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
             />
           </div>
           <div className="mb-4">
@@ -62,6 +73,7 @@ const PasswordChangeDialog: React.FC<{
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              disabled={isLoading}
             />
           </div>
         </div>
@@ -70,6 +82,7 @@ const PasswordChangeDialog: React.FC<{
             onClick={onClose}
             type={'button'}
             className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition"
+            disabled={isLoading}
           >
             Cancel
           </button>
@@ -77,8 +90,9 @@ const PasswordChangeDialog: React.FC<{
             onClick={handleSubmit}
             type={'button'}
             className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition"
+            disabled={isLoading}
           >
-            Change Password
+            {isLoading ? 'Processing...' : 'Change Password'}
           </button>
         </div>
       </div>
