@@ -7,6 +7,8 @@ import bcrypt from 'bcryptjs';
 import { User, Role } from '@/types/UserTypes';
 import LinkGoogleAccount from '@/components/LinkGoogleAccount/LinkGoogleAccount';
 import Message from '@/components/Message/Message';
+import Navbar from '@/components/Navbar/Navbar';
+import Footer from '@/components/Footer/Footer';
 
 const UsersPage = () => {
   const searchParams = useSearchParams();
@@ -163,6 +165,7 @@ const UsersPage = () => {
       }
       fetchUsers();
       resetForm();
+      removeQueryParams();
     } catch (error) {
       setMessage('Failed to save user');
       setMessageType('error');
@@ -188,6 +191,11 @@ const UsersPage = () => {
     router.push(`/admin/users?uid=${user.id}`);
   };
 
+  const removeQueryParams = () => {
+    const { pathname } = window.location;
+    router.push(pathname);
+  };
+
   const resetForm = () => {
     setFormData({
       id: null,
@@ -203,79 +211,47 @@ const UsersPage = () => {
     setMessage('');
     setMessageType('');
     setFormVisible(false);
+    removeQueryParams();
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">User Management</h1>
-        <button
-          onClick={() => {
-            resetForm();
-            setFormVisible(true);
-          }}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Add User
-        </button>
-      </div>
-      {formVisible && (
-        <form
-          onSubmit={handleFormSubmit}
-          className="bg-gray-100 p-4 mt-4 rounded shadow"
-        >
-          {message && <Message message={message} type={messageType}></Message>}
-          <div className="mb-4">
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium text-gray-700"
+    <>
+      <Navbar></Navbar>
+      <main>
+        <div className="container mx-auto p-4">
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold">User Management</h1>
+            <button
+              onClick={() => {
+                resetForm();
+                setFormVisible(true);
+              }}
+              className="bg-blue-500 text-white px-4 py-2 rounded"
             >
-              Username
-            </label>
-            <input
-              type="text"
-              id="username"
-              value={formData.username}
-              onChange={(e) =>
-                setFormData({ ...formData, username: e.target.value })
-              }
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
-            />
+              Add User
+            </button>
           </div>
-          <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
+          {formVisible && (
+            <form
+              onSubmit={handleFormSubmit}
+              className="bg-gray-100 p-4 mt-4 rounded shadow"
             >
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
-            />
-          </div>
-          {!formData.id && (
-            <>
+              {message && (
+                <Message message={message} type={messageType}></Message>
+              )}
               <div className="mb-4">
                 <label
-                  htmlFor="password"
+                  htmlFor="username"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Password
+                  Username
                 </label>
                 <input
-                  type="password"
-                  id="password"
-                  value={formData.password}
+                  type="text"
+                  id="username"
+                  value={formData.username}
                   onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
+                    setFormData({ ...formData, username: e.target.value })
                   }
                   required
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
@@ -283,112 +259,158 @@ const UsersPage = () => {
               </div>
               <div className="mb-4">
                 <label
-                  htmlFor="confirmPassword"
+                  htmlFor="email"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Confirm Password
+                  Email
                 </label>
                 <input
-                  type="password"
-                  id="confirmPassword"
-                  value={formData.confirmPassword}
+                  type="email"
+                  id="email"
+                  value={formData.email}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      confirmPassword: e.target.value,
-                    })
+                    setFormData({ ...formData, email: e.target.value })
                   }
                   required
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
                 />
               </div>
-            </>
-          )}
-          <div className="mb-4">
-            <label
-              htmlFor="roles"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Roles
-            </label>
-            <div className="flex space-x-2">
-              {roles.map((role: Role) => (
+              {!formData.id && (
+                <>
+                  <div className="mb-4">
+                    <label
+                      htmlFor="password"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Password
+                    </label>
+                    <input
+                      type="password"
+                      id="password"
+                      value={formData.password}
+                      onChange={(e) =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
+                      required
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label
+                      htmlFor="confirmPassword"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Confirm Password
+                    </label>
+                    <input
+                      type="password"
+                      id="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          confirmPassword: e.target.value,
+                        })
+                      }
+                      required
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
+                    />
+                  </div>
+                </>
+              )}
+              <div className="mb-4">
                 <label
-                  key={role.id}
-                  className="inline-flex items-center space-x-2"
+                  htmlFor="roles"
+                  className="block text-sm font-medium text-gray-700"
                 >
-                  <input
-                    type="checkbox"
-                    checked={formData.roles.includes(role.name)}
-                    value={role.id}
-                    onChange={(e) => {
-                      const updatedRoles = e.target.checked
-                        ? [...formData.roles, role.name]
-                        : formData.roles.filter((r) => r !== role.name);
-                      setFormData({ ...formData, roles: updatedRoles });
-                    }}
-                  />
-                  <span>{role.name}</span>
+                  Roles
                 </label>
-              ))}
-            </div>
+                <div className="flex space-x-2">
+                  {roles.map((role: Role) => (
+                    <label
+                      key={role.id}
+                      className="inline-flex items-center space-x-2"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={formData.roles.includes(role.name)}
+                        value={role.id}
+                        onChange={(e) => {
+                          const updatedRoles = e.target.checked
+                            ? [...formData.roles, role.name]
+                            : formData.roles.filter((r) => r !== role.name);
+                          setFormData({ ...formData, roles: updatedRoles });
+                        }}
+                      />
+                      <span>{role.name}</span>
+                    </label>
+                  ))}
+                </div>
 
-            {formData.id && (
-              <>
-                <LinkGoogleAccount
-                  userId={formData.id}
-                  googleAccessToken={formData.googleAccessToken}
-                  googleTokenExpiry={formData.googleTokenExpiry}
-                />
-              </>
-            )}
-          </div>
-          <button
-            type="submit"
-            className="bg-green-500 text-white px-4 py-2 rounded mt-2"
-          >
-            Save User
-          </button>
-        </form>
-      )}
-      {users.length === 0 ? (
-        <p className="mt-6 text-gray-500 text-center">No users available.</p>
-      ) : (
-        <table className="table-auto w-full mt-6 bg-white shadow rounded">
-          <thead>
-            <tr>
-              <th className="border px-4 py-2">Username</th>
-              <th className="border px-4 py-2">Email</th>
-              <th className="border px-4 py-2">Roles</th>
-              <th className="border px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.id} className="border-t">
-                <td className="border px-4 py-2">{user.username}</td>
-                <td className="border px-4 py-2">{user.email}</td>
-                <td className="border px-4 py-2">{user.roles}</td>
-                <td className="border px-4 py-2 space-x-2">
-                  <button
-                    onClick={() => handleEditUser(user)}
-                    className="bg-blue-500 text-white px-2 py-1 rounded"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeleteUser(user.id)}
-                    className="bg-red-500 text-white px-2 py-1 rounded"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>
+                {formData.id && (
+                  <>
+                    <LinkGoogleAccount
+                      userId={formData.id}
+                      googleAccessToken={formData.googleAccessToken}
+                      googleTokenExpiry={formData.googleTokenExpiry}
+                    />
+                  </>
+                )}
+              </div>
+              <button
+                type="submit"
+                className="bg-green-500 text-white px-4 py-2 rounded mt-2"
+              >
+                Save User
+              </button>
+              <button type={'button'} onClick={resetForm} className="ml-2">
+                Cancel
+              </button>
+            </form>
+          )}
+          {users.length === 0 ? (
+            <p className="mt-6 text-gray-500 text-center">
+              No users available.
+            </p>
+          ) : (
+            <table className="table-auto w-full mt-6 bg-white shadow rounded">
+              <thead>
+                <tr>
+                  <th className="border px-4 py-2">Username</th>
+                  <th className="border px-4 py-2">Email</th>
+                  <th className="border px-4 py-2">Roles</th>
+                  <th className="border px-4 py-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.id} className="border-t">
+                    <td className="border px-4 py-2">{user.username}</td>
+                    <td className="border px-4 py-2">{user.email}</td>
+                    <td className="border px-4 py-2">{user.roles}</td>
+                    <td className="border px-4 py-2 space-x-2">
+                      <button
+                        onClick={() => handleEditUser(user)}
+                        className="bg-blue-500 text-white px-2 py-1 rounded"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteUser(user.id)}
+                        className="bg-red-500 text-white px-2 py-1 rounded"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </main>
+      <Footer></Footer>
+    </>
   );
 };
 
