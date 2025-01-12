@@ -11,6 +11,7 @@ import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import { validatePassword } from '@/utils/validatePassword';
 import PasswordChangeDialog from '@/components/PasswordChangeDialog/PasswordChangeDialog';
+import ConfirmAction from '@/components/ConfirmAction/ConfirmAction';
 
 const UsersPage = () => {
   const searchParams = useSearchParams();
@@ -52,6 +53,8 @@ const UsersPage = () => {
   const [messageType, setMessageType] = useState<'error' | 'success' | ''>(
     queryMessageType || ''
   );
+  const [isLoading, setIsLoading] = useState(false);
+  const [deleteUserId, setDeleteUserId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchUsers();
@@ -158,16 +161,26 @@ const UsersPage = () => {
   };
 
   const handleDeleteUser = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this user?')) {
-      return;
-    }
+    setDeleteUserId(id);
+    setOpenDialog('deleteUser');
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!deleteUserId) return;
+
+    setIsLoading(true);
     try {
-      await axios.delete(`/api/users/${id}`);
+      await axios.delete(`/api/users/${deleteUserId}`);
       fetchUsers();
+      setMessage('User deleted successfully');
+      setMessageType('success');
     } catch (error) {
       setMessage('Failed to delete user');
       setMessageType('error');
       console.error('Failed to delete user:', error);
+    } finally {
+      setIsLoading(false);
+      setOpenDialog(null);
     }
   };
 
@@ -451,6 +464,13 @@ const UsersPage = () => {
         </div>
       </main>
       <Footer></Footer>
+      <ConfirmAction
+        isOpen={openDialog === 'deleteUser'}
+        onClose={handleCloseDialog}
+        onConfirm={confirmDeleteUser}
+        message="Are you sure you want to delete this user?"
+        isLoading={isLoading}
+      />
     </>
   );
 };
