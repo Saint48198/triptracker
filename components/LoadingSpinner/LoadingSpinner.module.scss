@@ -1,0 +1,6 @@
+/* components/LoadingSpinner/LoadingSpinner.module.scss */
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin {
+    animation: none;
+  }
+}

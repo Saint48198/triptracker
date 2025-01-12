@@ -7,6 +7,8 @@ import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import DataTable from '@/components/DataTable/DataTable';
 import Pagination from '@/components/Pagination/Pagination';
+import Message from '@/components/Message/Message';
+import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner';
 import FilterBy from '@/components/FilterBy/FilterBy';
 import { FilterOption } from '@/components/FilterBy/FilterBy.types';
 import { Country, State } from '@/types/ContentTypes';
@@ -38,6 +40,8 @@ const HomePage: React.FC = () => {
   const [geoJsonData, setGeoJsonData] = useState<any>(null);
   const [countries, setCountries] = useState<Country[]>([]);
   const [selectedCountry, setSelectedCountry] = useState<string>('');
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setPage(1);
@@ -73,6 +77,8 @@ const HomePage: React.FC = () => {
   }, [mapType, page]);
 
   const fetchData = async (view: string, page: number, country?: string) => {
+    setLoading(true);
+
     try {
       let url = page ? `/api/${view}?page=${page}` : `/api/${view}`;
       if (country) {
@@ -99,8 +105,11 @@ const HomePage: React.FC = () => {
       } else {
         setMarkers([]);
       }
+      setLoading(false);
     } catch (error) {
       console.error(`Failed to fetch ${view}:`, error);
+      setMessage(`Failed to fetch ${view}.`);
+      setLoading(false);
     }
   };
 
@@ -111,6 +120,7 @@ const HomePage: React.FC = () => {
       setCountries(result);
     } catch (error) {
       console.error('Failed to fetch countries:', error);
+      setMessage('Failed to fetch countries.');
     }
   };
 
@@ -141,6 +151,7 @@ const HomePage: React.FC = () => {
       setGeoJsonData(filteredGeoJson);
     } catch (error) {
       console.error('Failed to fetch filtered GeoJSON data:', error);
+      setMessage('Failed to fetch filtered GeoJSON data.');
     }
   };
 
@@ -195,7 +206,6 @@ const HomePage: React.FC = () => {
         selectedCountryData.lat &&
         selectedCountryData.lng
       ) {
-        console.log(selectedCountryData);
         // Update the map center
         setCenter([selectedCountryData.lat, selectedCountryData.lng]);
         setZoom(5); // Adjust the zoom level as needed
@@ -226,6 +236,7 @@ const HomePage: React.FC = () => {
     <>
       <Navbar />
       <main>
+        {message && <Message message={message} type="error"></Message>}
         <div className="flex space-x-4 mb-6">
           {[
             { value: 'cities', label: 'Cities' },
@@ -261,39 +272,43 @@ const HomePage: React.FC = () => {
             key={mapKey}
           />
         )}
-        <div className="bg-white shadow-md p-4 rounded">
-          <h2 className="text-xl font-bold mb-4">
-            {mapType.charAt(0).toUpperCase() + mapType.slice(1)} Data
-          </h2>
-          {(mapType === 'cities' || mapType === 'attractions') &&
-            countries &&
-            countries.length > 0 && (
-              <FilterBy
-                options={filterOptions}
-                selectedFilters={selectedCountry ? [selectedCountry] : []}
-                onFilterChange={handleFilterChange}
-                includeSelectAll={true}
-                selectAllLabel={'Select Country'}
-                multiple={false}
+        {loading ? (
+          <LoadingSpinner />
+        ) : (
+          <div className="bg-white p-4">
+            <h2 className="text-xl font-bold mb-4">
+              {mapType.charAt(0).toUpperCase() + mapType.slice(1)} Data
+            </h2>
+            {(mapType === 'cities' || mapType === 'attractions') &&
+              countries &&
+              countries.length > 0 && (
+                <FilterBy
+                  options={filterOptions}
+                  selectedFilters={selectedCountry ? [selectedCountry] : []}
+                  onFilterChange={handleFilterChange}
+                  includeSelectAll={true}
+                  selectAllLabel={'Select Country'}
+                  multiple={false}
+                />
+              )}
+            <DataTable
+              columns={columns}
+              data={data}
+              onSort={(sortBy, sortOrder) => {
+                console.log(
+                  `Sorting ${mapType} by ${sortBy} in ${sortOrder} order`
+                );
+              }}
+            />
+            {hasPageProperty && (
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
               />
             )}
-          <DataTable
-            columns={columns}
-            data={data}
-            onSort={(sortBy, sortOrder) => {
-              console.log(
-                `Sorting ${mapType} by ${sortBy} in ${sortOrder} order`
-              );
-            }}
-          />
-          {hasPageProperty && (
-            <Pagination
-              currentPage={page}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
-          )}
-        </div>
+          </div>
+        )}
       </main>
       <Footer />
     </>
