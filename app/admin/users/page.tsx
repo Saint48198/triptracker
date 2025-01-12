@@ -397,12 +397,12 @@ const UsersPage = () => {
                     <button
                       type={'button'}
                       className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
-                      onClick={() => handleOpenDialog('dialog1')}
+                      onClick={() => handleOpenDialog('passChange')}
                     >
                       Change Password
                     </button>
                     <PasswordChangeDialog
-                      isOpen={openDialog === 'dialog1'}
+                      isOpen={openDialog === 'passChange'}
                       onClose={handleCloseDialog}
                       onSubmit={(password) =>
                         handlePasswordChange(formData.id, password)
