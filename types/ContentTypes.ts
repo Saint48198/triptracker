@@ -50,3 +50,9 @@ export interface Trip {
   endDate: string;
   notes?: string;
 }
+
+export interface WikiInfo {
+  title: string;
+  intro: string;
+  url: string;
+}

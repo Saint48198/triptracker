@@ -7,21 +7,17 @@ import Footer from '@/components/Footer/Footer';
 import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
 import dynamic from 'next/dynamic';
 import Message from '@/components/Message/Message';
+import Modal from '@/components/Modal/Modal';
+import AlbumViewer from '@/components/AlbumViewer/AlbumViewer';
 import { handleResponse } from '@/utils/handleResponse';
 import LatLngField from '@/components/LatLngField/LatLngField';
 import ActionButton from '@/components/ActionButton/ActionButton';
-import { Country, State } from '@/types/ContentTypes';
+import { Country, State, WikiInfo } from '@/types/ContentTypes';
 import { GeocodeResult } from '@/types/MapTypes';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
 });
-
-interface WikiInfo {
-  title: string;
-  intro: string;
-  url: string;
-}
 
 export default function CityPage() {
   const searchParams = useSearchParams();
@@ -42,6 +38,7 @@ export default function CityPage() {
   const [geocodeResults, setGeocodeResults] = useState<GeocodeResult[]>([]); // Store geocode results
   const [loading, setLoading] = useState(false); // Add loading state
   const id = searchParams ? searchParams.get('id') : null; // Get the city ID from the query parameter
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchCountries();
@@ -201,26 +198,6 @@ export default function CityPage() {
     }
   };
 
-  const handleGetAlbums = async () => {
-    try {
-      const response = await fetch('/api/google/photos/albums', {
-        method: 'GET',
-      });
-      const albums = await response.json();
-
-      if (!response.ok) {
-        throw new Error(albums.error || 'Failed to fetch albums');
-      }
-
-      // Display the albums in a modal or dropdown (you can add a modal component for better UX)
-      console.log('Albums:', albums); // Replace this with UI logic to display albums
-    } catch (error) {
-      console.error('Error fetching albums:', error);
-      setMessage('Failed to fetch albums.');
-      setMessageType('error');
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -264,6 +241,14 @@ export default function CityPage() {
       setMessage('An error occurred.');
       setMessageType('error');
     }
+  };
+
+  const handleGetAlbums = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
   };
 
   return (
@@ -414,6 +399,9 @@ export default function CityPage() {
                 Get Albums from Google
               </button>
             </div>
+            <Modal onClose={closeModal} isOpen={isModalOpen}>
+              <AlbumViewer />
+            </Modal>
             <hr />
             <ActionButton type={'submit'} disabled={loading}>
               {id ? 'Update City' : 'Add City'}

@@ -1,5 +1,4 @@
 // /pages/api/google/photos/albums.ts
-import { google } from 'googleapis';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
