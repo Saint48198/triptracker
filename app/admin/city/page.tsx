@@ -201,6 +201,26 @@ export default function CityPage() {
     }
   };
 
+  const handleGetAlbums = async () => {
+    try {
+      const response = await fetch('/api/google/photos/albums', {
+        method: 'GET',
+      });
+      const albums = await response.json();
+
+      if (!response.ok) {
+        throw new Error(albums.error || 'Failed to fetch albums');
+      }
+
+      // Display the albums in a modal or dropdown (you can add a modal component for better UX)
+      console.log('Albums:', albums); // Replace this with UI logic to display albums
+    } catch (error) {
+      console.error('Error fetching albums:', error);
+      setMessage('Failed to fetch albums.');
+      setMessageType('error');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -385,6 +405,15 @@ export default function CityPage() {
             </article>
             <hr />
             <h2 className="text-lg font-semibold underline">Photos</h2>
+            <div>
+              <button
+                type="button"
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                onClick={handleGetAlbums}
+              >
+                Get Albums from Google
+              </button>
+            </div>
             <hr />
             <ActionButton type={'submit'} disabled={loading}>
               {id ? 'Update City' : 'Add City'}

@@ -5,6 +5,7 @@ export interface JWTPayload {
   username: string;
   email: string;
   roles: string[];
+  google_access_token: string;
   iat: number;
   exp: number;
 }
