@@ -1,13 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Album, Photo, AlbumViewerProps } from '@/types/PhotoTypes';
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Album,
+  GooglePhoto,
+  AlbumViewerProps,
+  Photo,
+} from '@/types/PhotoTypes';
 import Message from '@/components/Message/Message';
 
-const AlbumViewer: React.FC = () => {
+const AlbumViewer: React.FC<AlbumViewerProps> = ({
+  entityType,
+  entityId,
+  attachedPhotos = [],
+}) => {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [selectedAlbumId, setSelectedAlbumId] = useState<string | null>(null);
-  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [photos, setPhotos] = useState<GooglePhoto[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [attachedPhotosState, setAttachedPhotos] =
+    useState<Photo[]>(attachedPhotos);
 
   const fetchAlbumsEndpoint = '/api/google/photos/albums';
   const fetchPhotosEndpoint = '/api/google/photos/album/photos';
@@ -27,6 +38,25 @@ const AlbumViewer: React.FC = () => {
     fetchAlbums();
   }, [fetchAlbumsEndpoint]);
 
+  const togglePhoto = async (photo: GooglePhoto) => {
+    if (isPhotoAttached(photo.id)) {
+      // Remove the photo from attachedPhotos
+      setAttachedPhotos((prev) =>
+        prev.filter((attachedPhoto) => attachedPhoto.id !== photo.id)
+      );
+    } else {
+      // Add the photo to attachedPhotos
+      const newPhoto: Photo = {
+        id: photo.id,
+        url: `${photo.baseUrl}`,
+        title: photo.filename,
+        caption: null,
+        created_at: new Date().toISOString(),
+      };
+      setAttachedPhotos((prev) => [...prev, newPhoto]);
+    }
+  };
+
   const fetchPhotos = async (albumId: string) => {
     setLoading(true);
     setMessage('');
@@ -43,13 +73,35 @@ const AlbumViewer: React.FC = () => {
     }
   };
 
+  const hasChanges = useMemo(() => {
+    if (attachedPhotos.length !== attachedPhotosState.length) return true;
+    const attachedPhotoIds = attachedPhotos.map((photo) => photo.id).sort();
+    const attachedPhotosStateIds = attachedPhotosState
+      .map((photo) => photo.id)
+      .sort();
+    return !attachedPhotoIds.every(
+      (id, index) => id === attachedPhotosStateIds[index]
+    );
+  }, [attachedPhotos, attachedPhotosState]);
+
+  const isPhotoAttached = (photoId: string): boolean => {
+    return attachedPhotosState
+      ? attachedPhotosState.some((photo) => photo.id === photoId)
+      : false;
+  };
+
+  const handleUpdatePhotos = () => {
+    // Implement the logic to update photos
+    console.log('Updating photos:', attachedPhotosState);
+  };
+
   return (
-    <div className="p-6">
+    <div className="p-6 flex flex-col h-[80vh]">
       <h1 className="text-2xl font-bold mb-4">Google Photos Albums</h1>
       {message && <Message message={message} type="error"></Message>}
 
       {selectedAlbumId ? (
-        <div>
+        <>
           <button
             onClick={() => setSelectedAlbumId(null)}
             className="mb-4 px-4 py-2 bg-blue-500 text-white rounded"
@@ -57,29 +109,39 @@ const AlbumViewer: React.FC = () => {
             Back to Albums
           </button>
 
-          <div className="overflow-auto h-screen">
+          <div className="flex-grow overflow-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {loading && <p>Loading photos...</p>}
               {!loading && photos.length === 0 && (
                 <p>No photos in this album.</p>
               )}
-              {photos.map((photo) => (
-                <img
+              {photos.map((photo: GooglePhoto) => (
+                <button
+                  type={'button'}
                   key={photo.id}
-                  src={`${photo.baseUrl}=w200-h200`}
-                  alt={photo.filename}
-                  className="rounded shadow"
-                />
+                  onClick={() => togglePhoto(photo)}
+                >
+                  <img
+                    src={`${photo.baseUrl}=w200-h200`}
+                    alt={photo.filename}
+                    className={`rounded shadow ${
+                      isPhotoAttached(photo.id)
+                        ? 'border-4 border-blue-500'
+                        : ''
+                    }`}
+                  />
+                </button>
               ))}
             </div>
           </div>
-        </div>
+        </>
       ) : (
-        <div className="overflow-auto h-screen">
+        <div className="flex-grow overflow-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {albums.map((album) => (
-              <div
+            {albums.map((album: Album) => (
+              <button
                 key={album.id}
+                type={'button'}
                 onClick={() => fetchPhotos(album.id)}
                 className="cursor-pointer p-4 border rounded hover:bg-gray-100"
               >
@@ -90,11 +152,20 @@ const AlbumViewer: React.FC = () => {
                 />
                 <h2 className="text-lg font-medium">{album.title}</h2>
                 <p>{album.mediaItemsCount} photos</p>
-              </div>
+              </button>
             ))}
           </div>
         </div>
       )}
+      <div className="mt-4 flex justify-center pb-4">
+        <button
+          onClick={handleUpdatePhotos}
+          className="px-4 py-2 bg-green-500 text-white rounded"
+          disabled={!hasChanges}
+        >
+          Update Photos
+        </button>
+      </div>
     </div>
   );
 };

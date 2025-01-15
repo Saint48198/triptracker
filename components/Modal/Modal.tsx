@@ -24,7 +24,7 @@ export default function Modal({
 
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-1000">
-      <div className="bg-white rounded-lg shadow-lg p-6 relative">
+      <div className="bg-white rounded-lg shadow-lg p-6 relative max-h-[80vh]">
         <button
           onClick={onClose}
           className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center"

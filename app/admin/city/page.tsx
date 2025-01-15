@@ -14,6 +14,7 @@ import LatLngField from '@/components/LatLngField/LatLngField';
 import ActionButton from '@/components/ActionButton/ActionButton';
 import { Country, State, WikiInfo } from '@/types/ContentTypes';
 import { GeocodeResult } from '@/types/MapTypes';
+import { Photo } from '@/types/PhotoTypes';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -25,6 +26,7 @@ export default function CityPage() {
   const [countries, setCountries] = useState<Country[]>([]);
   const [states, setStates] = useState<State[]>([]);
   const [filteredStates, setFilteredStates] = useState<State[]>([]);
+  const [entityId, setEntityId] = useState('');
   const [name, setName] = useState('');
   const [lat, setLat] = useState('');
   const [lng, setLng] = useState('');
@@ -39,13 +41,16 @@ export default function CityPage() {
   const [loading, setLoading] = useState(false); // Add loading state
   const id = searchParams ? searchParams.get('id') : null; // Get the city ID from the query parameter
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [photos, setPhotos] = useState<Photo[]>([]);
 
   useEffect(() => {
     fetchCountries();
     fetchStates();
 
     if (id) {
+      setEntityId(id);
       fetchCity(id);
+      fetchPhotos(id);
     }
   }, [id]);
 
@@ -113,6 +118,24 @@ export default function CityPage() {
     } catch (error) {
       console.error('Failed to fetch city:', error);
       setMessage('Failed to fetch city.');
+      setMessageType('error');
+    }
+  };
+
+  const fetchPhotos = async (id: string) => {
+    try {
+      const response = await fetch(`/api/photos/cities/${id}`);
+      if (response.ok) {
+        const data = await response.json();
+        setPhotos(data.photos);
+      } else {
+        console.error('Failed to fetch photos:', await response.text());
+        setMessage('Failed to fetch photos.');
+        setMessageType('error');
+      }
+    } catch (error) {
+      console.error('Error fetching photos:', error);
+      setMessage('An error occurred while fetching photos.');
       setMessageType('error');
     }
   };
@@ -399,8 +422,34 @@ export default function CityPage() {
                 Get Albums from Google
               </button>
             </div>
+            {photos.length > 0 ? (
+              <div className="mt-6 grid grid-cols-3 gap-4">
+                {photos.map((photo) => (
+                  <div key={photo.id} className="relative">
+                    <img
+                      src={photo.url}
+                      alt={photo.caption || 'Photo'}
+                      className="w-full h-auto rounded shadow"
+                    />
+                    {photo.caption && (
+                      <p className="mt-2 text-center text-sm text-gray-600">
+                        {photo.caption}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-6 text-gray-500">
+                No photos attached to this city.
+              </p>
+            )}
             <Modal onClose={closeModal} isOpen={isModalOpen}>
-              <AlbumViewer />
+              <AlbumViewer
+                attachedPhotos={photos || []}
+                entityId={entityId}
+                entityType={'city'}
+              />
             </Modal>
             <hr />
             <ActionButton type={'submit'} disabled={loading}>

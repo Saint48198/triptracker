@@ -7,23 +7,20 @@ export interface Album {
 
 export interface Photo {
   id: string;
+  url: string;
+  title?: string;
+  caption: string | null;
+  created_at: string;
+}
+
+export interface GooglePhoto {
+  id: string;
   baseUrl: string;
   filename: string;
-  title?: string;
 }
 
 export interface AlbumViewerProps {
-  photos: Photo[];
-  entityId: number; // ID of the city or attraction
-  entityType: 'city' | 'attraction'; // Type of the entity
-  onPhotoSelect?: (photo: {
-    id: string;
-    baseUrl: string;
-    filename: string;
-  }) => void;
-  attachPhotoService: (
-    entityId: number,
-    entityType: string,
-    url: string
-  ) => Promise<void>;
+  attachedPhotos?: Photo[];
+  entityId: string;
+  entityType: 'city' | 'attraction';
 }
