@@ -9,9 +9,21 @@ export interface Photo {
   id: string;
   baseUrl: string;
   filename: string;
+  title?: string;
 }
 
 export interface AlbumViewerProps {
-  fetchAlbumsEndpoint: string;
-  fetchPhotosEndpoint: string;
+  photos: Photo[];
+  entityId: number; // ID of the city or attraction
+  entityType: 'city' | 'attraction'; // Type of the entity
+  onPhotoSelect?: (photo: {
+    id: string;
+    baseUrl: string;
+    filename: string;
+  }) => void;
+  attachPhotoService: (
+    entityId: number,
+    entityType: string,
+    url: string
+  ) => Promise<void>;
 }
