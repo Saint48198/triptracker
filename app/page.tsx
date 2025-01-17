@@ -12,6 +12,12 @@ import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner';
 import FilterBy from '@/components/FilterBy/FilterBy';
 import { FilterOption } from '@/components/FilterBy/FilterBy.types';
 import { Country, State } from '@/types/ContentTypes';
+import {
+  ENTITY_TYPE_ATTRACTIONS,
+  ENTITY_TYPE_CITIES,
+  ENTITY_TYPE_COUNTRIES,
+  ENTITY_TYPE_STATES,
+} from '@/constants';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -46,13 +52,13 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     setPage(1);
     setMapKey((prevKey) => prevKey + 1);
-    if (mapType === 'countries' || mapType === 'states') {
+    if (mapType === ENTITY_TYPE_COUNTRIES || mapType === ENTITY_TYPE_STATES) {
       setMarkers([]);
     } else {
       setGeoJsonData(null);
     }
 
-    if (mapType === 'states') {
+    if (mapType === ENTITY_TYPE_STATES) {
       setZoom(4);
       setCenter([37.09024, -95.712891]);
     } else {
@@ -63,7 +69,7 @@ const HomePage: React.FC = () => {
 
   useEffect(() => {
     if (
-      (mapType === 'cities' || mapType === 'attractions') &&
+      (mapType === ENTITY_TYPE_CITIES || mapType === ENTITY_TYPE_ATTRACTIONS) &&
       countries.length === 0
     ) {
       fetchCountries();
@@ -71,7 +77,7 @@ const HomePage: React.FC = () => {
 
     fetchData(mapType, page);
     updateURL();
-    if (mapType === 'countries' || mapType === 'states') {
+    if (mapType === ENTITY_TYPE_COUNTRIES || mapType === ENTITY_TYPE_STATES) {
       fetchFilteredGeoJsonData(mapType);
     }
   }, [mapType, page]);
@@ -91,11 +97,11 @@ const HomePage: React.FC = () => {
       setData(result[view] || result);
       setTotal(result.total || result.length);
 
-      if (view === 'countries') {
+      if (view === ENTITY_TYPE_COUNTRIES) {
         setCountries(countries);
       }
 
-      if (view === 'cities' || view === 'attractions') {
+      if (view === ENTITY_TYPE_CITIES || view === ENTITY_TYPE_ATTRACTIONS) {
         const extractedMarkers = result[view].map((item: any) => ({
           lat: item.lat,
           lng: item.lng,
@@ -165,19 +171,19 @@ const HomePage: React.FC = () => {
   };
 
   const columns = useMemo(() => {
-    return mapType === 'cities'
+    return mapType === ENTITY_TYPE_CITIES
       ? [
           { key: 'name', label: 'City Name', sortable: true },
           { key: 'state_name', label: 'State', sortable: true },
           { key: 'country_name', label: 'Country', sortable: true },
         ]
-      : mapType === 'states'
+      : mapType === ENTITY_TYPE_STATES
         ? [
             { key: 'abbr', label: 'Abbr', sortable: false },
             { key: 'name', label: 'State Name', sortable: true },
             { key: 'country_name', label: 'Country', sortable: true },
           ]
-        : mapType === 'countries'
+        : mapType === ENTITY_TYPE_COUNTRIES
           ? [{ key: 'name', label: 'Country Name', sortable: true }]
           : [
               { key: 'name', label: 'Site Name', sortable: true },
@@ -222,6 +228,14 @@ const HomePage: React.FC = () => {
     setMapType(type);
     setSelectedCountry('');
     setPage(1);
+  };
+
+  const handleRowClick = (row: any) => {
+    if (mapType === ENTITY_TYPE_CITIES) {
+      router.push(`/cities/${row.id}`);
+    } else if (mapType === ENTITY_TYPE_ATTRACTIONS) {
+      router.push(`/attractions/${row.id}`);
+    }
   };
 
   const filterOptions: FilterOption[] = countries.map((country: Country) => ({
@@ -299,6 +313,12 @@ const HomePage: React.FC = () => {
                   `Sorting ${mapType} by ${sortBy} in ${sortOrder} order`
                 );
               }}
+              onRowClick={
+                mapType === ENTITY_TYPE_CITIES ||
+                mapType === ENTITY_TYPE_ATTRACTIONS
+                  ? (row) => handleRowClick(row)
+                  : undefined
+              }
             />
             {hasPageProperty && (
               <Pagination

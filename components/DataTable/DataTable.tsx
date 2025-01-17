@@ -6,6 +6,7 @@ const DataTable: React.FC<DataTableProps> = ({
   data,
   onSort,
   actions,
+  onRowClick,
 }) => {
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -19,6 +20,16 @@ const DataTable: React.FC<DataTableProps> = ({
     }
     if (onSort) {
       onSort(columnKey, sortOrder === 'asc' ? 'desc' : 'asc');
+    }
+  };
+
+  const handleKeyDown = (
+    event: React.KeyboardEvent<HTMLTableRowElement>,
+    row: Record<string, any>
+  ) => {
+    if (onRowClick && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault();
+      onRowClick(row);
     }
   };
 
@@ -43,7 +54,17 @@ const DataTable: React.FC<DataTableProps> = ({
       </thead>
       <tbody>
         {data.map((row, rowIndex) => (
-          <tr key={rowIndex} className="hover:bg-gray-100">
+          <tr
+            key={rowIndex}
+            className={`cursor-${onRowClick ? 'pointer' : 'default'} hover:bg-gray-100`}
+            onClick={onRowClick ? () => onRowClick(row) : undefined}
+            onKeyDown={
+              onRowClick ? (event) => handleKeyDown(event, row) : undefined
+            }
+            role={onRowClick ? 'button' : undefined}
+            tabIndex={onRowClick ? 0 : undefined}
+            aria-label={onRowClick ? `Row ${rowIndex + 1}` : undefined}
+          >
             {columns.map((column: Column) => (
               <td key={column.key} className="px-4 py-2">
                 {row[column.key]}

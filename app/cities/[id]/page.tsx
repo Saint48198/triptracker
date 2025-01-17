@@ -1,13 +1,15 @@
+'use client';
+
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+import { useParams } from 'next/navigation';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner';
 import Message from '@/components/Message/Message';
 
 const CityPage: React.FC = () => {
-  const router = useRouter();
-  const { id } = router.query;
+  const params = useParams();
+  const id = params?.id as string;
   const [city, setCity] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
