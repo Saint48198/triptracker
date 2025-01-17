@@ -11,12 +11,14 @@ const AlbumViewer: React.FC<AlbumViewerProps> = ({
   entityType,
   entityId,
   attachedPhotos = [],
+  onUpdatePhotos,
 }) => {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [selectedAlbumId, setSelectedAlbumId] = useState<string | null>(null);
   const [photos, setPhotos] = useState<GooglePhoto[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(true);
   const [attachedPhotosState, setAttachedPhotos] =
     useState<Photo[]>(attachedPhotos);
 
@@ -50,7 +52,7 @@ const AlbumViewer: React.FC<AlbumViewerProps> = ({
         id: photo.id,
         url: `${photo.baseUrl}`,
         title: photo.filename,
-        caption: null,
+        caption: photo.description || photo.filename,
         created_at: new Date().toISOString(),
       };
       setAttachedPhotos((prev) => [...prev, newPhoto]);
@@ -91,9 +93,12 @@ const AlbumViewer: React.FC<AlbumViewerProps> = ({
   };
 
   const handleUpdatePhotos = () => {
-    // Implement the logic to update photos
     console.log('Updating photos:', attachedPhotosState);
+    onUpdatePhotos(attachedPhotosState);
+    setIsDialogOpen(false);
   };
+
+  if (!isDialogOpen) return null;
 
   return (
     <div className="p-6 flex flex-col h-[80vh]">
@@ -160,6 +165,7 @@ const AlbumViewer: React.FC<AlbumViewerProps> = ({
       <div className="mt-4 flex justify-center pb-4">
         <button
           onClick={handleUpdatePhotos}
+          type={'button'}
           className="px-4 py-2 bg-green-500 text-white rounded"
           disabled={!hasChanges}
         >

@@ -1,20 +1,23 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
+
+import { ENTITY_TYPE_CITIES } from '@/constants';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
-import dynamic from 'next/dynamic';
 import Message from '@/components/Message/Message';
 import Modal from '@/components/Modal/Modal';
 import AlbumViewer from '@/components/AlbumViewer/AlbumViewer';
-import { handleResponse } from '@/utils/handleResponse';
 import LatLngField from '@/components/LatLngField/LatLngField';
 import ActionButton from '@/components/ActionButton/ActionButton';
+import { handleResponse } from '@/utils/handleResponse';
 import { Country, State, WikiInfo } from '@/types/ContentTypes';
 import { GeocodeResult } from '@/types/MapTypes';
 import { Photo } from '@/types/PhotoTypes';
+import PhotoManager from '@/components/PhotoManager/PhotoManager';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -42,6 +45,7 @@ export default function CityPage() {
   const id = searchParams ? searchParams.get('id') : null; // Get the city ID from the query parameter
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [photos, setPhotos] = useState<Photo[]>([]);
+  const [googlePhotos, setGooglePhotos] = useState<Photo[] | null>(null);
 
   useEffect(() => {
     fetchCountries();
@@ -274,6 +278,12 @@ export default function CityPage() {
     setIsModalOpen(false);
   };
 
+  const handleUpdatePhotos = (photos: Photo[]) => {
+    console.log('Updating photos:', photos);
+    setGooglePhotos(photos);
+    setIsModalOpen(false);
+  };
+
   return (
     <>
       <Navbar />
@@ -422,33 +432,18 @@ export default function CityPage() {
                 Get Albums from Google
               </button>
             </div>
-            {photos.length > 0 ? (
-              <div className="mt-6 grid grid-cols-3 gap-4">
-                {photos.map((photo) => (
-                  <div key={photo.id} className="relative">
-                    <img
-                      src={photo.url}
-                      alt={photo.caption || 'Photo'}
-                      className="w-full h-auto rounded shadow"
-                    />
-                    {photo.caption && (
-                      <p className="mt-2 text-center text-sm text-gray-600">
-                        {photo.caption}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="mt-6 text-gray-500">
-                No photos attached to this city.
-              </p>
-            )}
+            <PhotoManager
+              entityType={ENTITY_TYPE_CITIES}
+              entityId={parseInt(entityId)}
+              initialPhotos={photos}
+              externalPhotos={googlePhotos}
+            />
             <Modal onClose={closeModal} isOpen={isModalOpen}>
               <AlbumViewer
                 attachedPhotos={photos || []}
                 entityId={entityId}
-                entityType={'city'}
+                entityType={ENTITY_TYPE_CITIES}
+                onUpdatePhotos={handleUpdatePhotos}
               />
             </Modal>
             <hr />

@@ -1,3 +1,5 @@
+import { ENTITY_TYPE_CITIES, ENTITY_TYPE_ATTRACTIONS } from '@/constants';
+
 export interface Album {
   id: string;
   title: string;
@@ -17,10 +19,19 @@ export interface GooglePhoto {
   id: string;
   baseUrl: string;
   filename: string;
+  description?: string;
 }
 
 export interface AlbumViewerProps {
   attachedPhotos?: Photo[];
   entityId: string;
-  entityType: 'city' | 'attraction';
+  entityType: typeof ENTITY_TYPE_CITIES | typeof ENTITY_TYPE_ATTRACTIONS;
+  onUpdatePhotos: (photos: Photo[]) => void;
+}
+
+export interface PhotoManagerProps {
+  entityType: typeof ENTITY_TYPE_CITIES | typeof ENTITY_TYPE_ATTRACTIONS;
+  entityId: number;
+  initialPhotos: Photo[];
+  externalPhotos: Photo[] | null;
 }
