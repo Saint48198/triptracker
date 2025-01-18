@@ -8,6 +8,7 @@ import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner';
 import Message from '@/components/Message/Message';
 import dynamic from 'next/dynamic';
 import { WikiInfo } from '@/types/ContentTypes';
+import { Photo } from '@/types/PhotoTypes';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -20,6 +21,7 @@ const CityPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [wikiInfo, setWikiInfo] = useState<WikiInfo | null>(null);
+  const [photos, setPhotos] = useState<Photo[]>([]);
 
   useEffect(() => {
     if (id) {
@@ -34,13 +36,14 @@ const CityPage: React.FC = () => {
       const result = await response.json();
       setCity(result);
       if (result.wiki_term) {
-        fetchWikiData(result.wiki_term);
-      } else {
-        setLoading(false);
+        await fetchWikiData(result.wiki_term);
       }
-    } catch (error) {
+
+      await fetchPhotos(cityId);
+    } catch (error: unknown) {
       console.error('Failed to fetch city details:', error);
       setMessage('Failed to fetch city details.');
+    } finally {
       setLoading(false);
     }
   };
@@ -55,11 +58,25 @@ const CityPage: React.FC = () => {
         console.error('Failed to fetch wiki info');
         setMessage('Failed to fetch wiki info.');
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error fetching wiki info:', error);
       setMessage('An error occurred.');
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  const fetchPhotos = async (id: string) => {
+    try {
+      const response = await fetch(`/api/photos/cities/${id}`);
+      if (response.ok) {
+        const data = await response.json();
+        setPhotos(data.photos);
+      } else {
+        console.error('Failed to fetch photos:', await response.text());
+        setMessage('Failed to fetch photos.');
+      }
+    } catch (error: unknown) {
+      console.error('Error fetching photos:', error);
+      setMessage('An error occurred while fetching photos.');
     }
   };
 
@@ -111,6 +128,22 @@ const CityPage: React.FC = () => {
                     >
                       Read more on Wikipedia
                     </a>
+                  </div>
+                )}
+
+                {photos.length > 0 && (
+                  <div>
+                    <h2 className="text-xl font-bold mt-4">Photos</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                      {photos.map((photo: Photo) => (
+                        <img
+                          key={photo.id}
+                          src={photo.url}
+                          alt={photo.title}
+                          className="w-full h-auto rounded"
+                        />
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
