@@ -6,6 +6,11 @@ import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner';
 import Message from '@/components/Message/Message';
+import dynamic from 'next/dynamic';
+
+const MapComponent = dynamic(() => import('@/components/Map/Map'), {
+  ssr: false,
+});
 
 const CityPage: React.FC = () => {
   const params = useParams();
@@ -45,19 +50,39 @@ const CityPage: React.FC = () => {
   return (
     <>
       <Navbar />
-      <main className="container mx-auto p-4">
+      <main>
         {city ? (
-          <div>
-            <h1 className="text-2xl font-bold mb-4">{city.name}</h1>
-            <p>
-              <strong>State:</strong> {city.state_name}
-            </p>
-            <p>
-              <strong>Country:</strong> {city.country_name}
-            </p>
-          </div>
+          <>
+            {city.lat && city.lng && (
+              <div>
+                <MapComponent
+                  markers={[
+                    {
+                      lat: parseFloat(city.lat),
+                      lng: parseFloat(city.lng),
+                      popupText: `${city.name}`,
+                    },
+                  ]}
+                  zoom={8}
+                />
+              </div>
+            )}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div>
+                <h1 className="text-2xl font-bold mb-4">{city.name}</h1>
+                <p>
+                  <strong>State:</strong> {city.state_name}
+                </p>
+                <p>
+                  <strong>Country:</strong> {city.country_name}
+                </p>
+              </div>
+            </div>
+          </>
         ) : (
-          <p>City not found.</p>
+          <div className="flex space-x-4 mb-6">
+            <p>City not found.</p>
+          </div>
         )}
       </main>
       <Footer />

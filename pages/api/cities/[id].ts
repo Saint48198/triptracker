@@ -1,5 +1,25 @@
+/**
+ * API Route: /api/cities/[id]
+ *
+ * This API route handles CRUD operations for a single city identified by its ID.
+ *
+ * Methods:
+ * - GET: Fetch details of a city by its ID.
+ * - PUT: Update details of a city by its ID.
+ * - DELETE: Delete a city by its ID.
+ *
+ * Database:
+ * - Uses SQLite database to store city information.
+ * - Joins with countries and states tables to fetch related data.
+ *
+ * Error Handling:
+ * - Returns appropriate HTTP status codes and error messages for different failure scenarios.
+ *
+ */
+
 import { NextApiRequest, NextApiResponse } from 'next';
-import db from '../../../database/db';
+import db from '@/database/db';
+import { handleApiError } from '@/utils/errorHandler';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const { id } = req.query;
@@ -27,9 +47,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       }
 
       res.status(200).json(city);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Failed to fetch city.' });
+    } catch (error: unknown) {
+      return handleApiError(error, res, 'Failed to fetch city', 500);
     }
   } else if (req.method === 'PUT') {
     // Update a city by id
@@ -37,9 +56,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       req.body;
 
     if (!name || !lat || !lng || !country_id) {
-      return res.status(400).json({
-        error: 'City name, latitude, longitude, and country are required.',
-      });
+      return handleApiError(
+        null,
+        res,
+        'City name, latitude, longitude, and country are required.',
+        400
+      );
     }
 
     try {
@@ -62,9 +84,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       }
 
       res.status(200).json({ message: 'City updated successfully.' });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Failed to update city.' });
+    } catch (error: unknown) {
+      return handleApiError(error, res, 'Failed to update city', 500);
     }
   } else if (req.method === 'DELETE') {
     // Delete a city by id
@@ -77,9 +98,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       }
 
       res.status(200).json({ message: 'City deleted successfully.' });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Failed to delete city.' });
+    } catch (error: unknown) {
+      return handleApiError(error, res, 'Failed to delete city', 500);
     }
   } else {
     res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);

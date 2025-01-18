@@ -1,5 +1,24 @@
+/**
+ * API Route: /api/cities
+ *
+ * This API route handles CRUD operations for cities.
+ *
+ * Methods:
+ * - GET: Fetch a list of cities with optional filtering, sorting, and pagination.
+ * - POST: Add a new city to the database.
+ *
+ * Database:
+ * - Uses SQLite database to store city information.
+ * - Joins with countries and states tables to fetch related data.
+ *
+ * Error Handling:
+ * - Returns appropriate HTTP status codes and error messages for different failure scenarios.
+ *
+ */
+
 import { NextApiRequest, NextApiResponse } from 'next';
-import db from '../../../database/db';
+import db from '@/database/db';
+import { handleApiError } from '@/utils/errorHandler';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
@@ -53,9 +72,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         page: Number(page),
         limit: Number(limit),
       });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Failed to fetch cities.' });
+    } catch (error: unknown) {
+      return handleApiError(error, res, 'Failed to fetch cities', 500);
     }
   } else if (req.method === 'POST') {
     // Add a new city
@@ -63,9 +81,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       req.body;
 
     if (!name || !lat || !lng || !country_id) {
-      return res.status(400).json({
-        error: 'City name, latitude, longitude, and country are required.',
-      });
+      return handleApiError(
+        null,
+        res,
+        'City name, latitude, longitude, and country are required.',
+        400
+      );
     }
 
     try {
@@ -74,9 +95,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       );
       stmt.run(name, lat, lng, state_id || null, country_id, last_visited);
       res.status(201).json({ message: 'City added successfully.' });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Failed to add city.' });
+    } catch (error: unknown) {
+      return handleApiError(error, res, 'Failed to add city', 500);
     }
   } else {
     res.setHeader('Allow', ['GET', 'POST']);
