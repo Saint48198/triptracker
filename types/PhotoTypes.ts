@@ -11,8 +11,9 @@ export interface Photo {
   id: string;
   url: string;
   title?: string;
-  caption: string | null;
+  caption?: string | null;
   created_at: string;
+  format?: string;
 }
 
 export interface GooglePhoto {
@@ -20,6 +21,13 @@ export interface GooglePhoto {
   baseUrl: string;
   filename: string;
   description?: string;
+}
+
+export interface CloudinaryPhoto {
+  asset_id: string;
+  secure_url: string;
+  created_at: string;
+  format: string;
 }
 
 export interface AlbumViewerProps {
