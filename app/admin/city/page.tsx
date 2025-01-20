@@ -10,7 +10,6 @@ import Footer from '@/components/Footer/Footer';
 import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
 import Message from '@/components/Message/Message';
 import Modal from '@/components/Modal/Modal';
-import AlbumViewer from '@/components/AlbumViewer/AlbumViewer';
 import LatLngField from '@/components/LatLngField/LatLngField';
 import ActionButton from '@/components/ActionButton/ActionButton';
 import { handleResponse } from '@/utils/handleResponse';
@@ -46,7 +45,8 @@ export default function CityPage() {
   const id = searchParams ? searchParams.get('id') : null; // Get the city ID from the query parameter
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [photos, setPhotos] = useState<Photo[]>([]);
-  const [googlePhotos, setGooglePhotos] = useState<Photo[] | null>(null);
+  const [selectedPhotos, setSelectedPhotos] = useState<Photo[] | null>(null);
+  const [photoUpdates, setPhotoUpdates] = useState<Photo[] | null>(null);
 
   useEffect(() => {
     fetchCountries();
@@ -277,12 +277,12 @@ export default function CityPage() {
 
   const closeModal = () => {
     setIsModalOpen(false);
+    setPhotoUpdates(selectedPhotos);
   };
 
   const handleUpdatePhotos = (photos: Photo[]) => {
     console.log('Updating photos:', photos);
-    //setGooglePhotos(photos);
-    //setIsModalOpen(false);
+    setSelectedPhotos(photos);
   };
 
   return (
@@ -437,7 +437,7 @@ export default function CityPage() {
               entityType={ENTITY_TYPE_CITIES}
               entityId={parseInt(entityId)}
               initialPhotos={photos}
-              externalPhotos={googlePhotos}
+              externalPhotos={photoUpdates}
             />
             <hr />
             <ActionButton type={'submit'} disabled={loading}>

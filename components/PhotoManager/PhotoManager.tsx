@@ -17,6 +17,11 @@ const PhotoManager: React.FC<PhotoManagerProps> = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    console.log('Setting initial photos:', initialPhotos);
+    setPhotos(initialPhotos);
+  }, [initialPhotos]);
+
+  useEffect(() => {
     console.log('externalPhotos:', externalPhotos);
     if (Array.isArray(externalPhotos)) handleAddRemovePhotos(externalPhotos);
   }, [externalPhotos]);
@@ -88,21 +93,28 @@ const PhotoManager: React.FC<PhotoManagerProps> = ({
             {loading ? (
               <div className="loading-icon">Processing...</div>
             ) : (
-              photos.map((photo: Photo, index) => (
-                <img
-                  key={index}
-                  src={photo.url}
-                  alt={photo.caption || 'Photo'}
-                  onClick={() => togglePhotoSelection(photo)}
-                  style={{
-                    border: selectedPhotos.some(
-                      (selected) => selected.url === photo.url
-                    )
-                      ? '2px solid blue'
-                      : 'none',
-                  }}
-                />
-              ))
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+                {photos.map((photo: Photo, index) => (
+                  <div key={index}>
+                    <button
+                      type={'button'}
+                      onClick={() => togglePhotoSelection(photo)}
+                    >
+                      <img
+                        src={photo.url}
+                        alt={photo.caption || 'Photo'}
+                        style={{
+                          border: selectedPhotos.some(
+                            (selected) => selected.url === photo.url
+                          )
+                            ? '2px solid blue'
+                            : 'none',
+                        }}
+                      />
+                    </button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
           <button

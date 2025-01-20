@@ -123,6 +123,7 @@ db.exec(`
         attraction_id INTEGER,
         caption TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        photo_id TEXT,
         FOREIGN KEY (user_id) REFERENCES users(id),
         FOREIGN KEY (city_id) REFERENCES cities(id),
         FOREIGN KEY (attraction_id) REFERENCES attractions(id)
