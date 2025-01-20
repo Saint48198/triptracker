@@ -18,6 +18,7 @@ import { Country, State, WikiInfo } from '@/types/ContentTypes';
 import { GeocodeResult } from '@/types/MapTypes';
 import { Photo } from '@/types/PhotoTypes';
 import PhotoManager from '@/components/PhotoManager/PhotoManager';
+import PhotoSearch from '@/components/PhotoSearch/PhotoSearch';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -270,7 +271,7 @@ export default function CityPage() {
     }
   };
 
-  const handleGetAlbums = () => {
+  const handleDisplayPhotos = () => {
     setIsModalOpen(true);
   };
 
@@ -280,8 +281,8 @@ export default function CityPage() {
 
   const handleUpdatePhotos = (photos: Photo[]) => {
     console.log('Updating photos:', photos);
-    setGooglePhotos(photos);
-    setIsModalOpen(false);
+    //setGooglePhotos(photos);
+    //setIsModalOpen(false);
   };
 
   return (
@@ -427,9 +428,9 @@ export default function CityPage() {
               <button
                 type="button"
                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                onClick={handleGetAlbums}
+                onClick={handleDisplayPhotos}
               >
-                Get Albums from Google
+                Display All Photos
               </button>
             </div>
             <PhotoManager
@@ -438,14 +439,6 @@ export default function CityPage() {
               initialPhotos={photos}
               externalPhotos={googlePhotos}
             />
-            <Modal onClose={closeModal} isOpen={isModalOpen}>
-              <AlbumViewer
-                attachedPhotos={photos || []}
-                entityId={entityId}
-                entityType={ENTITY_TYPE_CITIES}
-                onUpdatePhotos={handleUpdatePhotos}
-              />
-            </Modal>
             <hr />
             <ActionButton type={'submit'} disabled={loading}>
               {id ? 'Update City' : 'Add City'}
@@ -461,6 +454,9 @@ export default function CityPage() {
         </div>
       </main>
       <Footer />
+      <Modal onClose={closeModal} isOpen={isModalOpen}>
+        <PhotoSearch onPhotoSelect={handleUpdatePhotos} />
+      </Modal>
     </>
   );
 }

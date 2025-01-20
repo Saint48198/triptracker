@@ -43,3 +43,7 @@ export interface PhotoManagerProps {
   initialPhotos: Photo[];
   externalPhotos: Photo[] | null;
 }
+
+export interface PhotoSearchProps {
+  onPhotoSelect: (selectedPhotos: Photo[]) => void;
+}
