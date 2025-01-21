@@ -277,6 +277,7 @@ export default function CityPage() {
 
   const closeModal = () => {
     setIsModalOpen(false);
+    console.log('Selected photos:', selectedPhotos);
     setPhotoUpdates(selectedPhotos);
   };
 
@@ -455,7 +456,10 @@ export default function CityPage() {
       </main>
       <Footer />
       <Modal onClose={closeModal} isOpen={isModalOpen}>
-        <PhotoSearch onPhotoSelect={handleUpdatePhotos} />
+        <PhotoSearch
+          onPhotoSelect={handleUpdatePhotos}
+          initialSelectedPhotos={photos}
+        />
       </Modal>
     </>
   );

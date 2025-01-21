@@ -2,11 +2,14 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Photo, PhotoSearchProps } from '@/types/PhotoTypes';
 import Message from '@/components/Message/Message';
 
-const PhotoSearch: React.FC<PhotoSearchProps> = ({ onPhotoSelect }) => {
+const PhotoSearch: React.FC<PhotoSearchProps> = ({
+  onPhotoSelect,
+  initialSelectedPhotos,
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [selectedPhotoIds, setSelectedPhotoIds] = useState<Set<string>>(
-    new Set()
+    new Set(initialSelectedPhotos.map((photo: Photo) => photo.photo_id))
   );
   const [loading, setLoading] = useState(false);
   const [nextCursor, setNextCursor] = useState('');
@@ -27,7 +30,22 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({ onPhotoSelect }) => {
         }
 
         const data = await response.json();
-        setPhotos((prev) => [...prev, ...data.photos]);
+        console.log('intialPhotos', initialSelectedPhotos);
+        setPhotos((prev: Photo[]) => {
+          const newPhotos = [...prev, ...data.photos];
+          const newSelectedPhotoIds = new Set(selectedPhotoIds);
+          data.photos.forEach((photo: Photo) => {
+            if (
+              initialSelectedPhotos.some(
+                (initialPhoto) => initialPhoto.photo_id === photo.photo_id
+              )
+            ) {
+              newSelectedPhotoIds.add(photo.photo_id);
+            }
+          });
+          setSelectedPhotoIds(newSelectedPhotoIds);
+          return newPhotos;
+        });
         setNextCursor(data.next_cursor || '');
       } catch (err: any) {
         setMessage(err.message || 'An error occurred');
@@ -47,17 +65,17 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({ onPhotoSelect }) => {
   const handleSelectPhoto = useCallback((photo: Photo) => {
     setSelectedPhotoIds((prevSelectedPhotoIds) => {
       const newSelectedPhotoIds = new Set(prevSelectedPhotoIds);
-      if (newSelectedPhotoIds.has(photo.id)) {
-        newSelectedPhotoIds.delete(photo.id);
+      if (newSelectedPhotoIds.has(photo.photo_id)) {
+        newSelectedPhotoIds.delete(photo.photo_id);
       } else {
-        newSelectedPhotoIds.add(photo.id);
+        newSelectedPhotoIds.add(photo.photo_id);
       }
       return newSelectedPhotoIds;
     });
   }, []);
 
   const selectedPhotos = useMemo(
-    () => photos.filter((photo) => selectedPhotoIds.has(photo.id)),
+    () => photos.filter((photo: Photo) => selectedPhotoIds.has(photo.photo_id)),
     [photos, selectedPhotoIds]
   );
 
@@ -101,9 +119,9 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({ onPhotoSelect }) => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {photos.map((photo) => (
             <button
-              key={photo.id}
+              key={photo.photo_id}
               className={`relative border rounded-lg overflow-hidden cursor-pointer ${
-                selectedPhotoIds.has(photo.id)
+                selectedPhotoIds.has(photo.photo_id)
                   ? 'border-blue-500'
                   : 'border-gray-300'
               }`}
@@ -115,7 +133,7 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({ onPhotoSelect }) => {
                 alt="Cloudinary photo"
                 className="w-full h-32 object-center object-cover"
               />
-              {selectedPhotoIds.has(photo.id) && (
+              {selectedPhotoIds.has(photo.photo_id) && (
                 <div className="absolute inset-0 bg-blue-500 bg-opacity-50 flex items-center justify-center">
                   <span className="text-white font-bold text-lg">✓</span>
                 </div>

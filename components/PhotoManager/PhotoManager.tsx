@@ -17,12 +17,10 @@ const PhotoManager: React.FC<PhotoManagerProps> = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    console.log('Setting initial photos:', initialPhotos);
     setPhotos(initialPhotos);
   }, [initialPhotos]);
 
   useEffect(() => {
-    console.log('externalPhotos:', externalPhotos);
     if (Array.isArray(externalPhotos)) handleAddRemovePhotos(externalPhotos);
   }, [externalPhotos]);
 
@@ -30,10 +28,12 @@ const PhotoManager: React.FC<PhotoManagerProps> = ({
     setLoading(true);
 
     const addPhotos = newPhotos.filter(
-      (newPhoto) => !photos.some((photo) => photo.url === newPhoto.url)
+      (newPhoto: Photo) =>
+        !photos.some((photo) => photo.photo_id === newPhoto.photo_id)
     );
     const removePhotos = photos.filter(
-      (photo) => !newPhotos.some((newPhoto) => newPhoto.url === photo.url)
+      (photo: Photo) =>
+        !newPhotos.some((newPhoto) => newPhoto.photo_id === photo.photo_id)
     );
 
     if (addPhotos.length > 0) {

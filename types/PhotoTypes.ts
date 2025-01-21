@@ -14,7 +14,7 @@ export interface Photo {
   caption?: string | null;
   created_at: string;
   format?: string;
-  photo_id?: string;
+  photo_id: string;
 }
 
 export interface GooglePhoto {
@@ -47,4 +47,5 @@ export interface PhotoManagerProps {
 
 export interface PhotoSearchProps {
   onPhotoSelect: (selectedPhotos: Photo[]) => void;
+  initialSelectedPhotos: Photo[];
 }

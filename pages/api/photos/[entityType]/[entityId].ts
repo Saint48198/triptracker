@@ -21,6 +21,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import db from '@/database/db'; // SQLite database connection
 import { handleApiError } from '@/utils/errorHandler';
+import { ENTITY_TYPE_ATTRACTIONS, ENTITY_TYPE_CITIES } from '@/constants';
 
 export default async function handler(
   req: NextApiRequest,
@@ -37,13 +38,14 @@ export default async function handler(
     return res.status(400).json({ error: 'Invalid entityType or entityId' });
   }
 
-  if (!['cities', 'attractions'].includes(entityType)) {
+  if (![ENTITY_TYPE_CITIES, ENTITY_TYPE_ATTRACTIONS].includes(entityType)) {
     return res.status(400).json({
       error: 'Invalid entityType. Must be "cities" or "attractions".',
     });
   }
 
-  const column = entityType === 'cities' ? 'city_id' : 'attraction_id';
+  const column =
+    entityType === ENTITY_TYPE_CITIES ? 'city_id' : 'attraction_id';
 
   try {
     if (req.method === 'GET') {
@@ -51,7 +53,7 @@ export default async function handler(
       const photos = db
         .prepare(
           `
-          SELECT id, url, user_id, ${column} AS entity_id, caption, created_at
+          SELECT id, url, user_id, ${column} AS entity_id, caption, created_at, photo_id
           FROM photos
           WHERE ${column} = ?
         `

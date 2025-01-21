@@ -23,6 +23,7 @@ import db from '@/database/db';
 import { ENTITY_TYPE_CITIES } from '@/constants';
 import { authenticateRequest } from '@/utils/authUtil';
 import { handleApiError } from '@/utils/errorHandler';
+import { Photo } from '@/types/PhotoTypes';
 
 export default async function handler(
   req: NextApiRequest,
@@ -46,22 +47,21 @@ export default async function handler(
       entityType === ENTITY_TYPE_CITIES ? 'city_id' : 'attraction_id';
 
     const insertPhotos = db.prepare(`
-      INSERT INTO photos (url, user_id, ${entityColumn}, caption)
-      VALUES (?, ?, ?, ?)
+      INSERT INTO photos (photo_id, url, user_id, ${entityColumn}, caption)
+      VALUES (?, ?, ?, ?, ?)
     `);
 
-    const insertMany = db.transaction(
-      (photos: { url: string; caption?: string }[]) => {
-        photos.forEach((photo) => {
-          insertPhotos.run(
-            photo.url,
-            payload.id,
-            entityId,
-            photo.caption || null
-          );
-        });
-      }
-    );
+    const insertMany = db.transaction((photos: Photo[]) => {
+      photos.forEach((photo: Photo) => {
+        insertPhotos.run(
+          photo.photo_id,
+          photo.url,
+          payload.id,
+          entityId,
+          photo.caption || null
+        );
+      });
+    });
 
     insertMany(photos);
 

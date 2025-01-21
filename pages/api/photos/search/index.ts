@@ -66,10 +66,10 @@ export default async function handler(
 
     const photos: Photo[] = results.resources.map(
       (resource: CloudinaryPhoto) => ({
-        id: resource.asset_id,
         url: resource.secure_url,
         created_at: resource.created_at,
         format: resource.format,
+        photo_id: resource.asset_id,
       })
     );
 
