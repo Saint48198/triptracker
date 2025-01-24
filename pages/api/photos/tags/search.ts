@@ -1,5 +1,5 @@
 /**
- * API Route: /api/photos/tags
+ * API Route: /api/photos/tags/search
  *
  * This service handles fetching tags from Cloudinary.
  *
