@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { Photo, PhotoSearchProps } from '@/types/PhotoTypes';
 import Message from '@/components/Message/Message';
 
@@ -14,6 +16,41 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
   const [loading, setLoading] = useState(false);
   const [nextCursor, setNextCursor] = useState('');
   const [message, setMessage] = useState('');
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const searchSubject = useMemo(() => new Subject<string>(), []);
+
+  useEffect(() => {
+    const subscription = searchSubject
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((term) =>
+          fetch(`/api/photos/tags/search?query=${term}`).then((res) =>
+            res.json()
+          )
+        )
+      )
+      .subscribe({
+        next: (data) => {
+          setSuggestions(data.tags || []);
+        },
+        error: (err: unknown) => {
+          console.error('Error fetching tags:', err);
+          setMessage('Failed to fetch tags');
+        },
+      });
+
+    return () => subscription.unsubscribe();
+  }, [searchSubject]);
+
+  useEffect(() => {
+    if (searchTerm) {
+      searchSubject.next(searchTerm);
+    } else {
+      searchSubject.next('');
+      setSuggestions([]);
+    }
+  }, [searchTerm]);
 
   const fetchPhotos = useCallback(
     async (cursor?: string) => {
@@ -30,7 +67,7 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
         }
 
         const data = await response.json();
-        console.log('intialPhotos', initialSelectedPhotos);
+
         setPhotos((prev: Photo[]) => {
           const newPhotos = [...prev, ...data.photos];
           const newSelectedPhotoIds = new Set(selectedPhotoIds);
@@ -55,6 +92,18 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
     },
     [searchTerm]
   );
+
+  const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const term = e.target.value.trim(); // Trim unnecessary spaces
+    setSearchTerm(term);
+
+    if (term === '') {
+      searchSubject.next(''); // Clear the searchSubject
+      setSuggestions([]); // Clear suggestions
+    } else {
+      searchSubject.next(term); // Trigger the search
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,13 +147,40 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
       <h1 className="text-2xl font-bold mb-4">Photos</h1>
       {message && <Message message={message} type="error"></Message>}
       <form onSubmit={handleSearch} className="mb-4 flex items-center gap-2">
-        <input
-          type="text"
-          placeholder="Search by folder or tag"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="border p-2 flex-grow rounded-md"
-        />
+        <div className="flex-grow relative">
+          <input
+            type="text"
+            placeholder="Search by folder or tag"
+            value={searchTerm}
+            onChange={handleSearchInput}
+            className="border p-2 w-full rounded-md"
+          />
+          {searchTerm && suggestions.length > 0 ? (
+            <ul
+              className="absolute bg-white border rounded-md shadow-md max-h-40 overflow-auto z-10 w-full list-none"
+              role="menu"
+            >
+              {suggestions.map((tag, index) => (
+                <li
+                  key={index}
+                  className="p-2 m-0 hover:bg-gray-100 cursor-pointer w-full"
+                  onClick={() => setSearchTerm(tag)}
+                  role="menuitem"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      setSearchTerm(tag);
+                    }
+                  }}
+                >
+                  {tag}
+                </li>
+              ))}
+            </ul>
+          ) : searchTerm && suggestions.length === 0 ? (
+            <p className="p-2 text-gray-500">No results</p>
+          ) : null}
+        </div>
         <button
           type="submit"
           className="bg-blue-500 text-white px-4 py-2 rounded-md"
