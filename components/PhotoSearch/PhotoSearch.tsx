@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { Photo, PhotoSearchProps } from '@/types/PhotoTypes';
@@ -16,46 +22,75 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
   const [loading, setLoading] = useState(false);
   const [nextCursor, setNextCursor] = useState('');
   const [message, setMessage] = useState('');
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<string[] | null>(null);
   const searchSubject = useMemo(() => new Subject<string>(), []);
+  const [focusedIndex, setFocusedIndex] = useState(-1); // Tracks which suggestion is focused
+  const suggestionListRef = useRef<HTMLUListElement | null>(null);
+  const shouldTriggerSearch = useRef(true);
 
   useEffect(() => {
     const subscription = searchSubject
       .pipe(
         debounceTime(300),
         distinctUntilChanged(),
-        switchMap((term) =>
-          fetch(`/api/photos/tags/search?query=${term}`).then((res) =>
+        switchMap((term) => {
+          if (!term) return Promise.resolve({ tags: [] }); // Avoid fetch for empty terms
+          return fetch(`/api/photos/tags/search?query=${term}`).then((res) =>
             res.json()
-          )
-        )
+          );
+        })
       )
       .subscribe({
         next: (data) => {
           setSuggestions(data.tags || []);
         },
         error: (err: unknown) => {
-          console.error('Error fetching tags:', err);
           setMessage('Failed to fetch tags');
         },
       });
 
     return () => subscription.unsubscribe();
-  }, [searchSubject]);
+  }, [searchSubject, initialSelectedPhotos]);
 
   useEffect(() => {
-    if (searchTerm) {
-      searchSubject.next(searchTerm);
-    } else {
-      searchSubject.next('');
-      setSuggestions([]);
+    if (!shouldTriggerSearch.current) {
+      shouldTriggerSearch.current = true; // Reset the ref
+      return;
     }
-  }, [searchTerm]);
+
+    if (searchTerm.trim() === '') {
+      setSuggestions(null); // Clear suggestions if input is empty
+      searchSubject.next(''); // Avoid triggering suggestions fetch
+    } else if (searchTerm && !loading) {
+      searchSubject.next(searchTerm); // Fetch suggestions only if typing
+    }
+
+    setFocusedIndex(-1); // Reset focus index
+  }, [searchTerm, loading, searchSubject]);
+
+  useEffect(() => {}, [suggestions]);
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && focusedIndex >= 0 && suggestions) {
+      setSearchTerm(suggestions[focusedIndex]);
+      shouldTriggerSearch.current = false; // Prevent search trigger
+      setSuggestions(null); // Clear suggestions
+      setFocusedIndex(-1); // Reset focus index
+    } else if (e.key === 'Escape') {
+      setSuggestions(null); // Close suggestions on Escape
+    } else if (e.key === 'ArrowDown' && suggestions) {
+      setFocusedIndex((prev) => Math.min(prev + 1, suggestions.length - 1));
+    } else if (e.key === 'ArrowUp' && suggestions) {
+      setFocusedIndex((prev) => Math.max(prev - 1, 0));
+    }
+  };
 
   const fetchPhotos = useCallback(
     async (cursor?: string) => {
       setLoading(true);
       setMessage('');
+      setSuggestions(null);
 
       try {
         const response = await fetch(
@@ -90,24 +125,26 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
         setLoading(false);
       }
     },
-    [searchTerm]
+    [searchTerm, selectedPhotoIds, initialSelectedPhotos]
   );
 
   const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value.trim(); // Trim unnecessary spaces
     setSearchTerm(term);
-
     if (term === '') {
+      setSuggestions(null); // Clear suggestions
       searchSubject.next(''); // Clear the searchSubject
-      setSuggestions([]); // Clear suggestions
-    } else {
+    } else if (shouldTriggerSearch) {
       searchSubject.next(term); // Trigger the search
     }
+
+    setFocusedIndex(-1); // Reset focus index
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setPhotos([]);
+    setSuggestions(null);
     fetchPhotos();
   };
 
@@ -142,6 +179,13 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
     return url;
   };
 
+  const handleSuggestionClick = (tag: string) => {
+    shouldTriggerSearch.current = false; // Prevent search trigger
+    setSearchTerm(tag);
+    setSuggestions(null); // Clear suggestions to close the menu
+    setFocusedIndex(-1); // Reset focus index
+  };
+
   return (
     <div className="p-6 flex flex-col h-[80vh] w-[80vw]">
       <h1 className="text-2xl font-bold mb-4">Photos</h1>
@@ -150,26 +194,44 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
         <div className="flex-grow relative">
           <input
             type="text"
+            id="search"
             placeholder="Search by folder or tag"
             value={searchTerm}
             onChange={handleSearchInput}
-            className="border p-2 w-full rounded-md"
+            onKeyDown={handleKeyDown}
+            aria-autocomplete="list"
+            aria-controls="suggestions-list"
+            aria-expanded={
+              suggestions && suggestions.length > 0 ? 'true' : 'false'
+            }
+            aria-activedescendant={
+              focusedIndex >= 0 ? `suggestion-${focusedIndex}` : undefined
+            }
+            className="border p-2 w-full rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           />
-          {searchTerm && suggestions.length > 0 ? (
+          {searchTerm && suggestions && suggestions.length > 0 ? (
             <ul
               className="absolute bg-white border rounded-md shadow-md max-h-40 overflow-auto z-10 w-full list-none"
-              role="menu"
+              id="suggestions-list"
+              role="listbox"
+              ref={suggestionListRef}
             >
               {suggestions.map((tag, index) => (
                 <li
                   key={index}
-                  className="p-2 m-0 hover:bg-gray-100 cursor-pointer w-full"
-                  onClick={() => setSearchTerm(tag)}
-                  role="menuitem"
+                  className={`px-4 py-2 cursor-pointer border-0 m-0 w-full max-w-full ${
+                    focusedIndex === index
+                      ? 'bg-blue-500 text-white'
+                      : 'hover:bg-gray-100'
+                  }`}
+                  id={`suggestion-${index}`}
+                  role="option"
+                  aria-selected={focusedIndex === index}
+                  onClick={() => handleSuggestionClick(tag)}
                   tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
-                      setSearchTerm(tag);
+                      handleSuggestionClick(tag);
                     }
                   }}
                 >
@@ -177,7 +239,7 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
                 </li>
               ))}
             </ul>
-          ) : searchTerm && suggestions.length === 0 ? (
+          ) : searchTerm && suggestions && suggestions.length === 0 ? (
             <p className="p-2 text-gray-500">No results</p>
           ) : null}
         </div>
