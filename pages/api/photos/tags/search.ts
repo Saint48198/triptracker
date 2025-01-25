@@ -23,6 +23,15 @@ const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
 const API_KEY = process.env.CLOUDINARY_API_KEY;
 const API_SECRET = process.env.CLOUDINARY_API_SECRET;
 
+const calculateSimilarity = (term: string, suggestion: string): number => {
+  const lowerTerm = term.toLowerCase();
+  const lowerSuggestion = suggestion.toLowerCase();
+  if (lowerSuggestion.includes(lowerTerm)) {
+    return (lowerTerm.length / lowerSuggestion.length) * 100;
+  }
+  return 0;
+};
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -32,6 +41,11 @@ export default async function handler(
   }
 
   try {
+    const { query } = req.query;
+    if (!query || typeof query !== 'string') {
+      return handleApiError(null, res, 'Invalid query parameter', 400);
+    }
+
     // Construct the API URL
     const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/tags/image`;
 
@@ -45,8 +59,22 @@ export default async function handler(
       },
     });
 
+    // Sort the tags based on similarity to the query
+    const sortedTags = response.data.tags
+      .map((tag: string) => ({
+        tag,
+        similarity: calculateSimilarity(query, tag),
+      }))
+      .sort(
+        (
+          a: { tag: string; similarity: number },
+          b: { tag: string; similarity: number }
+        ) => b.similarity - a.similarity
+      )
+      .map((item: { tag: string; similarity: number }) => item.tag);
+
     // Return the tags
-    res.status(200).json({ tags: response.data.tags });
+    res.status(200).json({ tags: sortedTags });
   } catch (error: unknown) {
     return handleApiError(error, res, 'Failed to fetch Cloudinary tags', 500);
   }
