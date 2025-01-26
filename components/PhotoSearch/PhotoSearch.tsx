@@ -29,15 +29,15 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
   const shouldTriggerSearch = useRef(true);
 
   useEffect(() => {
+    console.log('searchSubject:', searchSubject);
     const subscription = searchSubject
       .pipe(
         debounceTime(300),
         distinctUntilChanged(),
-        switchMap((term) => {
+        switchMap(async (term) => {
           if (!term) return Promise.resolve({ tags: [] }); // Avoid fetch for empty terms
-          return fetch(`/api/photos/tags/search?query=${term}`).then((res) =>
-            res.json()
-          );
+          const res = await fetch(`/api/photos/tags/search?query=${term}`);
+          return await res.json();
         })
       )
       .subscribe({
@@ -53,6 +53,7 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
   }, [searchSubject, initialSelectedPhotos]);
 
   useEffect(() => {
+    console.log('searchTerm:', searchTerm, shouldTriggerSearch.current);
     if (!shouldTriggerSearch.current) {
       shouldTriggerSearch.current = true; // Reset the ref
       return;
@@ -91,6 +92,7 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
       setLoading(true);
       setMessage('');
       setSuggestions(null);
+      shouldTriggerSearch.current = false; // Prevent search trigger
 
       try {
         const response = await fetch(
@@ -98,7 +100,8 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
         );
 
         if (!response.ok) {
-          throw new Error('Failed to fetch photos');
+          setMessage('Failed to fetch photos');
+          console.error('Failed to fetch photos:', response.statusText);
         }
 
         const data = await response.json();
@@ -122,6 +125,8 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
       } catch (err: any) {
         setMessage(err.message || 'An error occurred');
       } finally {
+        setSuggestions(null);
+        shouldTriggerSearch.current = false; // Reset the ref
         setLoading(false);
       }
     },
@@ -133,7 +138,7 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
     setSearchTerm(term);
     if (term === '') {
       setSuggestions(null); // Clear suggestions
-      searchSubject.next(''); // Clear the searchSubject
+      shouldTriggerSearch.current = false; // Prevent search trigger
     } else if (shouldTriggerSearch) {
       searchSubject.next(term); // Trigger the search
     }
@@ -143,8 +148,10 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    shouldTriggerSearch.current = false; // Prevent search trigger
     setPhotos([]);
     setSuggestions(null);
+    setFocusedIndex(-1);
     fetchPhotos();
   };
 

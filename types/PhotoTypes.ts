@@ -29,6 +29,10 @@ export interface CloudinaryPhoto {
   secure_url: string;
   created_at: string;
   format: string;
+  public_id: string;
+  version: number;
+  access_mode: string;
+  access_control: { access_type: string }[];
 }
 
 export interface AlbumViewerProps {
