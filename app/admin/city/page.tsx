@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 
@@ -18,6 +18,7 @@ import { GeocodeResult } from '@/types/MapTypes';
 import { Photo } from '@/types/PhotoTypes';
 import PhotoManager from '@/components/PhotoManager/PhotoManager';
 import PhotoSearch from '@/components/PhotoSearch/PhotoSearch';
+import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -40,50 +41,20 @@ export default function CityPage() {
   const [wikiInfo, setWikiInfo] = useState<WikiInfo | null>(null);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'error' | 'success' | ''>('');
-  const [geocodeResults, setGeocodeResults] = useState<GeocodeResult[]>([]); // Store geocode results
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [working, setWorking] = useState(false); // Add working state for when the geocode API is called
   const id = searchParams ? searchParams.get('id') : null; // Get the city ID from the query parameter
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [selectedPhotos, setSelectedPhotos] = useState<Photo[] | null>(null);
   const [photoUpdates, setPhotoUpdates] = useState<Photo[] | null>(null);
-
-  useEffect(() => {
-    fetchCountries();
-    fetchStates();
-
-    if (id) {
-      setEntityId(id);
-      fetchCity(id);
-      fetchPhotos(id);
-    }
-  }, [id]);
-
-  useEffect(() => {
-    if (wikiTerm && wikiTerm.trim()) {
-      handleWikiLookup();
-    }
-  }, [wikiTerm]);
-
-  useEffect(() => {
-    // Filter states when countryId changes
-    if (isNorthAmericanCountry(countryId)) {
-      setFilteredStates(
-        states.filter((state) => {
-          return state.country_id && state.country_id.toString() === countryId;
-        })
-      );
-    } else {
-      setFilteredStates([]);
-    }
-  }, [countryId, states]);
+  const [loading, setLoading] = useState(true);
 
   const isNorthAmericanCountry = (countryId: string): boolean => {
     const northAmericanCountryIds = ['1', '5'];
     return northAmericanCountryIds.includes(countryId);
   };
 
-  const fetchCountries = async () => {
+  const fetchCountries = useCallback(async () => {
     try {
       const response = await fetch('/api/countries');
       const data = await response.json();
@@ -93,9 +64,9 @@ export default function CityPage() {
       setMessage('Failed to fetch countries.');
       setMessageType('error');
     }
-  };
+  }, []);
 
-  const fetchStates = async () => {
+  const fetchStates = useCallback(async () => {
     try {
       const response = await fetch('/api/states');
       const data = await response.json();
@@ -105,9 +76,9 @@ export default function CityPage() {
       setMessage('Failed to fetch states.');
       setMessageType('error');
     }
-  };
+  }, []);
 
-  const fetchCity = async (id: string) => {
+  const fetchCity = useCallback(async (id: string) => {
     try {
       const response = await fetch(`/api/cities/${id}`);
       const data = await response.json();
@@ -125,9 +96,9 @@ export default function CityPage() {
       setMessage('Failed to fetch city.');
       setMessageType('error');
     }
-  };
+  }, []);
 
-  const fetchPhotos = async (id: string) => {
+  const fetchPhotos = useCallback(async (id: string) => {
     try {
       const response = await fetch(`/api/photos/cities/${id}`);
       if (response.ok) {
@@ -143,7 +114,7 @@ export default function CityPage() {
       setMessage('An error occurred while fetching photos.');
       setMessageType('error');
     }
-  };
+  }, []);
 
   const handleGeocode = async () => {
     if (!name || !countryId) {
@@ -156,7 +127,7 @@ export default function CityPage() {
       (country) => country.id.toString() === countryId
     )?.name;
 
-    setLoading(true); // Set loading to true before the API call
+    setWorking(true); // Set working to true before the API call
 
     try {
       const response = await fetch('/api/geocode', {
@@ -180,14 +151,10 @@ export default function CityPage() {
         }));
 
         if (results.length > 1) {
-          setGeocodeResults(results);
-          setMessage(
-            'Multiple results found. Please select the correct location.'
-          );
+          setMessage('Multiple results found.');
         } else if (results.length === 1) {
           setLat(results[0].lat.toString());
           setLng(results[0].lng.toString());
-          setGeocodeResults([]);
           setMessage('Geocoding successful!');
           setMessageType('success');
         } else {
@@ -204,11 +171,11 @@ export default function CityPage() {
       setMessage('An error occurred.');
       setMessageType('error');
     } finally {
-      setLoading(false); // Set loading to false after the API call
+      setWorking(false); // Set working to false after the API call
     }
   };
 
-  const handleWikiLookup = async () => {
+  const handleWikiLookup = useCallback(async () => {
     try {
       const response = await fetch(`/api/info?query=${wikiTerm}`);
       if (response.ok) {
@@ -224,7 +191,7 @@ export default function CityPage() {
       setMessage('An error occurred.');
       setMessageType('error');
     }
-  };
+  }, [wikiTerm]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -286,6 +253,53 @@ export default function CityPage() {
     setSelectedPhotos(photos);
   };
 
+  const fetchData = useCallback(
+    async (id: string) => {
+      setLoading(true);
+
+      try {
+        await Promise.all([fetchCountries(), fetchStates()]);
+        if (id) {
+          setEntityId(id);
+          await Promise.all([fetchCity(id), fetchPhotos(id)]);
+
+          if (wikiTerm && wikiTerm.trim()) {
+            await handleWikiLookup();
+          }
+        }
+      } catch (err) {
+        console.error('Loading Data: ', err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      fetchCountries,
+      fetchStates,
+      fetchCity,
+      fetchPhotos,
+      handleWikiLookup,
+      wikiTerm,
+    ]
+  );
+
+  useEffect(() => {
+    fetchData(id || '').finally(() => setLoading(false));
+  }, [fetchData, id]);
+
+  useEffect(() => {
+    // Filter states when countryId changes
+    if (isNorthAmericanCountry(countryId)) {
+      setFilteredStates(
+        states.filter((state) => {
+          return state.country_id && state.country_id.toString() === countryId;
+        })
+      );
+    } else {
+      setFilteredStates([]);
+    }
+  }, [countryId, states]);
+
   return (
     <>
       <Navbar />
@@ -297,161 +311,169 @@ export default function CityPage() {
           <h1 className="text-2xl font-bold mb-6">
             {id ? 'Edit City' : 'Add City'}
           </h1>
-          {message && <Message message={message} type={messageType}></Message>}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <h2 className="text-lg font-semibold underline">Details</h2>
-            <div>
-              <label htmlFor="name" className="block font-medium">
-                City Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
-                required
-              />
-            </div>
-            {filteredStates.length > 0 && (
-              <div>
-                <label htmlFor="stateId" className="block font-medium">
-                  State
-                </label>
-                <select
-                  id="stateId"
-                  value={stateId}
-                  onChange={(e) => setStateId(e.target.value)}
-                  className="w-full border px-4 py-2 rounded"
-                >
-                  <option value="">Select a state</option>
-                  {filteredStates.map((state) => (
-                    <option key={state.id} value={state.id}>
-                      {state.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-            <div>
-              <label htmlFor="countryId" className="block font-medium">
-                Country
-              </label>
-              <select
-                id="countryId"
-                value={countryId}
-                onChange={(e) => setCountryId(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
-                required
-              >
-                <option value="">Select a country</option>
-                {countries.map((country) => (
-                  <option key={country.id} value={country.id}>
-                    {country.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="lastVisited" className="block font-medium">
-                Last Visited
-              </label>
-              <input
-                type="month"
-                id="lastVisited"
-                value={lastVisited}
-                onChange={(e) => setLastVisited(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
-              />
-            </div>
-            <h2 className="text-lg font-semibold underline">Location</h2>
-            <LatLngField
-              latLabel="Latitude"
-              lat={parseFloat(lat)}
-              lngLabel="Longitude"
-              lng={parseFloat(lng)}
-              isLoading={loading}
-              onLatChange={(lat) => setLat(lat.toString())}
-              onLngChange={(lng) => setLng(lng.toString())}
-              onLookup={handleGeocode}
-            />
-            {lat && lng && (
-              <div>
-                <MapComponent
-                  markers={[
-                    {
-                      lat: parseFloat(lat),
-                      lng: parseFloat(lng),
-                      popupText: `${name}${stateId ? ', ' + states.find((state) => state.id.toString() === stateId)?.abbr : ''}, ${countries.find((country) => country.id.toString() === countryId)?.name}`,
-                    },
-                  ]}
-                  zoom={8}
-                />
-              </div>
-            )}
-            <h2 className="text-lg font-semibold underline">Info</h2>
-            <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
-              <input
-                type="text"
-                id="wikiTerm"
-                value={wikiTerm}
-                onChange={(e) => setWikiTerm(e.target.value)}
-                className="flex-grow px-4 py-2 text-gray-700 focus:outline-none"
-                aria-label={'Wiki Term'}
-              />
-              <button
-                type="button"
-                className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
-                onClick={handleWikiLookup}
-              >
-                Get Wiki Info
-              </button>
-            </div>
-            <article className="mt-4">
-              {wikiInfo && (
-                <div>
-                  <h3 className="text-lg font-bold">{wikiInfo.title}</h3>
-                  <p>{wikiInfo.intro}</p>
-                  <a
-                    href={wikiInfo.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:underline"
-                  >
-                    Read more
-                  </a>
-                </div>
+          {loading ? (
+            <LoadingSpinner />
+          ) : (
+            <>
+              {message && (
+                <Message message={message} type={messageType}></Message>
               )}
-            </article>
-            <hr />
-            <h2 className="text-lg font-semibold underline">Photos</h2>
-            <div>
-              <button
-                type="button"
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                onClick={handleDisplayPhotos}
-              >
-                Display All Photos
-              </button>
-            </div>
-            <PhotoManager
-              entityType={ENTITY_TYPE_CITIES}
-              entityId={parseInt(entityId)}
-              initialPhotos={photos}
-              externalPhotos={photoUpdates}
-            />
-            <hr />
-            <ActionButton type={'submit'} disabled={loading}>
-              {id ? 'Update City' : 'Add City'}
-            </ActionButton>
-            &nbsp;
-            <button
-              onClick={() => router.push('/admin/cities')}
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-            >
-              Cancel
-            </button>
-          </form>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <h2 className="text-lg font-semibold underline">Details</h2>
+                <div>
+                  <label htmlFor="name" className="block font-medium">
+                    City Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full border px-4 py-2 rounded"
+                    required
+                  />
+                </div>
+                {filteredStates.length > 0 && (
+                  <div>
+                    <label htmlFor="stateId" className="block font-medium">
+                      State
+                    </label>
+                    <select
+                      id="stateId"
+                      value={stateId}
+                      onChange={(e) => setStateId(e.target.value)}
+                      className="w-full border px-4 py-2 rounded"
+                    >
+                      <option value="">Select a state</option>
+                      {filteredStates.map((state) => (
+                        <option key={state.id} value={state.id}>
+                          {state.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <div>
+                  <label htmlFor="countryId" className="block font-medium">
+                    Country
+                  </label>
+                  <select
+                    id="countryId"
+                    value={countryId}
+                    onChange={(e) => setCountryId(e.target.value)}
+                    className="w-full border px-4 py-2 rounded"
+                    required
+                  >
+                    <option value="">Select a country</option>
+                    {countries.map((country) => (
+                      <option key={country.id} value={country.id}>
+                        {country.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="lastVisited" className="block font-medium">
+                    Last Visited
+                  </label>
+                  <input
+                    type="month"
+                    id="lastVisited"
+                    value={lastVisited}
+                    onChange={(e) => setLastVisited(e.target.value)}
+                    className="w-full border px-4 py-2 rounded"
+                  />
+                </div>
+                <h2 className="text-lg font-semibold underline">Location</h2>
+                <LatLngField
+                  latLabel="Latitude"
+                  lat={parseFloat(lat)}
+                  lngLabel="Longitude"
+                  lng={parseFloat(lng)}
+                  isLoading={working}
+                  onLatChange={(lat) => setLat(lat.toString())}
+                  onLngChange={(lng) => setLng(lng.toString())}
+                  onLookup={handleGeocode}
+                />
+                {lat && lng && (
+                  <div>
+                    <MapComponent
+                      markers={[
+                        {
+                          lat: parseFloat(lat),
+                          lng: parseFloat(lng),
+                          popupText: `${name}${stateId ? ', ' + states.find((state) => state.id.toString() === stateId)?.abbr : ''}, ${countries.find((country) => country.id.toString() === countryId)?.name}`,
+                        },
+                      ]}
+                      zoom={8}
+                    />
+                  </div>
+                )}
+                <h2 className="text-lg font-semibold underline">Info</h2>
+                <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
+                  <input
+                    type="text"
+                    id="wikiTerm"
+                    value={wikiTerm}
+                    onChange={(e) => setWikiTerm(e.target.value)}
+                    className="flex-grow px-4 py-2 text-gray-700 focus:outline-none"
+                    aria-label={'Wiki Term'}
+                  />
+                  <button
+                    type="button"
+                    className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
+                    onClick={handleWikiLookup}
+                  >
+                    Get Wiki Info
+                  </button>
+                </div>
+                <article className="mt-4">
+                  {wikiInfo && (
+                    <div>
+                      <h3 className="text-lg font-bold">{wikiInfo.title}</h3>
+                      <p>{wikiInfo.intro}</p>
+                      <a
+                        href={wikiInfo.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline"
+                      >
+                        Read more
+                      </a>
+                    </div>
+                  )}
+                </article>
+                <hr />
+                <h2 className="text-lg font-semibold underline">Photos</h2>
+                <div>
+                  <button
+                    type="button"
+                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                    onClick={handleDisplayPhotos}
+                  >
+                    Display All Photos
+                  </button>
+                </div>
+                <PhotoManager
+                  entityType={ENTITY_TYPE_CITIES}
+                  entityId={parseInt(entityId)}
+                  initialPhotos={photos}
+                  externalPhotos={photoUpdates}
+                />
+                <hr />
+                <ActionButton type={'submit'} disabled={working}>
+                  {id ? 'Update City' : 'Add City'}
+                </ActionButton>
+                &nbsp;
+                <button
+                  onClick={() => router.push('/admin/cities')}
+                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                >
+                  Cancel
+                </button>
+              </form>
+            </>
+          )}
         </div>
       </main>
       <Footer />
