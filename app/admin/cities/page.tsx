@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import Pagination from '@/components/Pagination/Pagination';
 import Message from '@/components/Message/Message';
 import { Country, City } from '@/types/ContentTypes';
+import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner';
 
 export default function CitiesPage() {
   const router = useRouter();
@@ -27,25 +28,20 @@ export default function CitiesPage() {
   );
   const [sort, setSort] = useState(
     searchParams ? searchParams.get('sort') : ''
-  ); // Sorting state
+  );
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchCountries();
-  }, []);
-
-  useEffect(() => {
-    fetchCities();
-    updateURL();
-  }, [countryId, page, sortBy, sort]);
-
-  const fetchCountries = async () => {
+  const fetchCountries = useCallback(async () => {
     const response = await fetch('/api/countries');
     const data = await response.json();
     setCountries(data);
-  };
+  }, []);
 
-  const fetchCities = async () => {
+  const fetchCities = useCallback(async () => {
+    setLoading(true);
+    setMessage('');
+
     try {
       const query = new URLSearchParams({
         ...(countryId && { country_id: countryId }),
@@ -63,17 +59,19 @@ export default function CitiesPage() {
     } catch (error) {
       console.error('Failed to fetch cities:', error);
       setMessage('Failed to fetch cities.');
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [countryId, sortBy, sort, page, limit]);
 
-  const updateURL = () => {
+  const updateURL = useCallback(() => {
     const params = new URLSearchParams();
     if (countryId) params.set('country_id', countryId);
     params.set('page', page.toString());
     if (sortBy) params.set('sortBy', sortBy);
     if (sort) params.set('sort', sort);
     router.push(`?${params.toString()}`, { scroll: false });
-  };
+  }, [countryId, page, sortBy, sort, router]);
 
   const handleSort = (column: string) => {
     if (sortBy === column) {
@@ -114,6 +112,15 @@ export default function CitiesPage() {
     }
   };
 
+  useEffect(() => {
+    fetchCountries();
+  }, [fetchCountries]);
+
+  useEffect(() => {
+    fetchCities();
+    updateURL();
+  }, [fetchCities, updateURL, countryId, page, sortBy, sort]);
+
   return (
     <>
       <Navbar />
@@ -145,79 +152,83 @@ export default function CitiesPage() {
             </button>
           </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full table-auto bg-white border border-gray-300">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-4 py-2 text-left font-medium text-gray-600">
-                  City Name
-                </th>
-                <th className="px-4 py-2 text-left font-medium text-gray-600">
-                  Latitude
-                </th>
-                <th className="px-4 py-2 text-left font-medium text-gray-600">
-                  Longitude
-                </th>
-                <th
-                  className="px-4 py-2 text-left cursor-pointer hover:text-blue-600"
-                  onClick={() => handleSort('country')}
-                >
-                  Country{' '}
-                  {sortBy === 'country' && (sort === 'asc' ? '⬆️' : '⬇️')}
-                </th>
-                <th className="px-4 py-2 text-left font-medium text-gray-600">
-                  State
-                </th>
-                <th className="px-4 py-2 text-left font-medium text-gray-600">
-                  Last Visited
-                </th>
-                <th className="px-4 py-2 text-left font-medium text-gray-600">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {cities.map((city: City) => (
-                <tr key={city.id} className="hover:bg-gray-100">
-                  <td className="px-4 py-2">{city.name}</td>
-                  <td className="px-4 py-2">{city.lat}</td>
-                  <td className="px-4 py-2">{city.lng}</td>
-                  <td className="px-4 py-2">{city.country_name}</td>
-                  <td className="px-4 py-2">{city.state_name || '-'}</td>
-                  <td className="px-4 py-2">{city.last_visited || '-'}</td>
-                  <td className="px-4 py-2 space-x-2">
-                    <button
-                      onClick={() => router.push(`/admin/city?id=${city.id}`)}
-                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteCity(city.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {cities.length === 0 && (
+        {loading ? (
+          <LoadingSpinner />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full table-auto bg-white border border-gray-300">
+              <thead className="bg-gray-100">
                 <tr>
-                  <td colSpan={7} className="text-center py-4">
-                    No cities found
-                  </td>
+                  <th className="px-4 py-2 text-left font-medium text-gray-600">
+                    City Name
+                  </th>
+                  <th className="px-4 py-2 text-left font-medium text-gray-600">
+                    Latitude
+                  </th>
+                  <th className="px-4 py-2 text-left font-medium text-gray-600">
+                    Longitude
+                  </th>
+                  <th
+                    className="px-4 py-2 text-left cursor-pointer hover:text-blue-600"
+                    onClick={() => handleSort('country')}
+                  >
+                    Country{' '}
+                    {sortBy === 'country' && (sort === 'asc' ? '⬆️' : '⬇️')}
+                  </th>
+                  <th className="px-4 py-2 text-left font-medium text-gray-600">
+                    State
+                  </th>
+                  <th className="px-4 py-2 text-left font-medium text-gray-600">
+                    Last Visited
+                  </th>
+                  <th className="px-4 py-2 text-left font-medium text-gray-600">
+                    Actions
+                  </th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {cities.map((city: City) => (
+                  <tr key={city.id} className="hover:bg-gray-100">
+                    <td className="px-4 py-2">{city.name}</td>
+                    <td className="px-4 py-2">{city.lat}</td>
+                    <td className="px-4 py-2">{city.lng}</td>
+                    <td className="px-4 py-2">{city.country_name}</td>
+                    <td className="px-4 py-2">{city.state_name || '-'}</td>
+                    <td className="px-4 py-2">{city.last_visited || '-'}</td>
+                    <td className="px-4 py-2 space-x-2">
+                      <button
+                        onClick={() => router.push(`/admin/city?id=${city.id}`)}
+                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCity(city.id)}
+                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {cities.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="text-center py-4">
+                      No cities found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
 
-          {/* Pagination Controls */}
-          <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          ></Pagination>
-        </div>
+            {/* Pagination Controls */}
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            ></Pagination>
+          </div>
+        )}
       </main>
       <Footer />
     </>
