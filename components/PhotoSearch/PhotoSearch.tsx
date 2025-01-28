@@ -9,6 +9,7 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { Photo, PhotoSearchProps } from '@/types/PhotoTypes';
 import Message from '@/components/Message/Message';
+import styles from './PhotoSearch.module.scss';
 
 const PhotoSearch: React.FC<PhotoSearchProps> = ({
   onPhotoSelect,
@@ -29,7 +30,6 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
   const shouldTriggerSearch = useRef(true);
 
   useEffect(() => {
-    console.log('searchSubject:', searchSubject);
     const subscription = searchSubject
       .pipe(
         debounceTime(300),
@@ -53,7 +53,6 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
   }, [searchSubject, initialSelectedPhotos]);
 
   useEffect(() => {
-    console.log('searchTerm:', searchTerm, shouldTriggerSearch.current);
     if (!shouldTriggerSearch.current) {
       shouldTriggerSearch.current = true; // Reset the ref
       return;
@@ -194,7 +193,9 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
   };
 
   return (
-    <div className="p-6 flex flex-col h-[80vh] w-[80vw]">
+    <div
+      className={`p-6 flex flex-col h-[80vh] w-[80vw] ${styles.photoSearch}`}
+    >
       <h1 className="text-2xl font-bold mb-4">Photos</h1>
       {message && <Message message={message} type="error"></Message>}
       <form onSubmit={handleSearch} className="mb-4 flex items-center gap-2">
@@ -261,11 +262,11 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
       {loading && <p>Loading photos...</p>}
 
       <div className="flex-grow overflow-auto gap-2">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="columns-2 md:columns-4 gap-4 space-y-4">
           {photos.map((photo) => (
             <button
               key={photo.photo_id}
-              className={`relative border rounded-lg overflow-hidden cursor-pointer ${
+              className={`relative border rounded-lg overflow-hidden cursor-pointer w-full ${
                 selectedPhotoIds.has(photo.photo_id)
                   ? 'border-blue-500'
                   : 'border-gray-300'
@@ -276,7 +277,7 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
                 src={getTransformedImageUrl(photo.url, 200)}
                 loading="lazy"
                 alt="Cloudinary photo"
-                className="w-full h-32 object-center object-cover"
+                className="w-full h-auto"
               />
               {selectedPhotoIds.has(photo.photo_id) && (
                 <div className="absolute inset-0 bg-blue-500 bg-opacity-50 flex items-center justify-center">

@@ -17,13 +17,17 @@ h1 {
 ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
-li {
-  background: #fff;
-  margin: 10px auto;
-  padding: 15px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  max-width: 600px;
+@layer utilities {
+  .masonry {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .masonry-item {
+    break-inside: avoid;
+  }
 }
