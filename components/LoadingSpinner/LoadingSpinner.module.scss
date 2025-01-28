@@ -1,4 +1,41 @@
 /* components/LoadingSpinner/LoadingSpinner.module.scss */
+// components/LoadingSpinner/LoadingSpinner.module.scss
+.loadingSpinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0.5rem;
+  space-x: 0.5rem;
+}
+
+.spinnerIcon {
+  width: 3.5rem;
+  height: 3.5rem;
+  animation: spin 1s linear infinite;
+  color: #2563eb; // Tailwind's text-blue-600
+}
+
+.spinnerCircle {
+  opacity: 0.25;
+  stroke: currentColor;
+  stroke-width: 4;
+}
+
+.spinnerPath {
+  opacity: 0.75;
+  fill: currentColor;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
 @media (prefers-reduced-motion: reduce) {
   .animate-spin {
     animation: none;
