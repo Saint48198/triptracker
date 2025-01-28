@@ -7,11 +7,30 @@ import styles from './Button.module.scss';
 interface ButtonProps {
   children: React.ReactNode; // Any valid React node (string, JSX, etc.)
   onClick?: () => void; // Optional click handler
+  buttonType?: 'button' | 'submit' | 'reset'; // Optional button type
+  isDisabled?: boolean; // Optional disabled state
+  styleType?: 'primary' | 'secondary' | 'neutral' | 'danger' | 'text'; // Optional style type
+  ariaLabel: string;
 }
 
-const Button: React.FC<ButtonProps> = ({ children, onClick }) => {
+const Button: React.FC<ButtonProps> = ({
+  children,
+  onClick,
+  buttonType = 'submit',
+  isDisabled = false,
+  styleType = 'primary',
+  ariaLabel,
+}) => {
   return (
-    <button onClick={onClick} className={styles.button}>
+    <button
+      type={buttonType}
+      onClick={onClick}
+      className={`${styles.button} ${styles[styleType]}`}
+      disabled={isDisabled}
+      aria-label={ariaLabel}
+      aria-disabled={isDisabled}
+      role="button"
+    >
       {children}
     </button>
   );

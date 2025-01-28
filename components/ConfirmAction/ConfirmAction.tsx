@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import styles from './ConfirmAction.module.scss';
+import Message from '@/components/Message/Message';
+import Button from '@/components/Button/Button';
 
 const ConfirmAction: React.FC<{
   isOpen: boolean;
@@ -21,35 +24,38 @@ const ConfirmAction: React.FC<{
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity ${
-        isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+      className={`${styles.confirmActionOverlay} ${
+        isOpen ? styles.visible : styles.hidden
       }`}
     >
-      <div className="bg-white rounded-lg shadow-lg w-96">
-        <div className="px-6 py-4 border-b">
-          <h2 className="text-lg font-semibold">Confirm Action</h2>
+      <div className={styles.confirmActionContainer}>
+        <div className={styles.confirmActionHeader}>
+          <h2>Confirm Action</h2>
         </div>
         <div className="px-6 py-4">
-          {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
+          {error && <Message message={error} type={'error'}></Message>}
           <p>{message}</p>
         </div>
-        <div className="px-6 py-4 flex justify-end space-x-4 border-t">
-          <button
-            onClick={onClose}
-            type={'button'}
-            className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition"
-            disabled={isLoading}
-          >
-            Cancel
-          </button>
-          <button
+        <div className={styles.confirmActionFooter}>
+          <Button
+            ariaLabel={isLoading ? 'Processing...' : 'Confirm'}
+            buttonType={'button'}
+            isDisabled={isLoading}
+            styleType={'primary'}
             onClick={handleConfirm}
-            type={'button'}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition"
-            disabled={isLoading}
           >
             {isLoading ? 'Processing...' : 'Confirm'}
-          </button>
+          </Button>
+
+          <Button
+            onClick={onClose}
+            buttonType={'button'}
+            isDisabled={isLoading}
+            styleType={'secondary'}
+            ariaLabel={'Cancel'}
+          >
+            Cancel
+          </Button>
         </div>
       </div>
     </div>

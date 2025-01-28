@@ -3,11 +3,48 @@
 @import "@/styles/variables";
 
 .button {
-  background-color: $color-blue-500;
-  color: $color-white;
   padding: 0.5rem 1rem;
   border-radius: $border-radius;
-  &:hover {
-    background-color: darken($color-blue-500, 10%);
+  transition: background-color 0.3s;
+
+  &.primary {
+    background-color: $color-blue-500;
+    color: $color-white;
+    &:hover {
+      background-color: darken($color-blue-500, 10%);
+    }
+  }
+
+  &.secondary {
+    background-color: $color-gray-300;
+    color: $color-gray-800;
+    &:hover {
+      background-color: darken($color-gray-300, 10%);
+    }
+  }
+
+  &.neutral {
+    background-color: $color-white;
+    color: $color-gray-800;
+    border: 1px solid $color-gray-300;
+    &:hover {
+      background-color: $color-gray-100;
+    }
+  }
+
+  &.danger {
+    background-color: $color-red-500;
+    color: $color-white;
+    &:hover {
+      background-color: darken($color-red-500, 10%);
+    }
+  }
+
+  &.text {
+    background-color: transparent;
+    color: $color-blue-500;
+    &:hover {
+      background-color: $color-gray-100;
+    }
   }
 }
