@@ -21,20 +21,18 @@ const ImageButton: React.FC<ImageButtonProps> = ({
   return (
     <button
       key={photoId}
-      className={`relative border rounded-lg overflow-hidden cursor-pointer w-full ${
-        isSelected ? 'border-blue-500' : 'border-gray-300'
-      }`}
+      className={`${styles.imageButton} ${isSelected ? styles.imageButtonSelected : ''}`}
       onClick={onClick}
     >
       <img
         src={imageUrl}
         loading="lazy"
         alt={alt ?? 'Photo'}
-        className="w-full h-auto"
+        className={styles.image}
       />
       {isSelected && (
-        <div className="absolute inset-0 bg-blue-500 bg-opacity-50 flex items-center justify-center">
-          <span className="text-white font-bold text-lg">✓</span>
+        <div className={styles.selectedOverlay}>
+          <span className={styles.checkmark}>✓</span>
         </div>
       )}
     </button>
