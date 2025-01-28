@@ -1,4 +1,5 @@
 import React from 'react';
+import styles from './ActionButton.module.scss';
 
 interface ActionButtonProps {
   type?: 'button' | 'submit' | 'reset';
@@ -18,11 +19,9 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   return (
     <button
       type={type}
-      className={`${
-        disabled
-          ? 'bg-gray-400 cursor-not-allowed'
-          : 'bg-blue-500 hover:bg-blue-600'
-      } text-white px-4 py-2 rounded ${className}`}
+      className={`${styles.actionButton} ${
+        disabled ? styles.actionButtonDisabled : styles.actionButtonEnabled
+      } ${className}`}
       disabled={disabled}
       onClick={onClick}
     >

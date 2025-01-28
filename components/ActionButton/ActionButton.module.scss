@@ -1,0 +1,21 @@
+// components/ActionButton/ActionButton.module.scss
+
+@import "@/styles/variables";
+
+.actionButton {
+  color: $color-white;
+  padding: 0.5rem 1rem;
+  border-radius: $border-radius;
+}
+
+.actionButtonEnabled {
+  background-color: $color-blue-500;
+  &:hover {
+    background-color: darken($color-blue-500, 10%);
+  }
+}
+
+.actionButtonDisabled {
+  background-color: $color-gray-300;
+  cursor: not-allowed; 
+}
