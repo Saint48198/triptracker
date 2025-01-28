@@ -1,0 +1,13 @@
+// components/Button/Button.module.scss
+
+@import "@/styles/variables";
+
+.button {
+  background-color: $color-blue-500;
+  color: $color-white;
+  padding: 0.5rem 1rem;
+  border-radius: $border-radius;
+  &:hover {
+    background-color: darken($color-blue-500, 10%); 
+  }
+}
