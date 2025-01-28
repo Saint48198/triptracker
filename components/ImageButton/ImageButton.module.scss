@@ -1,15 +1,19 @@
 // components/ImageButton/ImageButton.module.scss
+
+@import "@/styles/variables";
+@import "@/styles/utils";
+
 .imageButton {
   position: relative;
-  border: 1px solid #d1d5db; // Tailwind's border-gray-300
-  border-radius: 0.5rem; // Tailwind's rounded-lg
+  border: 1px solid $color-gray-300;
+  border-radius: $border-radius-lg;
   overflow: hidden;
   cursor: pointer;
   max-width: 300px;
 }
 
 .imageButtonSelected {
-  border-color: #3b82f6; // Tailwind's border-blue-500
+  border-color: $color-blue-500; // Tailwind's border-blue-500
 }
 
 .image {
@@ -20,14 +24,14 @@
 .selectedOverlay {
   position: absolute;
   inset: 0;
-  background-color: rgba(59, 130, 246, 0.5); // Tailwind's bg-blue-500 with opacity-50
+  @include background-color-opacity($color-blue-500, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .checkmark {
-  color: white;
+  color: $color-white;
   font-weight: bold;
-  font-size: 1.125rem; // Tailwind's text-lg
+  font-size: $font-size-lg; // Tailwind's text-lg
 }

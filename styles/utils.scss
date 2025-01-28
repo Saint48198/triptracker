@@ -1,4 +1,10 @@
 // styles/utils.scss
+
+@mixin background-color-opacity($color, $opacity) {
+  background-color: rgba($color, $opacity);
+}
+
+
 .sr-only {
   position: absolute;
   width: 1px;

@@ -23,6 +23,7 @@ const ImageButton: React.FC<ImageButtonProps> = ({
       key={photoId}
       className={`${styles.imageButton} ${isSelected ? styles.imageButtonSelected : ''}`}
       onClick={onClick}
+      type={'button'}
     >
       <img
         src={imageUrl}
