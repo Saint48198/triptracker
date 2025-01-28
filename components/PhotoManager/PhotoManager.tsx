@@ -5,6 +5,8 @@ import {
   PhotoPayload,
 } from '@/services/photosService';
 import { Photo, PhotoManagerProps } from '@/types/PhotoTypes';
+import ImageButton from '@/components/ImageButton/ImageButton';
+import { getTransformedImageUrl } from '@/utils/imageUtils';
 
 const PhotoManager: React.FC<PhotoManagerProps> = ({
   entityType,
@@ -96,22 +98,14 @@ const PhotoManager: React.FC<PhotoManagerProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
                 {photos.map((photo: Photo, index) => (
                   <div key={index}>
-                    <button
-                      type={'button'}
+                    <ImageButton
+                      photoId={photo.id}
+                      imageUrl={getTransformedImageUrl(photo.url, 200)}
+                      isSelected={selectedPhotos.some(
+                        (selected) => selected.url === photo.url
+                      )}
                       onClick={() => togglePhotoSelection(photo)}
-                    >
-                      <img
-                        src={photo.url}
-                        alt={photo.caption || 'Photo'}
-                        style={{
-                          border: selectedPhotos.some(
-                            (selected) => selected.url === photo.url
-                          )
-                            ? '2px solid blue'
-                            : 'none',
-                        }}
-                      />
-                    </button>
+                    />
                   </div>
                 ))}
               </div>
