@@ -10,6 +10,8 @@ import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { Photo, PhotoSearchProps } from '@/types/PhotoTypes';
 import Message from '@/components/Message/Message';
 import styles from './PhotoSearch.module.scss';
+import ImageButton from '@/components/ImageButton/ImageButton';
+import { getTransformedImageUrl } from '@/utils/imageUtils';
 
 const PhotoSearch: React.FC<PhotoSearchProps> = ({
   onPhotoSelect,
@@ -175,16 +177,6 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
     onPhotoSelect(selectedPhotos);
   }, [selectedPhotos, onPhotoSelect]);
 
-  const getTransformedImageUrl = (url: string, height: number) => {
-    const parts = url.split('/');
-    const uploadIndex = parts.indexOf('upload');
-    if (uploadIndex !== -1) {
-      parts.splice(uploadIndex + 1, 0, `h_${height},c_fill,q_auto`);
-      return parts.join('/');
-    }
-    return url;
-  };
-
   const handleSuggestionClick = (tag: string) => {
     shouldTriggerSearch.current = false; // Prevent search trigger
     setSearchTerm(tag);
@@ -264,27 +256,13 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
       <div className="flex-grow overflow-auto gap-2">
         <div className="columns-2 md:columns-4 gap-4 space-y-4">
           {photos.map((photo) => (
-            <button
+            <ImageButton
+              photoId={photo.photo_id}
               key={photo.photo_id}
-              className={`relative border rounded-lg overflow-hidden cursor-pointer w-full ${
-                selectedPhotoIds.has(photo.photo_id)
-                  ? 'border-blue-500'
-                  : 'border-gray-300'
-              }`}
+              imageUrl={getTransformedImageUrl(photo.url, 200)}
+              isSelected={selectedPhotoIds.has(photo.photo_id)}
               onClick={() => handleSelectPhoto(photo)}
-            >
-              <img
-                src={getTransformedImageUrl(photo.url, 200)}
-                loading="lazy"
-                alt="Cloudinary photo"
-                className="w-full h-auto"
-              />
-              {selectedPhotoIds.has(photo.photo_id) && (
-                <div className="absolute inset-0 bg-blue-500 bg-opacity-50 flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">✓</span>
-                </div>
-              )}
-            </button>
+            />
           ))}
         </div>
       </div>
