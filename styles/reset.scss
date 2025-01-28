@@ -1,0 +1,95 @@
+// General Reset
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+// HTML & Body
+html {
+  font-size: 16px; // Set base font size
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%; // Prevent font resizing in mobile browsers
+  -webkit-font-smoothing: antialiased; // Smoother text rendering
+  -moz-osx-font-smoothing: grayscale; // Smoother text rendering on macOS
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: #fff;
+  color: #000;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+// Images, Videos, and Media
+img,
+picture,
+video,
+canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+svg {
+  vertical-align: middle;
+}
+
+// Links
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+// Lists
+ul,
+ol {
+  list-style: none;
+}
+
+// Buttons and Inputs
+button,
+input,
+textarea,
+select {
+  font: inherit; // Inherit font properties
+  background: none;
+  border: none;
+  color: inherit;
+  padding: 0;
+  margin: 0;
+  outline: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+textarea {
+  resize: vertical;
+}
+
+input[type='search']::-webkit-search-cancel-button {
+  appearance: none; // Remove default styles
+}
+
+// Tables
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 8px;
+}
+
+// Remove Scrollbar in Some Cases
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
