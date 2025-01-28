@@ -1,0 +1,22 @@
+// components/Message/Message.module.scss
+
+@import "@/styles/variables";
+
+.message {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid;
+  border-radius: $border-radius;
+}
+
+.messageSuccess {
+  color: $color-green-700;
+  background-color: $color-green-100;
+  border-color: $color-green-400;
+}
+
+.messageError {
+  color: $color-red-700;
+  background-color: $color-red-100;
+  border-color: $color-red-400; 
+}
