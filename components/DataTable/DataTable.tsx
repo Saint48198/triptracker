@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { DataTableProps, Column } from './DataTable.types';
+import styles from './DataTable.module.scss';
 
 const DataTable: React.FC<DataTableProps> = ({
   columns,
@@ -34,13 +35,13 @@ const DataTable: React.FC<DataTableProps> = ({
   };
 
   return (
-    <table className="min-w-full table-auto border border-gray-300">
-      <thead>
+    <table className={styles.dataTable}>
+      <thead className={styles.dataTableHeader}>
         <tr className="bg-gray-100">
           {columns.map((column: Column) => (
             <th
               key={column.key}
-              className={`px-4 py-2 text-left ${column.sortable ? 'cursor-pointer hover:text-blue-600' : ''}`}
+              className={`${styles.dataTableHeaderCell} ${column.sortable ? 'sortable' : ''}`}
               onClick={() => column.sortable && handleSort(column.key)}
             >
               {column.label}{' '}
@@ -49,14 +50,14 @@ const DataTable: React.FC<DataTableProps> = ({
                 (sortOrder === 'asc' ? '⬆️' : '⬇️')}
             </th>
           ))}
-          {actions && <th className="px-4 py-2 text-left">Actions</th>}
+          {actions && <th className={styles.dataTableHeaderCell}>Actions</th>}
         </tr>
       </thead>
       <tbody>
         {data.map((row, rowIndex) => (
           <tr
             key={rowIndex}
-            className={`cursor-${onRowClick ? 'pointer' : 'default'} hover:bg-gray-100`}
+            className={`${styles.dataTableRow} ${onRowClick ? 'clickable' : ''}`}
             onClick={onRowClick ? () => onRowClick(row) : undefined}
             onKeyDown={
               onRowClick ? (event) => handleKeyDown(event, row) : undefined
@@ -66,18 +67,20 @@ const DataTable: React.FC<DataTableProps> = ({
             aria-label={onRowClick ? `Row ${rowIndex + 1}` : undefined}
           >
             {columns.map((column: Column) => (
-              <td key={column.key} className="px-4 py-2">
+              <td key={column.key} className={styles.dataTableCell}>
                 {row[column.key]}
               </td>
             ))}
-            {actions && <td className="px-4 py-2">{actions(row)}</td>}
+            {actions && (
+              <td className={styles.dataTableCell}>{actions(row)}</td>
+            )}
           </tr>
         ))}
         {data.length === 0 && (
           <tr>
             <td
               colSpan={columns.length + (actions ? 1 : 0)}
-              className="text-center py-4"
+              className={styles.noData}
             >
               No data available
             </td>

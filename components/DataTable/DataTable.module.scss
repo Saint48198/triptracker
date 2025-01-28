@@ -1,0 +1,43 @@
+// components/DataTable/DataTable.module.scss
+
+@import "@/styles/variables";
+
+.dataTable {
+  width: 100%;
+  min-width: 100%;
+  border: 1px solid $color-gray-300;
+  border-collapse: collapse;
+}
+
+.dataTableHeader {
+  background-color: $color-gray-100;
+}
+
+.dataTableHeaderCell {
+  padding: 0.5rem 1rem;
+  text-align: left;
+  &.sortable {
+    cursor: pointer;
+    &:hover {
+      color: $color-blue-500;
+    }
+  }
+}
+
+.dataTableRow {
+  &.clickable {
+    cursor: pointer;
+    &:hover {
+      background-color: $color-gray-100;
+    }
+  }
+}
+
+.dataTableCell {
+  padding: 0.5rem 1rem;
+}
+
+.noData {
+  text-align: center;
+  padding: 1rem;
+}
