@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner';
 import Message from '@/components/Message/Message';
+import styles from './AttractionPage.module.scss';
 
 const AttractionPage: React.FC = () => {
   const params = useParams();
@@ -45,10 +46,10 @@ const AttractionPage: React.FC = () => {
   return (
     <>
       <Navbar />
-      <main className="container mx-auto p-4">
+      <main className={styles.attractionPage}>
         {attraction ? (
           <div>
-            <h1 className="text-2xl font-bold mb-4">{attraction.name}</h1>
+            <h1 className={styles.container}>{attraction.name}</h1>
             <p>
               <strong>Country:</strong> {attraction.country_name}
             </p>

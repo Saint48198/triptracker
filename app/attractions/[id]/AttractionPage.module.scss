@@ -1,0 +1,33 @@
+// app/attractions/[id]/AttractionPage.module.scss
+@import "@/styles/variables";
+
+.attractionPage {
+  .container {
+    max-width: 7xl;
+    margin: 0 auto;
+    padding: 1rem;
+
+    @media (min-width: 640px) {
+      padding: 1.5rem;
+    }
+
+    @media (min-width: 1024px) {
+      padding: 2rem;
+    }
+  }
+
+  .title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+
+  .country {
+    font-weight: bold;
+  }
+
+  .notFound {
+    font-size: 1rem;
+    color: $color-red-500;
+  }
+}
