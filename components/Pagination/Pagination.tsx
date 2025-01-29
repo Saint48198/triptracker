@@ -1,5 +1,6 @@
 import React from 'react';
 import { PaginationProps } from './Pagination.types';
+import styles from './Pagination.module.scss';
 
 const Pagination: React.FC<PaginationProps> = ({
   currentPage,
@@ -19,11 +20,11 @@ const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <div className="flex justify-between mt-4">
+    <div className={styles.pagination}>
       <button
         onClick={handlePrevious}
         disabled={currentPage === 1}
-        className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        className={styles.button}
       >
         Previous
       </button>
@@ -33,7 +34,7 @@ const Pagination: React.FC<PaginationProps> = ({
       <button
         onClick={handleNext}
         disabled={currentPage >= totalPages}
-        className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        className={styles.button}
       >
         Next
       </button>

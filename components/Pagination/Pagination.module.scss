@@ -1,0 +1,18 @@
+// components/Pagination/Pagination.module.scss
+@import "@/styles/variables";
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+
+  .button {
+    padding: 0.5rem 1rem;
+    background-color: $color-gray-200;
+    border-radius: 0.25rem;
+
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+}
