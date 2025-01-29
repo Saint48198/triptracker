@@ -18,6 +18,7 @@ import {
   ENTITY_TYPE_COUNTRIES,
   ENTITY_TYPE_STATES,
 } from '@/constants';
+import styles from './HomePage.module.scss';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -249,9 +250,9 @@ const HomePage: React.FC = () => {
   return (
     <>
       <Navbar />
-      <main>
+      <main className={styles.main}>
         {message && <Message message={message} type="error"></Message>}
-        <div className="flex space-x-4 mb-6">
+        <div className={styles['button-group']}>
           {[
             { value: 'cities', label: 'Cities' },
             { value: 'states', label: 'States' },
@@ -261,10 +262,8 @@ const HomePage: React.FC = () => {
             <button
               key={option.value}
               onClick={() => handleMapTypeChange(option.value)}
-              className={`px-4 py-2 rounded ${
-                mapType === option.value
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 text-black'
+              className={`${styles.button} ${
+                mapType === option.value ? styles.active : ''
               }`}
             >
               {option.label}
@@ -289,8 +288,8 @@ const HomePage: React.FC = () => {
         {loading ? (
           <LoadingSpinner />
         ) : (
-          <div className="bg-white p-4">
-            <h2 className="text-xl font-bold mb-4">
+          <div className={styles.content}>
+            <h2 className={styles.title}>
               {mapType.charAt(0).toUpperCase() + mapType.slice(1)} Data
             </h2>
             {(mapType === 'cities' || mapType === 'attractions') &&

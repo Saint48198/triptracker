@@ -1,0 +1,33 @@
+// components/HomePage/HomePage.module.scss
+@import "@/styles/variables";
+
+.main {
+  .button-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    .button {
+      padding: 0.5rem 1rem;
+      border-radius: 0.25rem;
+      background-color: $color-gray-200;
+      color: $color-black;
+
+      &.active {
+        background-color: $color-blue-500;
+        color: $color-white;
+      }
+    }
+  }
+
+  .content {
+    background-color: $color-white;
+    padding: 1rem;
+
+    .title {
+      font-size: 1.25rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+  }
+}
