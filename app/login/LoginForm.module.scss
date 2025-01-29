@@ -1,0 +1,28 @@
+// app/login/LoginForm.module.scss
+@import "@/styles/variables";
+
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: normal;
+  color: $color-gray-700;
+}
+
+.input {
+  margin-top: 0.25rem;
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid $color-gray-300;
+  border-radius: $border-radius-md;
+  box-shadow: $box-shadow-sm;
+
+  &:focus {
+    border-color: $color-blue-500;
+    box-shadow: 0 0 0 3px rgba($color-blue-500, 0.1);
+  }
+}

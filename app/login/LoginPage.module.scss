@@ -1,0 +1,25 @@
+// app/login/LoginPage.module.scss
+@import "@/styles/variables"; // this may show an error in your IDE, but it's fine
+
+.loginPage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: $color-gray-100;
+}
+
+.loginContainer {
+  background-color: $color-white;
+  padding: 2rem;
+  border-radius: $border-radius-md;
+  box-shadow: $box-shadow-md;
+  width: 100%;
+  max-width: 28rem;
+}
+
+.loginTitle {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
