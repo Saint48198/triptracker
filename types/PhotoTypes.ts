@@ -14,7 +14,7 @@ export interface Photo {
   caption?: string | null;
   created_at: string;
   format?: string;
-  photo_id: string;
+  photo_id?: string;
 }
 
 export interface GooglePhoto {
