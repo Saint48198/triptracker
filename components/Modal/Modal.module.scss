@@ -1,0 +1,39 @@
+// components/Modal/Modal.module.scss
+@import "@/styles/variables";
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(31, 41, 55, 0.75); // Tailwind's bg-gray-800 bg-opacity-75
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background-color: $color-white;
+  border-radius: $border-radius-lg;
+  box-shadow: $box-shadow-lg;
+  padding: 1.5rem;
+  position: relative;
+  max-height: 80vh;
+}
+
+.closeButton {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: $color-red-500;
+  color: $color-white;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalBody {
+  max-height: 100vh;
+}
