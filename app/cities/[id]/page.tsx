@@ -9,6 +9,7 @@ import Message from '@/components/Message/Message';
 import dynamic from 'next/dynamic';
 import { WikiInfo } from '@/types/ContentTypes';
 import { Photo } from '@/types/PhotoTypes';
+import styles from './CityPage.module.scss';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -91,7 +92,7 @@ const CityPage: React.FC = () => {
   return (
     <>
       <Navbar />
-      <main>
+      <main className={styles.cityPage}>
         {city ? (
           <>
             {city.lat && city.lng && (
@@ -108,9 +109,9 @@ const CityPage: React.FC = () => {
                 />
               </div>
             )}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className={styles.container}>
               <div>
-                <h1 className="text-2xl font-bold mb-4">
+                <h1 className={styles.title}>
                   {city.name}
                   {city.state_name && <span>city.state_name</span>}
                   <span>{city.country_name}</span>
@@ -118,13 +119,13 @@ const CityPage: React.FC = () => {
 
                 {wikiInfo && (
                   <div>
-                    <h2 className="text-xl font-bold mt-4">Wikipedia Info</h2>
+                    <h2 className={styles.wikiInfo}>Wikipedia Info</h2>
                     <p>{wikiInfo.intro}</p>
                     <a
                       href={wikiInfo.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-500 hover:underline"
+                      className={styles.wikiLink}
                     >
                       Read more on Wikipedia
                     </a>
@@ -133,14 +134,14 @@ const CityPage: React.FC = () => {
 
                 {photos.length > 0 && (
                   <div>
-                    <h2 className="text-xl font-bold mt-4">Photos</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <h2 className={styles.photos}>Photos</h2>
+                    <div className={styles.grid}>
                       {photos.map((photo: Photo) => (
                         <img
                           key={photo.id}
                           src={photo.url}
                           alt={photo.title}
-                          className="w-full h-auto rounded"
+                          className={styles.photo}
                         />
                       ))}
                     </div>
