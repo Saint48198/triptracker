@@ -1,18 +1,117 @@
+// components/Navbar/Navbar.module.scss
+@import "@/styles/variables";
+@import "@/styles/utils";
+
 .containerNavbar {
+  background-color: $color-white-800;
 }
 
-.textBorder {
-  text-shadow:  1px 0 1px #ccc,
-  0 1px 1px #eee,
-  2px 1px 1px #ccc,
-  1px 2px 1px #eee,
-  3px 2px 1px #ccc,
-  2px 3px 1px #eee,
-  4px 3px 1px #ccc,
-  3px 4px 1px #eee,
-  5px 4px 1px #ccc,
-  4px 5px 1px #eee,
-  6px 5px 1px #ccc,
-  5px 6px 1px #eee,
-  7px 6px 1px #ccc;
+.navbarWrapper {
+  max-width: 7xl;
+  margin: 0 auto;
+  padding: 0 1rem;
+
+  @media (min-width: 640px) {
+    padding: 0 1.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    padding: 0 2rem;
+  }
+}
+
+.navbarContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 4rem;
+}
+
+.navbarTitle {
+  display: flex;
+  align-items: center;
+
+  h1 {
+    font-size: 2.25rem;
+    font-weight: bold;
+    font-family: $font-sans;
+    color: $color-gray-800;
+    @include text-border;
+    text-shadow:  1px 0 1px #ccc,
+    0 1px 1px #eee,
+    2px 1px 1px #ccc,
+    1px 2px 1px #eee,
+    3px 2px 1px #ccc,
+    2px 3px 1px #eee,
+    4px 3px 1px #ccc,
+    3px 4px 1px #eee,
+    5px 4px 1px #ccc,
+    4px 5px 1px #eee,
+    6px 5px 1px #ccc,
+    5px 6px 1px #eee,
+    7px 6px 1px #ccc;
+  }
+}
+
+.menuButton {
+  display: inline-flex;
+  justify-content: center;
+  width: 100%;
+  border-radius: 0.375rem;
+  border: 1px solid $color-gray-300;
+  box-shadow: $box-shadow-sm;
+  padding: 0.5rem 1rem;
+  background-color: $color-white;
+  font-size: 0.875rem;
+  font-weight: normal;
+  color: $color-gray-700;
+
+  &:hover {
+    background-color: $color-gray-50;
+  }
+}
+
+.menuItems {
+  position: absolute;
+  z-index: 1000;
+  right: 0;
+  margin-top: 0.5rem;
+  width: 14rem;
+  border-radius: 0.375rem;
+  box-shadow: $box-shadow-lg;
+  background-color: $color-white;
+  border: 1px solid $color-black;
+  opacity: 0.05;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.menuItem {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+
+  &.active {
+    background-color: $color-gray-100;
+    color: $color-gray-900;
+  }
+
+  &.inactive {
+    color: $color-gray-700;
+  }
+}
+
+.loginButton {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: $color-blue-600;
+  color: $color-white;
+  font-size: 0.875rem;
+  font-weight: normal;
+  border-radius: 0.375rem;
+
+  &:hover {
+    background-color: $color-blue-700;
+  }
 }
