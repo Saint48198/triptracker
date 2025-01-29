@@ -1,17 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 import bcrypt from 'bcryptjs';
 import { User, Role } from '@/types/UserTypes';
-import LinkGoogleAccount from '@/components/LinkGoogleAccount/LinkGoogleAccount';
 import Message from '@/components/Message/Message';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import { validatePassword } from '@/utils/validatePassword';
 import PasswordChangeDialog from '@/components/PasswordChangeDialog/PasswordChangeDialog';
 import ConfirmAction from '@/components/ConfirmAction/ConfirmAction';
+import styles from './UsersPage.module.scss';
+import Button from '@/components/Button/Button';
+import DataTable from '@/components/DataTable/DataTable';
+import { Column } from '@/components/DataTable/DataTable.types';
 
 const UsersPage = () => {
   const searchParams = useSearchParams();
@@ -56,15 +59,13 @@ const UsersPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [deleteUserId, setDeleteUserId] = useState<number | null>(null);
 
-  useEffect(() => {
-    fetchUsers();
-    fetchRoles();
-    if (uid) {
-      fetchUserById(uid as string);
-    }
-  }, [uid]);
+  const columns: Column[] = [
+    { key: 'username', label: 'Username' },
+    { key: 'email', label: 'Email' },
+    { key: 'roles', label: 'Roles' },
+  ];
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const { data } = await axios.get('/api/users');
       const usersArray: User[] = data.map((user: any) => ({
@@ -77,9 +78,9 @@ const UsersPage = () => {
       setMessageType('error');
       console.error('Failed to fetch users:', error);
     }
-  };
+  }, []);
 
-  const fetchRoles = async () => {
+  const fetchRoles = useCallback(async () => {
     try {
       const { data } = await axios.get('/api/roles');
       setRoles(data);
@@ -88,9 +89,9 @@ const UsersPage = () => {
       setMessageType('error');
       console.error('Failed to fetch roles:', error);
     }
-  };
+  }, []);
 
-  const fetchUserById = async (id: string) => {
+  const fetchUserById = useCallback(async (id: string) => {
     try {
       const { data } = await axios.get(`/api/users/${id}`);
       setFormData({
@@ -110,7 +111,7 @@ const UsersPage = () => {
       setMessageType('error');
       console.error('Failed to fetch user:', error);
     }
-  };
+  }, []);
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,7 +135,8 @@ const UsersPage = () => {
       });
 
       if (!roleIds || roleIds.includes(undefined)) {
-        throw new Error('Invalid role selection');
+        setMessage('Invalid role selection');
+        console.error('Invalid role selection');
       }
 
       if (formData.id) {
@@ -150,7 +152,7 @@ const UsersPage = () => {
           roles: roleIds,
         });
       }
-      fetchUsers();
+      await fetchUsers();
       resetForm();
       removeQueryParams();
     } catch (error) {
@@ -171,7 +173,7 @@ const UsersPage = () => {
     setIsLoading(true);
     try {
       await axios.delete(`/api/users/${deleteUserId}`);
-      fetchUsers();
+      await fetchUsers();
       setMessage('User deleted successfully');
       setMessageType('success');
     } catch (error) {
@@ -253,36 +255,44 @@ const UsersPage = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchUsers();
+      await fetchRoles();
+      if (uid) {
+        await fetchUserById(uid as string);
+      }
+    };
+
+    fetchData();
+  }, [uid, fetchUsers, fetchRoles, fetchUserById]);
+
   return (
     <>
       <Navbar></Navbar>
-      <main>
-        <div className="container mx-auto p-4">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">User Management</h1>
-            <button
+      <main className={styles.usersPage}>
+        <div className={styles.container}>
+          <div className={styles.header}>
+            <h1 className={styles.title}>User Management</h1>
+            <Button
+              buttonType={'button'}
+              styleType={'primary'}
+              ariaLabel={'Add User'}
               onClick={() => {
                 resetForm();
                 setFormVisible(true);
               }}
-              className="bg-blue-500 text-white px-4 py-2 rounded"
             >
               Add User
-            </button>
+            </Button>
           </div>
           {formVisible && (
-            <form
-              onSubmit={handleFormSubmit}
-              className="bg-gray-100 p-4 mt-4 rounded shadow"
-            >
+            <form onSubmit={handleFormSubmit} className={styles.form}>
               {message && (
                 <Message message={message} type={messageType}></Message>
               )}
-              <div className="mb-4">
-                <label
-                  htmlFor="username"
-                  className="block text-sm font-medium text-gray-700"
-                >
+              <div className={styles.formGroup}>
+                <label htmlFor="username" className={styles.label}>
                   Username
                 </label>
                 <input
@@ -293,14 +303,11 @@ const UsersPage = () => {
                     setFormData({ ...formData, username: e.target.value })
                   }
                   required
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
+                  className={styles.input}
                 />
               </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700"
-                >
+              <div className={styles.formGroup}>
+                <label htmlFor="email" className={styles.label}>
                   Email
                 </label>
                 <input
@@ -311,16 +318,13 @@ const UsersPage = () => {
                     setFormData({ ...formData, email: e.target.value })
                   }
                   required
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
+                  className={styles.input}
                 />
               </div>
               {!formData.id && (
                 <>
-                  <div className="mb-4">
-                    <label
-                      htmlFor="password"
-                      className="block text-sm font-medium text-gray-700"
-                    >
+                  <div className={styles.formGroup}>
+                    <label htmlFor="password" className={styles.label}>
                       Password
                     </label>
                     <input
@@ -331,14 +335,11 @@ const UsersPage = () => {
                         setFormData({ ...formData, password: e.target.value })
                       }
                       required
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
+                      className={styles.input}
                     />
                   </div>
-                  <div className="mb-4">
-                    <label
-                      htmlFor="confirmPassword"
-                      className="block text-sm font-medium text-gray-700"
-                    >
+                  <div className={styles.formGroup}>
+                    <label htmlFor="confirmPassword" className={styles.label}>
                       Confirm Password
                     </label>
                     <input
@@ -352,24 +353,18 @@ const UsersPage = () => {
                         })
                       }
                       required
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
+                      className={styles.input}
                     />
                   </div>
                 </>
               )}
-              <div className="mb-4">
-                <label
-                  htmlFor="roles"
-                  className="block text-sm font-medium text-gray-700"
-                >
+              <div className={styles.formGroup}>
+                <label htmlFor="roles" className={styles.label}>
                   Roles
                 </label>
                 <div className="flex space-x-2">
                   {roles.map((role: Role) => (
-                    <label
-                      key={role.id}
-                      className="inline-flex items-center space-x-2"
-                    >
+                    <label key={role.id} className={styles.checkboxLabel}>
                       <input
                         type="checkbox"
                         checked={formData.roles.includes(role.name)}
@@ -388,19 +383,15 @@ const UsersPage = () => {
 
                 {formData.id && (
                   <>
-                    <LinkGoogleAccount
-                      userId={formData.id}
-                      googleAccessToken={formData.googleAccessToken}
-                      googleTokenExpiry={formData.googleTokenExpiry}
-                    />
-                    &nbsp;
-                    <button
-                      type={'button'}
-                      className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
+                    <Button
+                      ariaLabel={'Change Password'}
+                      buttonType={'button'}
                       onClick={() => handleOpenDialog('passChange')}
+                      styleType={'danger'}
                     >
                       Change Password
-                    </button>
+                    </Button>
+
                     <PasswordChangeDialog
                       isOpen={openDialog === 'passChange'}
                       onClose={handleCloseDialog}
@@ -411,55 +402,50 @@ const UsersPage = () => {
                   </>
                 )}
               </div>
-              <button
-                type="submit"
-                className="bg-green-500 text-white px-4 py-2 rounded mt-2"
+              <Button
+                ariaLabel={'Save User'}
+                styleType={'primary'}
+                buttonType={'submit'}
               >
                 Save User
-              </button>
-              <button type={'button'} onClick={resetForm} className="ml-2">
+              </Button>
+              <Button
+                ariaLabel={'Cancel'}
+                onClick={resetForm}
+                styleType={'secondary'}
+                buttonType={'button'}
+              >
                 Cancel
-              </button>
+              </Button>
             </form>
           )}
           {users.length === 0 ? (
-            <p className="mt-6 text-gray-500 text-center">
-              No users available.
-            </p>
+            <p className={styles.noUsers}>No users available.</p>
           ) : (
-            <table className="table-auto w-full mt-6 bg-white shadow rounded">
-              <thead>
-                <tr>
-                  <th className="border px-4 py-2">Username</th>
-                  <th className="border px-4 py-2">Email</th>
-                  <th className="border px-4 py-2">Roles</th>
-                  <th className="border px-4 py-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user.id} className="border-t">
-                    <td className="border px-4 py-2">{user.username}</td>
-                    <td className="border px-4 py-2">{user.email}</td>
-                    <td className="border px-4 py-2">{user.roles}</td>
-                    <td className="border px-4 py-2 space-x-2">
-                      <button
-                        onClick={() => handleEditUser(user)}
-                        className="bg-blue-500 text-white px-2 py-1 rounded"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteUser(user.id)}
-                        className="bg-red-500 text-white px-2 py-1 rounded"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable
+              columns={columns}
+              data={users}
+              actions={(row: Record<string, any>) => {
+                const user = row as User;
+                return (
+                  <>
+                    <Button
+                      ariaLabel={'Edit'}
+                      onClick={() => handleEditUser(user)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      ariaLabel={'Delete'}
+                      onClick={() => handleDeleteUser(user.id)}
+                      styleType={'danger'}
+                    >
+                      Delete
+                    </Button>
+                  </>
+                );
+              }}
+            ></DataTable>
           )}
         </div>
       </main>
