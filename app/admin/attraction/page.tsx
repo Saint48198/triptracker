@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
@@ -9,9 +9,10 @@ import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
 import Message from '@/components/Message/Message';
 import { handleResponse } from '@/utils/handleResponse';
 import LatLngField from '@/components/LatLngField/LatLngField';
-import ActionButton from '@/components/ActionButton/ActionButton';
 import { Country, Attraction } from '@/types/ContentTypes';
 import { GeocodeResult } from '@/types/MapTypes';
+import styles from './AttractionPage.module.scss';
+import Button from '@/components/Button/Button';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -35,12 +36,7 @@ export default function AttractionPage() {
   const [messageType, setMessageType] = useState<'error' | 'success' | ''>('');
   const [loading, setLoading] = useState(false); // Add loading state
 
-  useEffect(() => {
-    fetchCountries();
-    if (attractionId) fetchAttraction(attractionId);
-  }, [attractionId]);
-
-  const fetchCountries = async () => {
+  const fetchCountries = useCallback(async () => {
     try {
       const response = await fetch('/api/countries');
       const data = await response.json();
@@ -49,9 +45,9 @@ export default function AttractionPage() {
       console.error('Failed to fetch countries:', error);
       setMessage('Failed to fetch countries.');
     }
-  };
+  }, []);
 
-  const fetchAttraction = async (id: string) => {
+  const fetchAttraction = useCallback(async (id: string) => {
     try {
       const response = await fetch(`/api/attractions/${id}`);
       const data: Attraction = await response.json();
@@ -70,7 +66,7 @@ export default function AttractionPage() {
       setMessage('Failed to fetch attraction.');
       console.error('Failed to fetch attraction:', error);
     }
-  };
+  }, []);
 
   const handleGeocode = async () => {
     if (!name) {
@@ -173,22 +169,30 @@ export default function AttractionPage() {
     }
   };
 
+  useEffect(() => {
+    const getData = async () => {
+      await fetchCountries();
+      if (attractionId) await fetchAttraction(attractionId);
+    };
+    getData();
+  }, [fetchCountries, fetchAttraction, attractionId]);
+
   return (
     <>
       <Navbar />
-      <main className="container mx-auto px-4 py-8">
+      <main className={styles.container}>
         <aside>
           <AdminLocalNav currentSection={'attraction'} />
         </aside>
         <div className={'pageContent'}>
-          <h1 className="text-2xl font-bold mb-6">
+          <h1 className={styles.title}>
             {attractionId ? 'Edit Site' : 'Add Site'}
           </h1>
           {message && <Message message={message} type={messageType}></Message>}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <h2 className="text-lg font-semibold underline">Details</h2>
+          <form onSubmit={handleSubmit} className={styles.form}>
+            <h2 className={styles.subtitle}>Details</h2>
             <div>
-              <label htmlFor="name" className="block font-medium">
+              <label htmlFor="name" className={styles.label}>
                 Site Name
               </label>
               <input
@@ -196,20 +200,20 @@ export default function AttractionPage() {
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
+                className={styles.input}
                 required
               />
             </div>
-            <h2 className="text-xl font-bold">Details</h2>
+            <h2 className={styles.subtitle}>Details</h2>
             <div>
-              <label htmlFor="countryId" className="block font-medium">
+              <label htmlFor="countryId" className={styles.label}>
                 Country
               </label>
               <select
                 id="countryId"
                 value={countryId}
                 onChange={(e) => setCountryId(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
+                className={styles.select}
                 required
               >
                 <option value="">Select a country</option>
@@ -220,8 +224,8 @@ export default function AttractionPage() {
                 ))}
               </select>
             </div>
-            <div>
-              <label htmlFor="isUnesco" className="block font-medium">
+            <div className={styles.checkbox}>
+              <label htmlFor="isUnesco" className={styles.label}>
                 UNESCO Site
               </label>
               <input
@@ -231,8 +235,8 @@ export default function AttractionPage() {
                 onChange={(e) => setIsUnesco(e.target.checked)}
               />
             </div>
-            <div>
-              <label htmlFor="isNationalPark" className="block font-medium">
+            <div className={styles.checkbox}>
+              <label htmlFor="isNationalPark" className={styles.label}>
                 National Park
               </label>
               <input
@@ -243,7 +247,7 @@ export default function AttractionPage() {
               />
             </div>
             <div>
-              <label htmlFor="lastVisited" className="block font-medium">
+              <label htmlFor="lastVisited" className={styles.label}>
                 Last Visited
               </label>
               <input
@@ -251,10 +255,10 @@ export default function AttractionPage() {
                 id="lastVisited"
                 value={lastVisited}
                 onChange={(e) => setLastVisited(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
+                className={styles.input}
               />
             </div>
-            <h2 className="text-xl font-bold">Location</h2>
+            <h2 className={styles.subtitle}>Location</h2>
             <LatLngField
               latLabel="Latitude"
               lat={parseFloat(lat)}
@@ -279,28 +283,29 @@ export default function AttractionPage() {
                 />
               </div>
             )}
-            <h2 className="text-xl font-bold">Info</h2>
+            <h2 className={styles.subtitle}>Info</h2>
             <div>
-              <label htmlFor="wikiTerm" className="block font-medium">
+              <label htmlFor="wikiTerm" className={styles.label}>
                 Wiki Text
               </label>
               <textarea
                 id="wikiTerm"
                 value={wikiTerm}
                 onChange={(e) => setWikiTerm(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
+                className={styles.textarea}
               />
             </div>
-            <ActionButton type={'submit'} disabled={loading}>
-              {attractionId ? 'Update Attraction' : 'Add Attraction'}
-            </ActionButton>
+            <Button buttonType={'submit'} isDisabled={loading}>
+              {attractionId ? 'Update Site' : 'Add Site'}
+            </Button>
             &nbsp;
-            <button
+            <Button
+              buttonType={'button'}
               onClick={() => router.push('/admin/attractions')}
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              styleType={'neutral'}
             >
               Cancel
-            </button>
+            </Button>
           </form>
         </div>
       </main>

@@ -1,0 +1,59 @@
+// AttractionPage.module.scss
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.pageContent {
+  margin-top: 2rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.subtitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.label {
+  display: block;
+  font-weight: 500;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+
+.cancelButton {
+  background-color: #6b7280; // Tailwind bg-gray-500
+  color: #ffffff; // Tailwind text-white
+  padding: 0.5rem 1rem; // Tailwind px-4 py-2
+  border-radius: 0.25rem; // Tailwind rounded
+  &:hover {
+    background-color: #4b5563; // Tailwind hover:bg-gray-600
+  }
+}

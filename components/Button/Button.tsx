@@ -10,7 +10,7 @@ interface ButtonProps {
   buttonType?: 'button' | 'submit' | 'reset'; // Optional button type
   isDisabled?: boolean; // Optional disabled state
   styleType?: 'primary' | 'secondary' | 'neutral' | 'danger' | 'text'; // Optional style type
-  ariaLabel: string;
+  ariaLabel?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({
