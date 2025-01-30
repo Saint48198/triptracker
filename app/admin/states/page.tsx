@@ -1,22 +1,20 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
-import { State, Country } from '@/components/types';
 import Message from '@/components/Message/Message';
+import Button from '@/components/Button/Button';
+import DataTable from '@/components/DataTable/DataTable';
+import styles from './StatesPage.module.scss';
 
 export default function StatesPage() {
   const router = useRouter();
   const [states, setStates] = useState([]);
   const [message, setMessage] = useState('');
 
-  useEffect(() => {
-    fetchStates();
-  }, []);
-
-  const fetchStates = async () => {
+  const fetchStates = useCallback(async () => {
     try {
       const response = await fetch('/api/states');
       const data = await response.json();
@@ -26,7 +24,7 @@ export default function StatesPage() {
       console.error('Failed to fetch states:', error);
       setMessage('Failed to fetch states.');
     }
-  };
+  }, []);
 
   const handleDeleteState = async (id: number) => {
     try {
@@ -36,7 +34,7 @@ export default function StatesPage() {
 
       if (response.ok) {
         setMessage('State deleted successfully!');
-        fetchStates();
+        await fetchStates();
       } else {
         setMessage('Failed to delete state.');
       }
@@ -46,70 +44,55 @@ export default function StatesPage() {
     }
   };
 
+  const columns = [
+    { key: 'name', label: 'State Name' },
+    { key: 'abbr', label: 'Abbreviation' },
+    { key: 'country_name', label: 'Country' },
+    { key: 'last_visited', label: 'Last Visited' },
+  ];
+
+  useEffect(() => {
+    fetchStates();
+  }, [fetchStates]);
+
   return (
     <>
       <Navbar />
-      <main className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">States</h1>
+      <main className={styles.container}>
+        <h1 className={styles.title}>States</h1>
         {message && <Message message={message} type="error"></Message>}
-        <div className="mb-4 flex justify-end">
-          <button
+        <div className={styles.flexEnd}>
+          <Button
+            styleType={'secondary'}
+            buttonType={'button'}
             onClick={() => router.push('/admin/state')}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
           >
             Add State
-          </button>
+          </Button>
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full table-auto bg-white border border-gray-300">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-4 py-2 text-left font-medium text-gray-600">
-                  State Name
-                </th>
-                <th className="px-4 py-2 text-left font-medium text-gray-600">
-                  Abbreviation
-                </th>
-                <th className="px-4 py-2 text-left font-medium text-gray-600">
-                  Country
-                </th>
-                <th className="px-4 py-2 text-left font-medium text-gray-600">
-                  Last Visited
-                </th>
-                <th className="px-4 py-2 text-left font-medium text-gray-600">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {states.map((state: State) => (
-                <tr key={state.id} className="hover:bg-gray-100">
-                  <td className="px-4 py-2 text-gray-800">{state.name}</td>
-                  <td className="px-4 py-2 text-gray-800">
-                    {state.abbr || '-'}
-                  </td>
-                  <td className="px-4 py-2 text-gray-800">
-                    {state.country_name || '-'}
-                  </td>
-                  <td className="px-4 py-2">{state.last_visited || '-'}</td>
-                  <td className="px-4 py-2 text-gray-800 space-x-2">
-                    <button
-                      onClick={() => router.push(`/admin/state?id=${state.id}`)}
-                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteState(state.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className={styles.overflowXAuto}>
+          <DataTable
+            columns={columns}
+            data={states}
+            actions={(row) => (
+              <>
+                <Button
+                  styleType={'text'}
+                  buttonType={'button'}
+                  onClick={() => router.push(`/admin/state?id=${row.id}`)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  styleType={'danger'}
+                  buttonType={'button'}
+                  onClick={() => handleDeleteState(row.id)}
+                >
+                  Delete
+                </Button>
+              </>
+            )}
+          ></DataTable>
         </div>
       </main>
       <Footer />
