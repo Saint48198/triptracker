@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
@@ -11,6 +11,8 @@ import FilterBy from '@/components/FilterBy/FilterBy';
 import { FilterOption } from '@/components/FilterBy/FilterBy.types';
 import Message from '@/components/Message/Message';
 import { Country } from '@/types/ContentTypes';
+import styles from './AttractionsPage.module.scss';
+import Button from '@/components/Button/Button';
 
 export default function AttractionsPage() {
   const router = useRouter();
@@ -45,16 +47,7 @@ export default function AttractionsPage() {
     { key: 'country_name', label: 'Country' },
   ];
 
-  useEffect(() => {
-    fetchCountries();
-  }, []);
-
-  useEffect(() => {
-    fetchAttractions();
-    updateURL();
-  }, [countryId, page, sortBy, sortOrder]);
-
-  const fetchCountries = async () => {
+  const fetchCountries = useCallback(async () => {
     try {
       const response = await fetch('/api/countries');
       const data = await response.json();
@@ -63,9 +56,9 @@ export default function AttractionsPage() {
       setMessage('Failed to fetch countries.');
       console.error('Failed to fetch countries:', error);
     }
-  };
+  }, []);
 
-  const fetchAttractions = async () => {
+  const fetchAttractions = useCallback(async () => {
     try {
       const query = new URLSearchParams({
         ...(countryId && { country_id: countryId }),
@@ -89,7 +82,7 @@ export default function AttractionsPage() {
       setMessage('Failed to fetch attractions.');
       console.error('Failed to fetch attractions:', error);
     }
-  };
+  }, [countryId, page, limit, sortBy, sortOrder]);
 
   const handleDeleteAttraction = async (id: number) => {
     try {
@@ -109,7 +102,7 @@ export default function AttractionsPage() {
     }
   };
 
-  const updateURL = () => {
+  const updateURL = useCallback(() => {
     const params = new URLSearchParams();
     if (countryId) params.set('country_id', countryId);
     params.set('page', page.toString());
@@ -118,7 +111,7 @@ export default function AttractionsPage() {
       params.set('sortOrder', sortOrder);
     }
     router.push(`?${params.toString()}`, { scroll: false });
-  };
+  }, [countryId, page, sortBy, sortOrder, router]);
 
   const handleCountryFilter = (selected: string[]) => {
     setCountryId(selected[0]);
@@ -140,14 +133,31 @@ export default function AttractionsPage() {
 
   const totalPages = Math.ceil(total / limit);
 
+  useEffect(() => {
+    const getData = async () => {
+      await fetchCountries();
+      await fetchAttractions();
+      updateURL();
+    };
+    getData();
+  }, [
+    fetchCountries,
+    fetchAttractions,
+    updateURL,
+    countryId,
+    page,
+    sortBy,
+    sortOrder,
+  ]);
+
   return (
     <>
       <Navbar />
-      <main className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Attractions</h1>
+      <main className={styles.container}>
+        <h1 className={styles.title}>Attractions</h1>
         {message && <Message message={message} type="error"></Message>}
         {/* Filter */}
-        <div className="flex justify-between mb-4">
+        <div className={styles.filter}>
           <FilterBy
             options={
               countries.map((country: Country) => ({
@@ -163,34 +173,40 @@ export default function AttractionsPage() {
             selectAllLabel="Select Country"
           />
         </div>
-        <div>Total: {total}</div>
-        <div className="mb-4 flex justify-end">
-          <button
+        <div className={styles.total}>Total: {total}</div>
+        <div className={styles.actions}>
+          <Button
+            ariaLabel={'Add Attraction'}
+            styleType={'primary'}
             onClick={() => router.push('/admin/attraction')}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            buttonType={'button'}
           >
             Add Attraction
-          </button>
+          </Button>
         </div>
-        <div className="overflow-x-auto">
+        <div className={styles.tableContainer}>
           <DataTable
             columns={columns}
             data={attractions}
             onSort={handleSort}
             actions={(row) => (
               <>
-                <button
+                <Button
+                  ariaLabel={'Edit'}
+                  styleType={'primary'}
                   onClick={() => router.push(`/admin/attraction?id=${row.id}`)}
-                  className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                  buttonType={'button'}
                 >
                   Edit
-                </button>
-                <button
+                </Button>
+                <Button
+                  ariaLabel={'Delete'}
+                  styleType={'danger'}
                   onClick={() => handleDeleteAttraction(row.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                  buttonType={'button'}
                 >
                   Delete
-                </button>
+                </Button>
               </>
             )}
           />
