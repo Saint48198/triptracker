@@ -1,0 +1,24 @@
+// CountriesPage.module.scss
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.title {
+  font-size: 1.5rem; // Tailwind text-2xl
+  font-weight: 700; // Tailwind font-bold
+  margin: 1rem 0; // Tailwind my-4
+}
+
+.flexEnd {
+  display: flex; // Tailwind flex
+  justify-content: flex-end; // Tailwind justify-end
+  margin-bottom: 1rem; // Tailwind mb-4
+}
+
+.overflowXAuto {
+  overflow-x: auto; // Tailwind overflow-x-auto
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); // Tailwind shadow-md
+  border-radius: 0.5rem; // Tailwind rounded-lg
+}
