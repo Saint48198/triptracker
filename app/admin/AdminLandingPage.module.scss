@@ -1,0 +1,46 @@
+// AdminLandingPage.module.scss
+@import "@/styles/variables";
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 1rem 0;
+}
+
+.link {
+  display: block;
+  background-color: $color-blue-500;
+  color: $color-white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  &:hover {
+    background-color: $color-blue-600
+  }
+}
+
+.linkGreen {
+  background-color: #10b981;
+  &:hover {
+    background-color: #059669;
+  }
+}
+
+.linkPurple {
+  background-color: #8b5cf6;
+  &:hover {
+    background-color: #7c3aed;
+  }
+}
+
+.linkYellow {
+  background-color: #f59e0b;
+  &:hover {
+    background-color: #d97706;
+  }
+}
