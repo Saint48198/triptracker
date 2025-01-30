@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Country } from '@/components/types';
+import { Country } from '@/types/ContentTypes';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
 import { handleResponse } from '@/utils/handleResponse';
 import Message from '@/components/Message/Message';
+import Button from '@/components/Button/Button';
 
 export default function StatePage() {
   const searchParams = useSearchParams();
@@ -21,15 +22,7 @@ export default function StatePage() {
   const [countries, setCountries] = useState([]);
   const id = searchParams ? searchParams.get('id') : null; // Get the ID from the query string
 
-  useEffect(() => {
-    fetchCountries();
-
-    if (id) {
-      fetchState(id);
-    }
-  }, [id]);
-
-  const fetchCountries = async () => {
+  const fetchCountries = useCallback(async () => {
     try {
       const response = await fetch('/api/countries');
       const data = await response.json();
@@ -39,9 +32,9 @@ export default function StatePage() {
       setMessage('Failed to fetch countries.');
       setMessageType('error');
     }
-  };
+  }, []);
 
-  const fetchState = async (id: string) => {
+  const fetchState = useCallback(async (id: string) => {
     try {
       const response = await fetch(`/api/states/${id}`);
       const data = await response.json();
@@ -59,7 +52,7 @@ export default function StatePage() {
       setMessage('Failed to fetch state.');
       setMessageType('error');
     }
-  };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,6 +84,18 @@ export default function StatePage() {
       setMessageType('error');
     }
   };
+
+  useEffect(() => {
+    const getData = async () => {
+      await fetchCountries();
+
+      if (id) {
+        await fetchState(id);
+      }
+    };
+
+    getData();
+  }, [fetchCountries, fetchState, id]);
 
   return (
     <>
@@ -161,19 +166,17 @@ export default function StatePage() {
                 className="w-full border px-4 py-2 rounded bg-gray-100"
               />
             </div>
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
+            <Button buttonType={'submit'} styleType={'primary'}>
               {id ? 'Update State' : 'Add State'}
-            </button>
+            </Button>
             &nbsp;
-            <button
+            <Button
+              buttonType={'button'}
+              styleType={'neutral'}
               onClick={() => router.push('/admin/states')}
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
             >
               Cancel
-            </button>
+            </Button>
           </form>
         </div>
       </main>
