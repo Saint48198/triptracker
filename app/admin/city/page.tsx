@@ -11,7 +11,6 @@ import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
 import Message from '@/components/Message/Message';
 import Modal from '@/components/Modal/Modal';
 import LatLngField from '@/components/LatLngField/LatLngField';
-import ActionButton from '@/components/ActionButton/ActionButton';
 import { handleResponse } from '@/utils/handleResponse';
 import { Country, State, WikiInfo } from '@/types/ContentTypes';
 import { GeocodeResult } from '@/types/MapTypes';
@@ -19,6 +18,8 @@ import { Photo } from '@/types/PhotoTypes';
 import PhotoManager from '@/components/PhotoManager/PhotoManager';
 import PhotoSearch from '@/components/PhotoSearch/PhotoSearch';
 import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner';
+import styles from './CityPage.module.scss';
+import Button from '@/components/Button/Button';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -303,14 +304,12 @@ export default function CityPage() {
   return (
     <>
       <Navbar />
-      <main className="container mx-auto px-4 py-8">
+      <main className={styles.container}>
         <aside>
           <AdminLocalNav currentSection={'city'} />
         </aside>
-        <div className={'PageContent'}>
-          <h1 className="text-2xl font-bold mb-6">
-            {id ? 'Edit City' : 'Add City'}
-          </h1>
+        <div className={styles.pageContent}>
+          <h1 className={styles.title}>{id ? 'Edit City' : 'Add City'}</h1>
           {loading ? (
             <LoadingSpinner />
           ) : (
@@ -318,10 +317,10 @@ export default function CityPage() {
               {message && (
                 <Message message={message} type={messageType}></Message>
               )}
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <h2 className="text-lg font-semibold underline">Details</h2>
+              <form onSubmit={handleSubmit} className={styles.form}>
+                <h2 className={styles.detailsTitle}>Details</h2>
                 <div>
-                  <label htmlFor="name" className="block font-medium">
+                  <label htmlFor="name" className={styles.label}>
                     City Name
                   </label>
                   <input
@@ -329,20 +328,20 @@ export default function CityPage() {
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full border px-4 py-2 rounded"
+                    className={styles.input}
                     required
                   />
                 </div>
                 {filteredStates.length > 0 && (
                   <div>
-                    <label htmlFor="stateId" className="block font-medium">
+                    <label htmlFor="stateId" className={styles.label}>
                       State
                     </label>
                     <select
                       id="stateId"
                       value={stateId}
                       onChange={(e) => setStateId(e.target.value)}
-                      className="w-full border px-4 py-2 rounded"
+                      className={styles.select}
                     >
                       <option value="">Select a state</option>
                       {filteredStates.map((state) => (
@@ -354,14 +353,14 @@ export default function CityPage() {
                   </div>
                 )}
                 <div>
-                  <label htmlFor="countryId" className="block font-medium">
+                  <label htmlFor="countryId" className={styles.label}>
                     Country
                   </label>
                   <select
                     id="countryId"
                     value={countryId}
                     onChange={(e) => setCountryId(e.target.value)}
-                    className="w-full border px-4 py-2 rounded"
+                    className={styles.select}
                     required
                   >
                     <option value="">Select a country</option>
@@ -373,7 +372,7 @@ export default function CityPage() {
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="lastVisited" className="block font-medium">
+                  <label htmlFor="lastVisited" className={styles.label}>
                     Last Visited
                   </label>
                   <input
@@ -381,10 +380,10 @@ export default function CityPage() {
                     id="lastVisited"
                     value={lastVisited}
                     onChange={(e) => setLastVisited(e.target.value)}
-                    className="w-full border px-4 py-2 rounded"
+                    className={styles.input}
                   />
                 </div>
-                <h2 className="text-lg font-semibold underline">Location</h2>
+                <h2 className={styles.detailsTitle}>Location</h2>
                 <LatLngField
                   latLabel="Latitude"
                   lat={parseFloat(lat)}
@@ -409,34 +408,34 @@ export default function CityPage() {
                     />
                   </div>
                 )}
-                <h2 className="text-lg font-semibold underline">Info</h2>
-                <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
+                <h2 className={styles.detailsTitle}>Info</h2>
+                <div className={styles.flexItemsCenter}>
                   <input
                     type="text"
                     id="wikiTerm"
                     value={wikiTerm}
                     onChange={(e) => setWikiTerm(e.target.value)}
-                    className="flex-grow px-4 py-2 text-gray-700 focus:outline-none"
+                    className={styles.flexGrow}
                     aria-label={'Wiki Term'}
                   />
-                  <button
-                    type="button"
-                    className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 focus:outline-none"
+                  <Button
+                    styleType={'secondary'}
+                    buttonType={'button'}
                     onClick={handleWikiLookup}
                   >
                     Get Wiki Info
-                  </button>
+                  </Button>
                 </div>
-                <article className="mt-4">
+                <article className={styles.mt4}>
                   {wikiInfo && (
                     <div>
-                      <h3 className="text-lg font-bold">{wikiInfo.title}</h3>
+                      <h3 className={styles.textLg}>{wikiInfo.title}</h3>
                       <p>{wikiInfo.intro}</p>
                       <a
                         href={wikiInfo.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline"
+                        className={styles.textBlue}
                       >
                         Read more
                       </a>
@@ -444,15 +443,15 @@ export default function CityPage() {
                   )}
                 </article>
                 <hr />
-                <h2 className="text-lg font-semibold underline">Photos</h2>
+                <h2 className={styles.detailsTitle}>Photos</h2>
                 <div>
-                  <button
-                    type="button"
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  <Button
+                    buttonType={'button'}
+                    styleType={'secondary'}
                     onClick={handleDisplayPhotos}
                   >
                     Display All Photos
-                  </button>
+                  </Button>
                 </div>
                 <PhotoManager
                   entityType={ENTITY_TYPE_CITIES}
@@ -461,16 +460,21 @@ export default function CityPage() {
                   externalPhotos={photoUpdates}
                 />
                 <hr />
-                <ActionButton type={'submit'} disabled={working}>
+                <Button
+                  styleType={'primary'}
+                  buttonType={'submit'}
+                  isDisabled={working}
+                >
                   {id ? 'Update City' : 'Add City'}
-                </ActionButton>
+                </Button>
                 &nbsp;
-                <button
+                <Button
+                  styleType={'neutral'}
+                  buttonType={'button'}
                   onClick={() => router.push('/admin/cities')}
-                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
                 >
                   Cancel
-                </button>
+                </Button>
               </form>
             </>
           )}
