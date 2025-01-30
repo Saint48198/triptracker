@@ -8,6 +8,9 @@ import Pagination from '@/components/Pagination/Pagination';
 import Message from '@/components/Message/Message';
 import { Country, City } from '@/types/ContentTypes';
 import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner';
+import styles from './CitiesPage.module.scss';
+import DataTable from '@/components/DataTable/DataTable';
+import Button from '@/components/Button/Button';
 
 export default function CitiesPage() {
   const router = useRouter();
@@ -111,29 +114,37 @@ export default function CitiesPage() {
       setMessage('An error occurred.');
     }
   };
+  const columns = [
+    { key: 'name', label: 'City Name' },
+    { key: 'country_name', label: 'Latitude' },
+    { key: '', label: 'Longitude' },
+    { key: '', label: 'State' },
+    { key: '', label: 'Country' },
+    { key: '', label: 'Last Visited' },
+  ];
 
   useEffect(() => {
-    fetchCountries();
-  }, [fetchCountries]);
-
-  useEffect(() => {
-    fetchCities();
-    updateURL();
-  }, [fetchCities, updateURL, countryId, page, sortBy, sort]);
+    const getData = async () => {
+      await fetchCountries();
+      await fetchCities();
+      updateURL();
+    };
+    getData();
+  }, [fetchCountries, fetchCities, updateURL, countryId, page, sortBy, sort]);
 
   return (
     <>
       <Navbar />
-      <main className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Cities</h1>
+      <main className={styles.container}>
+        <h1 className={styles.title}>Cities</h1>
         {message && <Message message={message} type="error"></Message>}
-        <div className="flex justify-between mb-4">
+        <div className={styles.flexBetween}>
           <div>
-            <label className="block mb-2 font-medium">Filter by Country</label>
+            <label className={styles.label}>Filter by Country</label>
             <select
               value={countryId}
               onChange={handleCountryFilter}
-              className="border px-4 py-2 rounded"
+              className={styles.select}
             >
               <option value="">All Countries</option>
               {countries.map((country: Country) => (
@@ -143,83 +154,42 @@ export default function CitiesPage() {
               ))}
             </select>
           </div>
-          <div className="mb-4 flex justify-end">
-            <button
+          <div className={styles.flexBetween}>
+            <Button
+              buttonType={'button'}
+              styleType={'secondary'}
               onClick={() => router.push('/admin/city')}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
             >
               Add City
-            </button>
+            </Button>
           </div>
         </div>
         {loading ? (
           <LoadingSpinner />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full table-auto bg-white border border-gray-300">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="px-4 py-2 text-left font-medium text-gray-600">
-                    City Name
-                  </th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-600">
-                    Latitude
-                  </th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-600">
-                    Longitude
-                  </th>
-                  <th
-                    className="px-4 py-2 text-left cursor-pointer hover:text-blue-600"
-                    onClick={() => handleSort('country')}
+          <div className={styles.overflowXAuto}>
+            <DataTable
+              columns={columns}
+              data={cities}
+              actions={(row) => (
+                <>
+                  <Button
+                    onClick={() => router.push(`/admin/city?id=${row.id}`)}
+                    buttonType={'button'}
+                    styleType={'primary'}
                   >
-                    Country{' '}
-                    {sortBy === 'country' && (sort === 'asc' ? '⬆️' : '⬇️')}
-                  </th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-600">
-                    State
-                  </th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-600">
-                    Last Visited
-                  </th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-600">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {cities.map((city: City) => (
-                  <tr key={city.id} className="hover:bg-gray-100">
-                    <td className="px-4 py-2">{city.name}</td>
-                    <td className="px-4 py-2">{city.lat}</td>
-                    <td className="px-4 py-2">{city.lng}</td>
-                    <td className="px-4 py-2">{city.country_name}</td>
-                    <td className="px-4 py-2">{city.state_name || '-'}</td>
-                    <td className="px-4 py-2">{city.last_visited || '-'}</td>
-                    <td className="px-4 py-2 space-x-2">
-                      <button
-                        onClick={() => router.push(`/admin/city?id=${city.id}`)}
-                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteCity(city.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {cities.length === 0 && (
-                  <tr>
-                    <td colSpan={7} className="text-center py-4">
-                      No cities found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                    Edit
+                  </Button>
+                  <Button
+                    onClick={() => handleDeleteCity(row.id)}
+                    buttonType={'button'}
+                    styleType={'danger'}
+                  >
+                    Delete
+                  </Button>
+                </>
+              )}
+            ></DataTable>
 
             {/* Pagination Controls */}
             <Pagination
