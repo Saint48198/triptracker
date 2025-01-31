@@ -1,0 +1,25 @@
+// FormTextarea.module.scss
+@import "@/styles/variables";
+
+.formTextareaContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $color-gray-700;
+}
+
+.textarea {
+  border: 1px solid $color-gray-300;
+  padding: 0.5rem;
+  border-radius: $border-radius-md;
+  resize: none;
+  &:focus {
+    outline: 2px solid $color-blue-500;
+    border-color: $color-blue-500;
+  }
+}

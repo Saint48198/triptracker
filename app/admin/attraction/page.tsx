@@ -13,6 +13,10 @@ import { Country, Attraction } from '@/types/ContentTypes';
 import { GeocodeResult } from '@/types/MapTypes';
 import styles from './AttractionPage.module.scss';
 import Button from '@/components/Button/Button';
+import FormInput from '@/components/FormInput/FormInput';
+import FormSelect from '@/components/FormSelect/FormSelect';
+import FormTextarea from '@/components/FormTextarea/FormTextarea';
+import FormCheckbox from '@/components/FormCheckbox/FormCheckbox';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -191,73 +195,43 @@ export default function AttractionPage() {
           {message && <Message message={message} type={messageType}></Message>}
           <form onSubmit={handleSubmit} className={styles.form}>
             <h2 className={styles.subtitle}>Details</h2>
-            <div>
-              <label htmlFor="name" className={styles.label}>
-                Site Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className={styles.input}
-                required
-              />
-            </div>
+            <FormInput
+              label={'Site Name'}
+              id={'name'}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
             <h2 className={styles.subtitle}>Details</h2>
-            <div>
-              <label htmlFor="countryId" className={styles.label}>
-                Country
-              </label>
-              <select
-                id="countryId"
-                value={countryId}
-                onChange={(e) => setCountryId(e.target.value)}
-                className={styles.select}
-                required
-              >
-                <option value="">Select a country</option>
-                {countries.map((country: Country) => (
-                  <option key={country.id} value={country.id}>
-                    {country.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className={styles.checkbox}>
-              <label htmlFor="isUnesco" className={styles.label}>
-                UNESCO Site
-              </label>
-              <input
-                type="checkbox"
-                id="isUnesco"
-                checked={isUnesco}
-                onChange={(e) => setIsUnesco(e.target.checked)}
-              />
-            </div>
-            <div className={styles.checkbox}>
-              <label htmlFor="isNationalPark" className={styles.label}>
-                National Park
-              </label>
-              <input
-                type="checkbox"
-                id="isNationalPark"
-                checked={isNationalPark}
-                onChange={(e) => setIsNationalPark(e.target.checked)}
-              />
-            </div>
-            <div>
-              <label htmlFor="lastVisited" className={styles.label}>
-                Last Visited
-              </label>
-              <input
-                type="month"
-                id="lastVisited"
-                value={lastVisited}
-                onChange={(e) => setLastVisited(e.target.value)}
-                className={styles.input}
-              />
-            </div>
+            <FormSelect
+              label={'Country'}
+              id={'countryId'}
+              options={countries.map((country: Country) => ({
+                value: country.id.toString(),
+                label: country.name,
+              }))}
+              value={countryId}
+              onChange={(e) => setCountryId(e.target.value)}
+              required
+            />
+            <FormCheckbox
+              label={'UNESCO Site'}
+              id={'isUnesco'}
+              checked={isUnesco}
+              onChange={(e) => setIsUnesco(e.target.checked)}
+            />
+            <FormCheckbox
+              label={'National Park'}
+              id={'isNationalPark'}
+              checked={isNationalPark}
+              onChange={(e) => setIsNationalPark(e.target.checked)}
+            />
+            <FormInput
+              label={'Last Visited'}
+              id={'lastVisited'}
+              value={lastVisited}
+              onChange={(e) => setLastVisited(e.target.value)}
+            />
             <h2 className={styles.subtitle}>Location</h2>
             <LatLngField
               latLabel="Latitude"
@@ -284,17 +258,12 @@ export default function AttractionPage() {
               </div>
             )}
             <h2 className={styles.subtitle}>Info</h2>
-            <div>
-              <label htmlFor="wikiTerm" className={styles.label}>
-                Wiki Text
-              </label>
-              <textarea
-                id="wikiTerm"
-                value={wikiTerm}
-                onChange={(e) => setWikiTerm(e.target.value)}
-                className={styles.textarea}
-              />
-            </div>
+            <FormTextarea
+              label={'Wiki Text'}
+              id={'wikiTerm'}
+              value={wikiTerm}
+              onChange={(e) => setWikiTerm(e.target.value)}
+            />
             <Button buttonType={'submit'} isDisabled={loading}>
               {attractionId ? 'Update Site' : 'Add Site'}
             </Button>
