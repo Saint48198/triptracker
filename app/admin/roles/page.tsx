@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Role } from '@/types/UserTypes';
+import Button from '@/components/Button/Button';
+import styles from './RolesPage.module.scss';
 
 const RolesPage = () => {
   const [roles, setRoles] = useState<Role[]>([]);
@@ -14,18 +16,14 @@ const RolesPage = () => {
     }
   );
 
-  useEffect(() => {
-    fetchRoles();
-  }, []);
-
-  const fetchRoles = async () => {
+  const fetchRoles = useCallback(async () => {
     try {
       const { data } = await axios.get('/api/roles');
       setRoles(data);
     } catch (error) {
       console.error('Failed to fetch roles:', error);
     }
-  };
+  }, []);
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +33,7 @@ const RolesPage = () => {
       } else {
         await axios.post('/api/roles', { name: formData.name });
       }
-      fetchRoles();
+      await fetchRoles();
       resetForm();
     } catch (error) {
       console.error('Failed to save role:', error);
@@ -46,7 +44,7 @@ const RolesPage = () => {
     if (confirm('Are you sure you want to delete this role?')) {
       try {
         await axios.delete(`/api/roles/${id}`);
-        fetchRoles();
+        await fetchRoles();
       } catch (error) {
         console.error('Failed to delete role:', error);
       }
@@ -63,27 +61,26 @@ const RolesPage = () => {
     setFormVisible(true);
   };
 
+  useEffect(() => {
+    fetchRoles();
+  }, [fetchRoles]);
+
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Role Management</h1>
-        <button
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Role Management</h1>
+        <Button
+          buttonType={'button'}
+          styleType={'secondary'}
           onClick={() => setFormVisible(!formVisible)}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
         >
           {formVisible ? 'Cancel' : 'Add Role'}
-        </button>
+        </Button>
       </div>
       {formVisible && (
-        <form
-          onSubmit={handleFormSubmit}
-          className="bg-gray-100 p-4 mt-4 rounded shadow"
-        >
-          <div className="mb-4">
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700"
-            >
+        <form onSubmit={handleFormSubmit} className={styles.form}>
+          <div>
+            <label htmlFor="name" className={styles.label}>
               Role Name
             </label>
             <input
@@ -94,44 +91,41 @@ const RolesPage = () => {
                 setFormData({ ...formData, name: e.target.value })
               }
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring focus:ring-blue-500"
+              className={styles.input}
             />
           </div>
-          <button
-            type="submit"
-            className="bg-green-500 text-white px-4 py-2 rounded mt-2"
-          >
+          <Button buttonType={'submit'} styleType={'secondary'}>
             Save Role
-          </button>
+          </Button>
         </form>
       )}
-      <div className="mt-8">
-        <h2 className="text-xl font-bold mb-4">Roles</h2>
+      <div className={styles.rolesList}>
+        <h2 className={styles.rolesListTitle}>Roles</h2>
         {roles.length === 0 ? (
-          <p className="text-gray-500">No roles available.</p>
+          <p className={styles.noRolesAvailable}>No roles available.</p>
         ) : (
-          <ul className="bg-white shadow rounded divide-y">
+          <ul className={styles.rolesListContainer}>
             {roles.map((role) => (
-              <li
-                key={role.id}
-                className="p-4 flex justify-between items-center"
-              >
+              <li key={role.id} className={styles.rolesListItem}>
                 <div>
-                  <p className="font-medium">{role.name}</p>
+                  <p className={styles.roleName}>{role.name}</p>
                 </div>
                 <div className="flex space-x-2">
-                  <button
+                  <Button
+                    buttonType={'button'}
+                    styleType={'text'}
                     onClick={() => handleEditRole(role)}
-                    className="bg-yellow-500 text-white px-4 py-2 rounded"
                   >
                     Edit
-                  </button>
-                  <button
+                  </Button>
+                  &nbsp;
+                  <Button
+                    buttonType={'button'}
+                    styleType={'danger'}
                     onClick={() => handleDeleteRole(role.id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded"
                   >
                     Delete
-                  </button>
+                  </Button>
                 </div>
               </li>
             ))}
