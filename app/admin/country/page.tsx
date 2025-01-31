@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
-import { Country } from '@/components/types';
 import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
 import Message from '@/components/Message/Message';
 import { handleResponse } from '@/utils/handleResponse';
+import Button from '@/components/Button/Button';
+import styles from './CountryPage.module.scss';
 
 export default function CountryPage() {
   const searchParams = useSearchParams();
@@ -24,13 +25,7 @@ export default function CountryPage() {
 
   const id = searchParams ? searchParams.get('id') : null; // Get `id` from query parameters
 
-  useEffect(() => {
-    if (id) {
-      fetchCountry(id);
-    }
-  }, [id]);
-
-  const fetchCountry = async (id: string) => {
+  const fetchCountry = useCallback(async (id: string) => {
     try {
       const response = await fetch(`/api/countries/${id}`);
       const data = await response.json();
@@ -48,7 +43,7 @@ export default function CountryPage() {
       setMessage('Failed to fetch country.');
       setMessageType('error');
     }
-  };
+  }, []);
 
   const handleAddOrUpdateCountry = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,21 +85,27 @@ export default function CountryPage() {
     }
   };
 
+  useEffect(() => {
+    if (id) {
+      fetchCountry(id);
+    }
+  }, [fetchCountry, id]);
+
   return (
     <>
       <Navbar></Navbar>
-      <main className="container mx-auto px-4">
+      <main className={styles.container}>
         <aside>
           <AdminLocalNav currentSection={'country'}></AdminLocalNav>
         </aside>
-        <div className={'pageContent'}>
-          <h1 className="text-2xl font-bold my-4">
+        <div className={styles.pageContent}>
+          <h1 className={styles.title}>
             {editingCountry ? 'Edit Country' : 'Add Country'}
           </h1>
           {message && <Message message={message} type={messageType}></Message>}
-          <form onSubmit={handleAddOrUpdateCountry} className="space-y-4">
+          <form onSubmit={handleAddOrUpdateCountry} className={styles.form}>
             <div>
-              <label htmlFor="name" className="block font-medium">
+              <label htmlFor="name" className={styles.label}>
                 Country Name
               </label>
               <input
@@ -112,12 +113,12 @@ export default function CountryPage() {
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
+                className={styles.input}
                 required
               />
             </div>
             <div>
-              <label htmlFor="abbreviation" className="block font-medium">
+              <label htmlFor="abbreviation" className={styles.label}>
                 Abbreviation
               </label>
               <input
@@ -125,12 +126,12 @@ export default function CountryPage() {
                 id="abbreviation"
                 value={abbreviation}
                 onChange={(e) => setAbbreviation(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
+                className={styles.input}
                 required
               />
             </div>
             <div>
-              <label htmlFor="lat" className="block font-medium">
+              <label htmlFor="lat" className={styles.label}>
                 Latitude
               </label>
               <input
@@ -138,12 +139,12 @@ export default function CountryPage() {
                 id="lat"
                 value={lat}
                 onChange={(e) => setLat(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
+                className={styles.input}
                 required
               />
             </div>
             <div>
-              <label htmlFor="lng" className="block font-medium">
+              <label htmlFor="lng" className={styles.label}>
                 Longitude
               </label>
               <input
@@ -151,12 +152,12 @@ export default function CountryPage() {
                 id="lng"
                 value={lng}
                 onChange={(e) => setLng(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
+                className={styles.input}
                 required
               />
             </div>
             <div>
-              <label htmlFor="geoMapId" className="block font-medium">
+              <label htmlFor="geoMapId" className={styles.label}>
                 GEO Map ID
               </label>
               <input
@@ -164,12 +165,12 @@ export default function CountryPage() {
                 id="geoMapId"
                 value={geoMapId}
                 onChange={(e) => setGeoMapId(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
+                className={styles.input}
                 required
               />
             </div>
             <div>
-              <label htmlFor="lastVisited" className="block font-medium">
+              <label htmlFor="lastVisited" className={styles.label}>
                 Last Visited
               </label>
               <input
@@ -177,22 +178,20 @@ export default function CountryPage() {
                 id="lastVisited"
                 value={lastVisited}
                 readOnly
-                className="w-full border px-4 py-2 rounded bg-gray-100"
+                className={`${styles.input} ${styles.inputReadOnly}`}
               />
             </div>
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
+            <Button buttonType={'submit'} styleType={'primary'}>
               {editingCountry ? 'Update Country' : 'Add Country'}
-            </button>
+            </Button>
             &nbsp;
-            <button
+            <Button
+              buttonType={'button'}
+              styleType={'neutral'}
               onClick={() => router.push('/admin/countries')}
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
             >
               Cancel
-            </button>
+            </Button>
           </form>
         </div>
       </main>
