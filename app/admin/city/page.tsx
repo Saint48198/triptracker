@@ -20,6 +20,9 @@ import PhotoSearch from '@/components/PhotoSearch/PhotoSearch';
 import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner';
 import styles from './CityPage.module.scss';
 import Button from '@/components/Button/Button';
+import FormInput from '@/components/FormInput/FormInput';
+import FormSelect from '@/components/FormSelect/FormSelect';
+import FormTextarea from '@/components/FormTextarea/FormTextarea';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -319,70 +322,42 @@ export default function CityPage() {
               )}
               <form onSubmit={handleSubmit} className={styles.form}>
                 <h2 className={styles.detailsTitle}>Details</h2>
-                <div>
-                  <label htmlFor="name" className={styles.label}>
-                    City Name
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className={styles.input}
-                    required
-                  />
-                </div>
+                <FormInput
+                  label={'City Name'}
+                  id={'name'}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
                 {filteredStates.length > 0 && (
-                  <div>
-                    <label htmlFor="stateId" className={styles.label}>
-                      State
-                    </label>
-                    <select
-                      id="stateId"
-                      value={stateId}
-                      onChange={(e) => setStateId(e.target.value)}
-                      className={styles.select}
-                    >
-                      <option value="">Select a state</option>
-                      {filteredStates.map((state) => (
-                        <option key={state.id} value={state.id}>
-                          {state.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-                <div>
-                  <label htmlFor="countryId" className={styles.label}>
-                    Country
-                  </label>
-                  <select
-                    id="countryId"
-                    value={countryId}
-                    onChange={(e) => setCountryId(e.target.value)}
-                    className={styles.select}
-                    required
-                  >
-                    <option value="">Select a country</option>
-                    {countries.map((country) => (
-                      <option key={country.id} value={country.id}>
-                        {country.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="lastVisited" className={styles.label}>
-                    Last Visited
-                  </label>
-                  <input
-                    type="month"
-                    id="lastVisited"
-                    value={lastVisited}
-                    onChange={(e) => setLastVisited(e.target.value)}
-                    className={styles.input}
+                  <FormSelect
+                    label={'State'}
+                    id={'stateId'}
+                    options={filteredStates.map((state) => ({
+                      value: state.id.toString(),
+                      label: state.name,
+                    }))}
+                    value={stateId}
+                    onChange={(e) => setStateId(e.target.value)}
                   />
-                </div>
+                )}
+                <FormSelect
+                  label={'Country'}
+                  id={'countryId'}
+                  options={countries.map((country) => ({
+                    value: country.id.toString(),
+                    label: country.name,
+                  }))}
+                  value={countryId}
+                  onChange={(e) => setCountryId(e.target.value)}
+                  required
+                />
+                <FormInput
+                  label={'Last Visited'}
+                  id={'lastVisited'}
+                  value={lastVisited}
+                  onChange={(e) => setLastVisited(e.target.value)}
+                />
                 <h2 className={styles.detailsTitle}>Location</h2>
                 <LatLngField
                   latLabel="Latitude"
@@ -409,33 +384,22 @@ export default function CityPage() {
                   </div>
                 )}
                 <h2 className={styles.detailsTitle}>Info</h2>
-                <div className={styles.flexItemsCenter}>
-                  <input
-                    type="text"
-                    id="wikiTerm"
-                    value={wikiTerm}
-                    onChange={(e) => setWikiTerm(e.target.value)}
-                    className={styles.flexGrow}
-                    aria-label={'Wiki Term'}
-                  />
-                  <Button
-                    styleType={'secondary'}
-                    buttonType={'button'}
-                    onClick={handleWikiLookup}
-                  >
-                    Get Wiki Info
-                  </Button>
-                </div>
-                <article className={styles.mt4}>
+                <FormTextarea
+                  label={'Wiki Term'}
+                  id={'wikiTerm'}
+                  value={wikiTerm}
+                  onChange={(e) => setWikiTerm(e.target.value)}
+                />
+                <article className={styles.wikiInfo}>
                   {wikiInfo && (
                     <div>
-                      <h3 className={styles.textLg}>{wikiInfo.title}</h3>
+                      <h3 className={styles.wikiTitle}>{wikiInfo.title}</h3>
                       <p>{wikiInfo.intro}</p>
                       <a
                         href={wikiInfo.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={styles.textBlue}
+                        className={styles.wikiLink}
                       >
                         Read more
                       </a>
