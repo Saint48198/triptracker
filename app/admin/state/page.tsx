@@ -9,6 +9,7 @@ import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
 import { handleResponse } from '@/utils/handleResponse';
 import Message from '@/components/Message/Message';
 import Button from '@/components/Button/Button';
+import styles from './StatePage.module.scss';
 
 export default function StatePage() {
   const searchParams = useSearchParams();
@@ -100,18 +101,16 @@ export default function StatePage() {
   return (
     <>
       <Navbar />
-      <main className="container mx-auto px-4 py-8">
+      <main className={styles.container}>
         <aside>
           <AdminLocalNav currentSection={'state'} />
         </aside>
-        <div className={'pageContent'}>
-          <h1 className="text-2xl font-bold mb-6">
-            {id ? 'Edit State' : 'Add State'}
-          </h1>
+        <div className={styles.pageContent}>
+          <h1 className={styles.title}>{id ? 'Edit State' : 'Add State'}</h1>
           {message && <Message message={message} type={messageType}></Message>}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className={styles.form}>
             <div>
-              <label htmlFor="name" className="block font-medium">
+              <label htmlFor="name" className={styles.label}>
                 State Name
               </label>
               <input
@@ -119,12 +118,12 @@ export default function StatePage() {
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
+                className={styles.input}
                 required
               />
             </div>
             <div>
-              <label htmlFor="abbr" className="block font-medium">
+              <label htmlFor="abbr" className={styles.label}>
                 Abbreviation
               </label>
               <input
@@ -132,18 +131,18 @@ export default function StatePage() {
                 id="abbr"
                 value={abbr}
                 onChange={(e) => setAbbr(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
+                className={styles.input}
               />
             </div>
             <div>
-              <label htmlFor="countryId" className="block font-medium">
+              <label htmlFor="countryId" className={styles.label}>
                 Country
               </label>
               <select
                 id="countryId"
                 value={countryId}
                 onChange={(e) => setCountryId(e.target.value)}
-                className="w-full border px-4 py-2 rounded"
+                className={styles.select}
                 required
               >
                 <option value="">Select a country</option>
@@ -155,7 +154,7 @@ export default function StatePage() {
               </select>
             </div>
             <div>
-              <label htmlFor="lastVisited" className="block font-medium">
+              <label htmlFor="lastVisited" className={styles.label}>
                 Last Visited
               </label>
               <input
@@ -163,7 +162,7 @@ export default function StatePage() {
                 id="lastVisited"
                 value={lastVisited}
                 readOnly
-                className="w-full border px-4 py-2 rounded bg-gray-100"
+                className={`${styles.input} ${styles.inputReadOnly}`}
               />
             </div>
             <Button buttonType={'submit'} styleType={'primary'}>
