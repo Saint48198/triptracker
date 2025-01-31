@@ -19,7 +19,7 @@ import {
   MultiPolygon,
   Position,
 } from 'geojson';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 // Fix the default icon path
 delete (L.Icon.Default.prototype as any)._getIconUrl;
