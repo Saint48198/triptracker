@@ -54,7 +54,7 @@ const DataTable: React.FC<DataTableProps> = ({
         </tr>
       </thead>
       <tbody>
-        {data.map((row, rowIndex) => (
+        {data.map((row, rowIndex: number) => (
           <tr
             key={rowIndex}
             className={`${styles.dataTableRow} ${onRowClick ? 'clickable' : ''}`}

@@ -11,6 +11,7 @@ import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner';
 import styles from './CitiesPage.module.scss';
 import DataTable from '@/components/DataTable/DataTable';
 import Button from '@/components/Button/Button';
+import FormSelect from '@/components/FormSelect/FormSelect';
 
 export default function CitiesPage() {
   const router = useRouter();
@@ -116,11 +117,11 @@ export default function CitiesPage() {
   };
   const columns = [
     { key: 'name', label: 'City Name' },
-    { key: 'country_name', label: 'Latitude' },
-    { key: '', label: 'Longitude' },
-    { key: '', label: 'State' },
-    { key: '', label: 'Country' },
-    { key: '', label: 'Last Visited' },
+    { key: 'lat', label: 'Latitude' },
+    { key: 'lng', label: 'Longitude' },
+    { key: 'state_name', label: 'State' },
+    { key: 'country_name', label: 'Country' },
+    { key: 'last_visited', label: 'Last Visited' },
   ];
 
   useEffect(() => {
@@ -139,21 +140,17 @@ export default function CitiesPage() {
         <h1 className={styles.title}>Cities</h1>
         {message && <Message message={message} type="error"></Message>}
         <div className={styles.flexBetween}>
-          <div>
-            <label className={styles.label}>Filter by Country</label>
-            <select
-              value={countryId}
-              onChange={handleCountryFilter}
-              className={styles.select}
-            >
-              <option value="">All Countries</option>
-              {countries.map((country: Country) => (
-                <option key={country.id} value={country.id}>
-                  {country.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <FormSelect
+            label={'Filter by Country'}
+            id={'countries'}
+            options={countries.map((country: Country) => ({
+              value: country.id.toString(),
+              label: country.name,
+            }))}
+            value={countryId}
+            onChange={handleCountryFilter}
+            noValueOption={{ include: true, label: 'All Countries' }}
+          ></FormSelect>
           <div className={styles.flexBetween}>
             <Button
               buttonType={'button'}
@@ -176,14 +173,17 @@ export default function CitiesPage() {
                   <Button
                     onClick={() => router.push(`/admin/city?id=${row.id}`)}
                     buttonType={'button'}
-                    styleType={'primary'}
+                    styleType={'text'}
+                    key={row.id + 'edit'}
                   >
                     Edit
                   </Button>
+                  &nbsp;
                   <Button
                     onClick={() => handleDeleteCity(row.id)}
                     buttonType={'button'}
                     styleType={'danger'}
+                    key={row.id + 'delete'}
                   >
                     Delete
                   </Button>

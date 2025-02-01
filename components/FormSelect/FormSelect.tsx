@@ -44,8 +44,8 @@ const FormSelect: React.FC<FormSelectProps> = ({
         {noValueOption.include && (
           <option value="">{noValueOption.label}</option>
         )}
-        {options.map((option: FormSelectOption) => (
-          <option key={option.value} value={option.value}>
+        {options.map((option: FormSelectOption, index: number) => (
+          <option key={index} value={option.value}>
             {option.label}
           </option>
         ))}
