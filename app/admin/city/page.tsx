@@ -337,6 +337,7 @@ export default function CityPage() {
                       value: state.id.toString(),
                       label: state.name,
                     }))}
+                    noValueOption={{ include: true, label: 'Select a state' }}
                     value={stateId}
                     onChange={(e) => setStateId(e.target.value)}
                   />
@@ -348,6 +349,7 @@ export default function CityPage() {
                     value: country.id.toString(),
                     label: country.name,
                   }))}
+                  noValueOption={{ include: true, label: 'Select a country' }}
                   value={countryId}
                   onChange={(e) => setCountryId(e.target.value)}
                   required
