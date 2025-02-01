@@ -1,18 +1,19 @@
-/* components/LoadingSpinner/LoadingSpinner.module.scss */
 // components/LoadingSpinner/LoadingSpinner.module.scss
+@use "@/styles/variables" as *;
+
 .loadingSpinner {
   display: flex;
   justify-content: center;
   align-items: center;
   margin-top: 0.5rem;
-  space-x: 0.5rem;
+  gap: 0.5rem;
 }
 
 .spinnerIcon {
   width: 3.5rem;
   height: 3.5rem;
   animation: spin 1s linear infinite;
-  color: #2563eb; // Tailwind's text-blue-600
+  color: $color-blue-600;
 }
 
 .spinnerCircle {

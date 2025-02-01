@@ -1,5 +1,5 @@
 // components/Footer/Footer.module.scss
-@import "@/styles/variables";
+@use "@/styles/variables" as *;
 
 .footer {
   background-color: $color-white-800;

@@ -6,19 +6,19 @@
 }
 
 .title {
-  font-size: 1.5rem; // Tailwind text-2xl
-  font-weight: 700; // Tailwind font-bold
-  margin: 1rem 0; // Tailwind my-4
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 1rem 0;
 }
 
 .flexEnd {
-  display: flex; // Tailwind flex
-  justify-content: flex-end; // Tailwind justify-end
-  margin-bottom: 1rem; // Tailwind mb-4
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
 }
 
 .overflowXAuto {
-  overflow-x: auto; // Tailwind overflow-x-auto
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); // Tailwind shadow-md
-  border-radius: 0.5rem; // Tailwind rounded-lg
+  overflow-x: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
 }

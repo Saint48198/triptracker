@@ -1,7 +1,7 @@
 // components/ImageButton/ImageButton.module.scss
 
-@import "@/styles/variables";
-@import "@/styles/utils";
+@use "@/styles/variables" as *;
+@use "@/styles/utils" as *;
 
 .imageButton {
   position: relative;

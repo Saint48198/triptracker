@@ -1,6 +1,6 @@
 // components/ConfirmAction/ConfirmAction.module.scss
 
-@import "@/styles/variables";
+@use "@/styles/variables" as *;
 
 .confirmActionOverlay {
   position: fixed;

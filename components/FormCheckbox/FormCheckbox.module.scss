@@ -1,5 +1,5 @@
 // FormCheckbox.module.scss
-@import "@/styles/variables";
+@use "@/styles/variables" as *;
 
 .formCheckboxContainer {
   display: flex;

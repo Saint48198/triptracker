@@ -1,6 +1,6 @@
 // components/Button/Button.module.scss
 
-@import "@/styles/variables";
+@use "@/styles/variables" as *;
 
 .button {
   padding: 0.5rem 1rem;

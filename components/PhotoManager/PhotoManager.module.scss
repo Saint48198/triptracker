@@ -1,5 +1,5 @@
 // components/PhotoManager/PhotoManager.module.scss
-@import "@/styles/variables";
+@use "@/styles/variables" as *;
 
 .photoManager {
   .loadingIcon {

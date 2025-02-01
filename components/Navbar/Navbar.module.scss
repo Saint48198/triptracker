@@ -1,6 +1,6 @@
 // components/Navbar/Navbar.module.scss
-@import "@/styles/variables";
-@import "@/styles/utils";
+@use "@/styles/variables" as *;
+@use "@/styles/utils" as *;
 
 .containerNavbar {
   background-color: $color-white-800;

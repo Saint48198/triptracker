@@ -1,3 +1,5 @@
+@use "@/styles/variables" as *;
+
 .localNav {
   display: flex;
   align-items: center;
@@ -7,7 +9,7 @@
 .backButton {
   margin-right: 1rem;
   padding: 0.5rem 1rem;
-  background-color: #ccc;
+  background-color: $color-gray;
   border: none;
   cursor: pointer;
 }
@@ -24,11 +26,11 @@
 
 .navList li a {
   text-decoration: none;
-  color: #000;
+  color: $color-black;
 }
 
 .navList li.active {
-  background-color: #0070f3;
-  color: #fff;
+  background-color: $color-blue-500;
+  color: $color-white;
   border-radius: 4px;
 }

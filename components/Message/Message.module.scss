@@ -1,6 +1,6 @@
 // components/Message/Message.module.scss
 
-@import "@/styles/variables";
+@use "@/styles/variables" as *;
 
 .message {
   margin-bottom: 1rem;
