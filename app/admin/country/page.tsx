@@ -9,6 +9,7 @@ import Message from '@/components/Message/Message';
 import { handleResponse } from '@/utils/handleResponse';
 import Button from '@/components/Button/Button';
 import styles from './CountryPage.module.scss';
+import FormInput from '@/components/FormInput/FormInput';
 
 export default function CountryPage() {
   const searchParams = useSearchParams();
@@ -104,83 +105,48 @@ export default function CountryPage() {
           </h1>
           {message && <Message message={message} type={messageType}></Message>}
           <form onSubmit={handleAddOrUpdateCountry} className={styles.form}>
-            <div>
-              <label htmlFor="name" className={styles.label}>
-                Country Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className={styles.input}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="abbreviation" className={styles.label}>
-                Abbreviation
-              </label>
-              <input
-                type="text"
-                id="abbreviation"
-                value={abbreviation}
-                onChange={(e) => setAbbreviation(e.target.value)}
-                className={styles.input}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="lat" className={styles.label}>
-                Latitude
-              </label>
-              <input
-                type="number"
-                id="lat"
-                value={lat}
-                onChange={(e) => setLat(e.target.value)}
-                className={styles.input}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="lng" className={styles.label}>
-                Longitude
-              </label>
-              <input
-                type="number"
-                id="lng"
-                value={lng}
-                onChange={(e) => setLng(e.target.value)}
-                className={styles.input}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="geoMapId" className={styles.label}>
-                GEO Map ID
-              </label>
-              <input
-                type="text"
-                id="geoMapId"
-                value={geoMapId}
-                onChange={(e) => setGeoMapId(e.target.value)}
-                className={styles.input}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="lastVisited" className={styles.label}>
-                Last Visited
-              </label>
-              <input
-                type="text"
-                id="lastVisited"
-                value={lastVisited}
-                readOnly
-                className={`${styles.input} ${styles.inputReadOnly}`}
-              />
-            </div>
+            <FormInput
+              label={'Country Name'}
+              id={'name'}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+            <FormInput
+              label={'Abbreviation'}
+              id={'abbreviation'}
+              value={abbreviation}
+              onChange={(e) => setAbbreviation(e.target.value)}
+              required
+            />
+            <FormInput
+              label={'Latitude'}
+              id={'lat'}
+              value={lat}
+              onChange={(e) => setLat(e.target.value)}
+              required
+            />
+            <FormInput
+              label={'Longitude'}
+              id={'lng'}
+              value={lng}
+              onChange={(e) => setLng(e.target.value)}
+              required
+            />
+            <FormInput
+              label={'GEO Map ID'}
+              id={'geoMapId'}
+              value={geoMapId}
+              onChange={(e) => setGeoMapId(e.target.value)}
+              required
+            />
+            <FormInput
+              label={'Last Visited'}
+              id={'lastVisited'}
+              value={lastVisited}
+              onChange={(e) => setLastVisited(e.target.value)}
+              readOnly
+            />
             <Button buttonType={'submit'} styleType={'primary'}>
               {editingCountry ? 'Update Country' : 'Add Country'}
             </Button>
