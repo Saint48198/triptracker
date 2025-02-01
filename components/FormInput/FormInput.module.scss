@@ -21,4 +21,11 @@
     outline: 2px solid $color-blue-500;
     border-color: $color-blue-500;
   }
+  &:required {
+    border-color: $color-red-500;
+  }
+  &:read-only {
+    background-color: $color-gray-100;
+    cursor: not-allowed;
+  }
 }
