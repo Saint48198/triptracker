@@ -2,6 +2,7 @@ import React from 'react';
 import { FaSpinner } from 'react-icons/fa';
 import styles from './LatLngField.module.scss';
 import Button from '@/components/Button/Button';
+import FormInput from '@/components/FormInput/FormInput';
 
 interface LatLngFieldProps {
   latLabel: string;
@@ -27,32 +28,23 @@ const LatLngField: React.FC<LatLngFieldProps> = ({
   return (
     <div className={styles.latLngField}>
       <div className={styles.fieldGroup}>
-        <div className={styles.field}>
-          <label htmlFor="lat" className={styles.label}>
-            {latLabel}:
-          </label>
-          <input
-            type="number"
-            id="lat"
-            value={lat || ''}
+        <div className="flex items-center space-x-2">
+          <FormInput
+            label={latLabel}
+            id={'lat'}
+            value={lat}
             onChange={(e) => onLatChange(Number(e.target.value))}
-            className={styles.input}
             readOnly={isLoading}
+            type={'number'}
             required
           />
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <label htmlFor="lng" className={styles.label}>
-            {lngLabel}:
-          </label>
-          <input
-            type="number"
-            id="lng"
-            value={lng || ''}
+          <FormInput
+            label={lngLabel}
+            id={'lng'}
+            value={lng}
             onChange={(e) => onLngChange(Number(e.target.value))}
-            className={styles.input}
             readOnly={isLoading}
+            type={'number'}
             required
           />
         </div>
