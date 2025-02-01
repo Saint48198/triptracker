@@ -10,6 +10,8 @@ import { handleResponse } from '@/utils/handleResponse';
 import Message from '@/components/Message/Message';
 import Button from '@/components/Button/Button';
 import styles from './StatePage.module.scss';
+import FormInput from '@/components/FormInput/FormInput';
+import FormSelect from '@/components/FormSelect/FormSelect';
 
 export default function StatePage() {
   const searchParams = useSearchParams();
@@ -109,62 +111,38 @@ export default function StatePage() {
           <h1 className={styles.title}>{id ? 'Edit State' : 'Add State'}</h1>
           {message && <Message message={message} type={messageType}></Message>}
           <form onSubmit={handleSubmit} className={styles.form}>
-            <div>
-              <label htmlFor="name" className={styles.label}>
-                State Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className={styles.input}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="abbr" className={styles.label}>
-                Abbreviation
-              </label>
-              <input
-                type="text"
-                id="abbr"
-                value={abbr}
-                onChange={(e) => setAbbr(e.target.value)}
-                className={styles.input}
-              />
-            </div>
-            <div>
-              <label htmlFor="countryId" className={styles.label}>
-                Country
-              </label>
-              <select
-                id="countryId"
-                value={countryId}
-                onChange={(e) => setCountryId(e.target.value)}
-                className={styles.select}
-                required
-              >
-                <option value="">Select a country</option>
-                {countries.map((country: Country) => (
-                  <option key={country.id} value={country.id}>
-                    {country.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="lastVisited" className={styles.label}>
-                Last Visited
-              </label>
-              <input
-                type="text"
-                id="lastVisited"
-                value={lastVisited}
-                readOnly
-                className={`${styles.input} ${styles.inputReadOnly}`}
-              />
-            </div>
+            <FormInput
+              label={'State Name'}
+              id={'name'}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+            <FormInput
+              label={'Abbreviation'}
+              id={'abbr'}
+              value={abbr}
+              onChange={(e) => setAbbr(e.target.value)}
+            />
+            <FormSelect
+              label={'Country'}
+              id={'countryId'}
+              options={countries.map((country: Country) => ({
+                value: country.id.toString(),
+                label: country.name,
+              }))}
+              required
+              value={countryId}
+              noValueOption={{ include: true, label: 'Select a country' }}
+              onChange={(e) => setCountryId(e.target.value)}
+            />
+            <FormInput
+              label={'Last Visited'}
+              id={'lastVisited'}
+              value={lastVisited}
+              onChange={(e) => setLastVisited(e.target.value)}
+              readOnly
+            />
             <Button buttonType={'submit'} styleType={'primary'}>
               {id ? 'Update State' : 'Add State'}
             </Button>
