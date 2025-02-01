@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Role } from '@/types/UserTypes';
 import Button from '@/components/Button/Button';
 import styles from './RolesPage.module.scss';
+import FormInput from '@/components/FormInput/FormInput';
 
 const RolesPage = () => {
   const [roles, setRoles] = useState<Role[]>([]);
@@ -79,21 +80,13 @@ const RolesPage = () => {
       </div>
       {formVisible && (
         <form onSubmit={handleFormSubmit} className={styles.form}>
-          <div>
-            <label htmlFor="name" className={styles.label}>
-              Role Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              required
-              className={styles.input}
-            />
-          </div>
+          <FormInput
+            label={'Role Name'}
+            id={'name'}
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            required
+          />
           <Button buttonType={'submit'} styleType={'secondary'}>
             Save Role
           </Button>
