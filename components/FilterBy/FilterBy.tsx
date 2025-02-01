@@ -1,6 +1,7 @@
 import React from 'react';
 import styles from './FilterBy.module.scss';
 import { FilterByProps } from '@/components/FilterBy/FilterBy.types';
+import FormSelect from '@/components/FormSelect/FormSelect';
 
 const FilterBy: React.FC<FilterByProps> = ({
   options,
@@ -25,7 +26,14 @@ const FilterBy: React.FC<FilterByProps> = ({
   return (
     <div className={styles.filterBy}>
       <h3>Filter By</h3>
-      <select
+      <FormSelect
+        label={'Filter options'}
+        id={'filters'}
+        options={options.map(({ id, label }) => ({
+          value: id,
+          label,
+        }))}
+        onChange={(e) => handleChange(e)}
         multiple={multiple}
         value={
           multiple
@@ -36,15 +44,11 @@ const FilterBy: React.FC<FilterByProps> = ({
               ? selectedFilters[0]
               : ''
         }
-        onChange={handleChange}
-      >
-        {includeSelectAll && <option value="">{selectAllLabel}</option>}
-        {options.map(({ id, label }) => (
-          <option key={id} value={id}>
-            {label}
-          </option>
-        ))}
-      </select>
+        noValueOption={{
+          include: includeSelectAll,
+          label: selectAllLabel,
+        }}
+      />
     </div>
   );
 };

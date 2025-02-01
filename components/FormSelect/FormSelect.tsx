@@ -7,6 +7,7 @@ interface FormSelectProps
   id: string;
   options: FormSelectOption[];
   noValueOption?: FormSelectNoValueOption;
+  hideLabel?: boolean;
 }
 
 interface FormSelectOption {
@@ -24,14 +25,22 @@ const FormSelect: React.FC<FormSelectProps> = ({
   id,
   options,
   noValueOption = { include: false, label: 'Select an option' },
+  hideLabel = false,
   ...props
 }) => {
   return (
     <div className={styles.formSelectContainer}>
-      <label htmlFor={id} className={styles.label}>
-        {label}
-      </label>
-      <select id={id} className={styles.select} {...props}>
+      {!hideLabel && (
+        <label htmlFor={id} className={styles.label}>
+          {label}
+        </label>
+      )}
+      <select
+        id={id}
+        aria-label={hideLabel ? label : undefined}
+        className={styles.select}
+        {...props}
+      >
         {noValueOption.include && (
           <option value="">{noValueOption.label}</option>
         )}

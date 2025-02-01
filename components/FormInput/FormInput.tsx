@@ -11,7 +11,7 @@ interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 const FormInput: React.FC<FormInputProps> = ({
   label,
   id,
-  hideLabel = true,
+  hideLabel = false,
   ...props
 }) => {
   return (
