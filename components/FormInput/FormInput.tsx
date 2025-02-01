@@ -5,15 +5,28 @@ import styles from './FormInput.module.scss';
 interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   id: string;
+  hideLabel?: boolean;
 }
 
-const FormInput: React.FC<FormInputProps> = ({ label, id, ...props }) => {
+const FormInput: React.FC<FormInputProps> = ({
+  label,
+  id,
+  hideLabel = true,
+  ...props
+}) => {
   return (
     <div className={styles.formInputContainer}>
-      <label htmlFor={id} className={styles.label}>
-        {label}
-      </label>
-      <input id={id} className={styles.input} {...props} />
+      {!hideLabel && (
+        <label htmlFor={id} className={styles.label}>
+          {label}
+        </label>
+      )}
+      <input
+        id={id}
+        className={styles.input}
+        aria-label={hideLabel ? label : undefined}
+        {...props}
+      />
     </div>
   );
 };
