@@ -15,6 +15,8 @@ import styles from './UsersPage.module.scss';
 import Button from '@/components/Button/Button';
 import DataTable from '@/components/DataTable/DataTable';
 import { Column } from '@/components/DataTable/DataTable.types';
+import FormInput from '@/components/FormInput/FormInput';
+import FormCheckbox from '@/components/FormCheckbox/FormCheckbox';
 
 const UsersPage = () => {
   const searchParams = useSearchParams();
@@ -291,93 +293,62 @@ const UsersPage = () => {
               {message && (
                 <Message message={message} type={messageType}></Message>
               )}
-              <div className={styles.formGroup}>
-                <label htmlFor="username" className={styles.label}>
-                  Username
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  value={formData.username}
-                  onChange={(e) =>
-                    setFormData({ ...formData, username: e.target.value })
-                  }
-                  required
-                  className={styles.input}
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label htmlFor="email" className={styles.label}>
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  required
-                  className={styles.input}
-                />
-              </div>
+              <FormInput
+                label={'Username'}
+                id={'username'}
+                value={formData.username}
+                onChange={(e) =>
+                  setFormData({ ...formData, username: e.target.value })
+                }
+                required
+              />
+              <FormInput
+                label={'Email'}
+                id={'email'}
+                type={'email'}
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+                required
+              />
+
               {!formData.id && (
                 <>
-                  <div className={styles.formGroup}>
-                    <label htmlFor="password" className={styles.label}>
-                      Password
-                    </label>
-                    <input
-                      type="password"
-                      id="password"
-                      value={formData.password}
-                      onChange={(e) =>
-                        setFormData({ ...formData, password: e.target.value })
-                      }
-                      required
-                      className={styles.input}
-                    />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label htmlFor="confirmPassword" className={styles.label}>
-                      Confirm Password
-                    </label>
-                    <input
-                      type="password"
-                      id="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          confirmPassword: e.target.value,
-                        })
-                      }
-                      required
-                      className={styles.input}
-                    />
-                  </div>
+                  <FormInput
+                    label={'Password'}
+                    id={'password'}
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
+                    required
+                  />
+                  <FormInput
+                    label={'Confirm Password'}
+                    id={'confirmPassword'}
+                    value={formData.confirmPassword}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        confirmPassword: e.target.value,
+                      })
+                    }
+                    required
+                  />
                 </>
               )}
               <div className={styles.formGroup}>
-                <label htmlFor="roles" className={styles.label}>
-                  Roles
-                </label>
+                <h3>Roles</h3>
                 <div className="flex space-x-2">
                   {roles.map((role: Role) => (
-                    <label key={role.id} className={styles.checkboxLabel}>
-                      <input
-                        type="checkbox"
-                        checked={formData.roles.includes(role.name)}
-                        value={role.id}
-                        onChange={(e) => {
-                          const updatedRoles = e.target.checked
-                            ? [...formData.roles, role.name]
-                            : formData.roles.filter((r) => r !== role.name);
-                          setFormData({ ...formData, roles: updatedRoles });
-                        }}
-                      />
-                      <span>{role.name}</span>
-                    </label>
+                    <FormCheckbox
+                      label={role.name}
+                      id={'role-' + role.id}
+                      value={role.id.toString()}
+                      checked={formData.roles.includes(role.name)}
+                      key={role.id}
+                    />
                   ))}
                 </div>
 
