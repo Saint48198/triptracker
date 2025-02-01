@@ -67,6 +67,12 @@
     padding: 0.5rem;
   }
 
+  .results {
+    overflow: auto;
+    height: calc(100% - 13.5rem);
+    padding-bottom: 10px;
+  }
+
   .photoGrid {
     display: flex;
     flex-grow: 1;

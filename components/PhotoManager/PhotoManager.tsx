@@ -120,11 +120,10 @@ const PhotoManager: React.FC<PhotoManagerProps> = ({
             )}
           </div>
           <Button
-            ariaLabel={'Add/Remove Selected Photos'}
             buttonType={'button'}
             onClick={() => handleAddRemovePhotos(selectedPhotos)}
           >
-            Add/Remove Selected
+            Remove Selected Image(s)
           </Button>
         </div>
       ) : (

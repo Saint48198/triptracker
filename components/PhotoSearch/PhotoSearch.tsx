@@ -164,17 +164,28 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
     fetchPhotos();
   };
 
-  const handleSelectPhoto = useCallback((photo: Photo) => {
-    setSelectedPhotoIds((prevSelectedPhotoIds) => {
-      const newSelectedPhotoIds = new Set(prevSelectedPhotoIds);
-      if (photo.photo_id && newSelectedPhotoIds.has(photo.photo_id)) {
-        newSelectedPhotoIds.delete(photo.photo_id);
-      } else if (photo.photo_id) {
-        newSelectedPhotoIds.add(photo.photo_id);
+  const handleSelectPhoto = useCallback(
+    (photo: Photo) => {
+      if (
+        initialSelectedPhotos.some(
+          (initialPhoto) => initialPhoto.photo_id === photo.photo_id
+        )
+      ) {
+        return; // Prevent unselecting if the photo is in initialSelectedPhotos
       }
-      return newSelectedPhotoIds;
-    });
-  }, []);
+
+      setSelectedPhotoIds((prevSelectedPhotoIds) => {
+        const newSelectedPhotoIds = new Set(prevSelectedPhotoIds);
+        if (photo.photo_id && newSelectedPhotoIds.has(photo.photo_id)) {
+          newSelectedPhotoIds.delete(photo.photo_id);
+        } else if (photo.photo_id) {
+          newSelectedPhotoIds.add(photo.photo_id);
+        }
+        return newSelectedPhotoIds;
+      });
+    },
+    [initialSelectedPhotos]
+  );
 
   const selectedPhotos = useMemo(
     () =>
@@ -257,17 +268,19 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
 
       {loading && <p className={styles.loading}>Loading photos...</p>}
 
-      <div className={styles.photoGrid}>
-        <div className={styles.columns}>
-          {photos.map((photo) => (
-            <ImageButton
-              photoId={photo.photo_id ?? ''}
-              key={photo.photo_id}
-              imageUrl={getTransformedImageUrl(photo.url, 200)}
-              isSelected={selectedPhotoIds.has(photo.photo_id ?? '')}
-              onClick={() => handleSelectPhoto(photo)}
-            />
-          ))}
+      <div className={styles.results}>
+        <div className={styles.photoGrid}>
+          <div className={styles.columns}>
+            {photos.map((photo) => (
+              <ImageButton
+                photoId={photo.photo_id ?? ''}
+                key={photo.photo_id}
+                imageUrl={getTransformedImageUrl(photo.url, 200)}
+                isSelected={selectedPhotoIds.has(photo.photo_id ?? '')}
+                onClick={() => handleSelectPhoto(photo)}
+              />
+            ))}
+          </div>
         </div>
       </div>
 

@@ -252,9 +252,12 @@ export default function CityPage() {
     setPhotoUpdates(selectedPhotos);
   };
 
-  const handleUpdatePhotos = (photos: Photo[]) => {
-    console.log('Updating photos:', photos);
-    setSelectedPhotos(photos);
+  const handleUpdatePhotos = (newPhotos: Photo[]) => {
+    setSelectedPhotos((prevSelectedPhotos: Photo[] | null) => {
+      const updatedPhotos = new Set(prevSelectedPhotos);
+      newPhotos.forEach((photo: Photo) => updatedPhotos.add(photo));
+      return Array.from(updatedPhotos);
+    });
   };
 
   const fetchData = useCallback(
