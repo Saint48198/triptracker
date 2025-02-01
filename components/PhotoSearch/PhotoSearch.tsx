@@ -12,6 +12,8 @@ import Message from '@/components/Message/Message';
 import styles from './PhotoSearch.module.scss';
 import ImageButton from '@/components/ImageButton/ImageButton';
 import { getTransformedImageUrl } from '@/utils/imageUtils';
+import Button from '@/components/Button/Button';
+import FormInput from '@/components/FormInput/FormInput';
 
 const PhotoSearch: React.FC<PhotoSearchProps> = ({
   onPhotoSelect,
@@ -20,7 +22,11 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [selectedPhotoIds, setSelectedPhotoIds] = useState<Set<string>>(
-    new Set(initialSelectedPhotos.map((photo: Photo) => photo.photo_id))
+    new Set(
+      initialSelectedPhotos
+        .map((photo: Photo) => photo.photo_id)
+        .filter((id): id is string => id !== undefined)
+    )
   );
   const [loading, setLoading] = useState(false);
   const [nextCursor, setNextCursor] = useState('');
@@ -48,6 +54,7 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
         },
         error: (err: unknown) => {
           setMessage('Failed to fetch tags');
+          console.error('Failed to fetch tags:', err);
         },
       });
 
@@ -112,6 +119,7 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
           const newSelectedPhotoIds = new Set(selectedPhotoIds);
           data.photos.forEach((photo: Photo) => {
             if (
+              photo.photo_id &&
               initialSelectedPhotos.some(
                 (initialPhoto) => initialPhoto.photo_id === photo.photo_id
               )
@@ -159,9 +167,9 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
   const handleSelectPhoto = useCallback((photo: Photo) => {
     setSelectedPhotoIds((prevSelectedPhotoIds) => {
       const newSelectedPhotoIds = new Set(prevSelectedPhotoIds);
-      if (newSelectedPhotoIds.has(photo.photo_id)) {
+      if (photo.photo_id && newSelectedPhotoIds.has(photo.photo_id)) {
         newSelectedPhotoIds.delete(photo.photo_id);
-      } else {
+      } else if (photo.photo_id) {
         newSelectedPhotoIds.add(photo.photo_id);
       }
       return newSelectedPhotoIds;
@@ -169,7 +177,10 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
   }, []);
 
   const selectedPhotos = useMemo(
-    () => photos.filter((photo: Photo) => selectedPhotoIds.has(photo.photo_id)),
+    () =>
+      photos.filter((photo: Photo) =>
+        selectedPhotoIds.has(photo.photo_id ?? '')
+      ),
     [photos, selectedPhotoIds]
   );
 
@@ -192,10 +203,9 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
       {message && <Message message={message} type="error"></Message>}
       <form onSubmit={handleSearch} className="mb-4 flex items-center gap-2">
         <div className="flex-grow relative">
-          <input
-            type="text"
-            id="search"
-            placeholder="Search by folder or tag"
+          <FormInput
+            label={'Search for images'}
+            id={'search'}
             value={searchTerm}
             onChange={handleSearchInput}
             onKeyDown={handleKeyDown}
@@ -207,7 +217,8 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
             aria-activedescendant={
               focusedIndex >= 0 ? `suggestion-${focusedIndex}` : undefined
             }
-            className="border p-2 w-full rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            placeholder="Search by folder or tag"
+            hideLabel={true}
           />
           {searchTerm && suggestions && suggestions.length > 0 ? (
             <ul
@@ -243,12 +254,9 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
             <p className="p-2 text-gray-500">No results</p>
           ) : null}
         </div>
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded-md"
-        >
+        <Button buttonType={'submit'} styleType={'primary'}>
           Search
-        </button>
+        </Button>
       </form>
 
       {loading && <p>Loading photos...</p>}
@@ -257,10 +265,10 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
         <div className="columns-2 md:columns-4 gap-4 space-y-4">
           {photos.map((photo) => (
             <ImageButton
-              photoId={photo.photo_id}
+              photoId={photo.photo_id ?? ''}
               key={photo.photo_id}
               imageUrl={getTransformedImageUrl(photo.url, 200)}
-              isSelected={selectedPhotoIds.has(photo.photo_id)}
+              isSelected={selectedPhotoIds.has(photo.photo_id ?? '')}
               onClick={() => handleSelectPhoto(photo)}
             />
           ))}
@@ -269,12 +277,13 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
 
       {nextCursor && (
         <div className="pb-3">
-          <button
+          <Button
+            buttonType={'button'}
+            styleType={'secondary'}
             onClick={() => fetchPhotos(nextCursor)}
-            className="mt-4 bg-gray-200 hover:bg-gray-300 text-black px-4 py-2 rounded-md block mx-auto"
           >
             Load More
-          </button>
+          </Button>
         </div>
       )}
     </div>
