@@ -210,22 +210,25 @@ export default function AttractionPage() {
                 value: country.id.toString(),
                 label: country.name,
               }))}
+              noValueOption={{ include: true, label: 'Select a country' }}
               value={countryId}
               onChange={(e) => setCountryId(e.target.value)}
               required
             />
-            <FormCheckbox
-              label={'UNESCO Site'}
-              id={'isUnesco'}
-              checked={isUnesco}
-              onChange={(e) => setIsUnesco(e.target.checked)}
-            />
-            <FormCheckbox
-              label={'National Park'}
-              id={'isNationalPark'}
-              checked={isNationalPark}
-              onChange={(e) => setIsNationalPark(e.target.checked)}
-            />
+            <div>
+              <FormCheckbox
+                label={'UNESCO Site'}
+                id={'isUnesco'}
+                checked={isUnesco}
+                onChange={(e) => setIsUnesco(e.target.checked)}
+              />
+              <FormCheckbox
+                label={'National Park'}
+                id={'isNationalPark'}
+                checked={isNationalPark}
+                onChange={(e) => setIsNationalPark(e.target.checked)}
+              />
+            </div>
             <FormInput
               label={'Last Visited'}
               id={'lastVisited'}
