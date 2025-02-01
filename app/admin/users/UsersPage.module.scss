@@ -42,66 +42,8 @@
     box-shadow: $box-shadow-md;
   }
 
-  .formGroup {
-    margin-bottom: 1rem;
-  }
-
-  .label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: $color-gray-700;
-  }
-
-  .input {
-    margin-top: 0.25rem;
-    display: block;
-    width: 100%;
-    border: 1px solid $color-gray-300;
-    border-radius: $border-radius-md;
-    padding: 0.5rem 0.75rem;
-    box-shadow: $box-shadow-sm;
-
-    &:focus {
-      border-color: $color-blue-500;
-      box-shadow: 0 0 0 3px rgba($color-blue-500, 0.1);
-    }
-  }
-
-  .checkboxGroup {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .checkboxLabel {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .button {
-    padding: 0.5rem 1rem;
-    border-radius: $border-radius-md;
-    transition: background-color 0.3s;
-
-    &.save {
-      background-color: $color-green-500;
-      color: $color-white;
-    }
-
-    &.cancel {
-      margin-left: 0.5rem;
-    }
-
-    &.edit {
-      background-color: $color-blue-500;
-      color: $color-white;
-    }
-
-    &.delete {
-      background-color: $color-red-500;
-      color: $color-white;
-    }
+  .rolesList {
+    margin-left: 0.5rem;
   }
 
   .table {

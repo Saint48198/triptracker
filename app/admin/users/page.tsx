@@ -338,9 +338,9 @@ const UsersPage = () => {
                   />
                 </>
               )}
-              <div className={styles.formGroup}>
+              <div>
                 <h3>Roles</h3>
-                <div className="flex space-x-2">
+                <div className={styles.rolesList}>
                   {roles.map((role: Role) => (
                     <FormCheckbox
                       label={role.name}
