@@ -196,13 +196,11 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
   };
 
   return (
-    <div
-      className={`p-6 flex flex-col h-[80vh] w-[80vw] ${styles.photoSearch}`}
-    >
-      <h1 className="text-2xl font-bold mb-4">Photos</h1>
+    <div className={styles.photoSearch}>
+      <h1 className={styles.title}>Photos</h1>
       {message && <Message message={message} type="error"></Message>}
-      <form onSubmit={handleSearch} className="mb-4 flex items-center gap-2">
-        <div className="flex-grow relative">
+      <form onSubmit={handleSearch} className={styles.form}>
+        <div className={styles.inputContainer}>
           <FormInput
             label={'Search for images'}
             id={'search'}
@@ -222,7 +220,7 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
           />
           {searchTerm && suggestions && suggestions.length > 0 ? (
             <ul
-              className="absolute bg-white border rounded-md shadow-md max-h-40 overflow-auto z-10 w-full list-none"
+              className={styles.suggestionsList}
               id="suggestions-list"
               role="listbox"
               ref={suggestionListRef}
@@ -230,10 +228,8 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
               {suggestions.map((tag, index) => (
                 <li
                   key={index}
-                  className={`px-4 py-2 cursor-pointer border-0 m-0 w-full max-w-full ${
-                    focusedIndex === index
-                      ? 'bg-blue-500 text-white'
-                      : 'hover:bg-gray-100'
+                  className={`${styles.suggestionItem} ${
+                    focusedIndex === index ? styles.focused : ''
                   }`}
                   id={`suggestion-${index}`}
                   role="option"
@@ -259,10 +255,10 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
         </Button>
       </form>
 
-      {loading && <p>Loading photos...</p>}
+      {loading && <p className={styles.loading}>Loading photos...</p>}
 
-      <div className="flex-grow overflow-auto gap-2">
-        <div className="columns-2 md:columns-4 gap-4 space-y-4">
+      <div className={styles.photoGrid}>
+        <div className={styles.columns}>
           {photos.map((photo) => (
             <ImageButton
               photoId={photo.photo_id ?? ''}
@@ -276,7 +272,7 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
       </div>
 
       {nextCursor && (
-        <div className="pb-3">
+        <div className={styles.loadMore}>
           <Button
             buttonType={'button'}
             styleType={'secondary'}
