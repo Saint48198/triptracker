@@ -340,17 +340,18 @@ const UsersPage = () => {
               )}
               <div>
                 <h3>Roles</h3>
-                <div className={styles.rolesList}>
+                <ul className={styles.rolesList}>
                   {roles.map((role: Role) => (
-                    <FormCheckbox
-                      label={role.name}
-                      id={'role-' + role.id}
-                      value={role.id.toString()}
-                      checked={formData.roles.includes(role.name)}
-                      key={role.id}
-                    />
+                    <li key={role.id}>
+                      <FormCheckbox
+                        label={role.name}
+                        id={'role-' + role.id}
+                        value={role.id.toString()}
+                        checked={formData.roles.includes(role.name)}
+                      />
+                    </li>
                   ))}
-                </div>
+                </ul>
 
                 {formData.id && (
                   <>
