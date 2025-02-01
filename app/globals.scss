@@ -1,12 +1,14 @@
+@use "@/styles/variables" as *;
+@use "@/styles/utils" as *;
+
 @import "@/styles/reset";
-@import "@/styles/utils";
 
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f9f9f9;
+  font-family: $font-sans;
+  background-color: $color-gray-100;
 }
 
 h1 {
-  color: #333;
+  color: $color-gray-800;
 }
 
