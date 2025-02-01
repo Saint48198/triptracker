@@ -6,6 +6,7 @@ import axios from 'axios';
 import Message from '@/components/Message/Message';
 import styles from './LoginForm.module.scss';
 import Button from '@/components/Button/Button';
+import FormInput from '@/components/FormInput/FormInput';
 
 const LoginForm: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -43,31 +44,22 @@ const LoginForm: React.FC = () => {
   return (
     <form onSubmit={handleSubmit}>
       {error && <Message message={error} type={'error'}></Message>}
-      <div className={styles.formGroup}>
-        <label htmlFor="username" className={styles.label}>
-          Username
-        </label>
-        <input
-          type="text"
-          id="username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className={styles.input}
-        />
-      </div>
-      <div className={styles.formGroup}>
-        <label htmlFor="password" className={styles.label}>
-          Password
-        </label>
-        <input
-          type="password"
-          id="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className={styles.input}
-        />
-      </div>
-      <Button ariaLabel={'Login'} buttonType={'submit'} styleType={'primary'}>
+      <FormInput
+        label={'Username'}
+        id={'username'}
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        required
+      />
+      <FormInput
+        label={'Password'}
+        id={'password'}
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        type={'password'}
+        required
+      />
+      <Button buttonType={'submit'} styleType={'primary'}>
         Login
       </Button>
     </form>
