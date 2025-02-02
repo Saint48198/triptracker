@@ -11,6 +11,7 @@ interface ButtonProps {
   isDisabled?: boolean; // Optional disabled state
   styleType?: 'primary' | 'secondary' | 'neutral' | 'danger' | 'text'; // Optional style type
   ariaLabel?: string;
+  className?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -20,12 +21,13 @@ const Button: React.FC<ButtonProps> = ({
   isDisabled = false,
   styleType = 'primary',
   ariaLabel,
+  className = '',
 }) => {
   return (
     <button
       type={buttonType}
       onClick={onClick}
-      className={`${styles.button} ${styles[styleType]}`}
+      className={`${styles.button} ${styles[styleType]} $${className}`}
       disabled={isDisabled}
       aria-label={ariaLabel}
       aria-disabled={isDisabled}

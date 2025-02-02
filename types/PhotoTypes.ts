@@ -1,12 +1,5 @@
 import { ENTITY_TYPE_CITIES, ENTITY_TYPE_ATTRACTIONS } from '@/constants';
 
-export interface Album {
-  id: string;
-  title: string;
-  coverPhotoBaseUrl: string;
-  mediaItemsCount: string;
-}
-
 export interface Photo {
   id: string;
   url: string;
@@ -15,13 +8,7 @@ export interface Photo {
   created_at: string;
   format?: string;
   photo_id?: string;
-}
-
-export interface GooglePhoto {
-  id: string;
-  baseUrl: string;
-  filename: string;
-  description?: string;
+  added?: boolean;
 }
 
 export interface CloudinaryPhoto {
@@ -35,13 +22,6 @@ export interface CloudinaryPhoto {
   access_control: { access_type: string }[];
 }
 
-export interface AlbumViewerProps {
-  attachedPhotos?: Photo[];
-  entityId: string;
-  entityType: typeof ENTITY_TYPE_CITIES | typeof ENTITY_TYPE_ATTRACTIONS;
-  onUpdatePhotos: (photos: Photo[]) => void;
-}
-
 export interface PhotoManagerProps {
   entityType: typeof ENTITY_TYPE_CITIES | typeof ENTITY_TYPE_ATTRACTIONS;
   entityId: number;
@@ -52,4 +32,40 @@ export interface PhotoManagerProps {
 export interface PhotoSearchProps {
   onPhotoSelect: (selectedPhotos: Photo[]) => void;
   initialSelectedPhotos: Photo[];
+}
+
+export interface ImageCardProps {
+  photoId: string;
+  imageUrl: string;
+  caption?: string;
+  alt?: string;
+  isSelected: boolean;
+  onClick: () => void;
+}
+
+export interface ImageGridProps {
+  images: Photo[];
+  onImageClick: (image: string) => void;
+}
+
+export interface UploadedImage {
+  id: string;
+  url: string;
+  name: string;
+  size: string;
+  width?: number;
+  height?: number;
+  metadata?: Record<string, any>;
+}
+
+export interface UploadFilesProps {
+  onUpload: (images: UploadedImage[]) => void;
+}
+
+export interface CollectionProps {
+  images: Photo[];
+  onImageClick: (photoId: string) => void;
+  onRemoveSelected: () => void;
+  onClearSelection: () => void;
+  onStartPhotoSearch: () => void;
 }

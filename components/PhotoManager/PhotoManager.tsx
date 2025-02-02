@@ -5,7 +5,7 @@ import {
   PhotoPayload,
 } from '@/services/photosService';
 import { Photo, PhotoManagerProps } from '@/types/PhotoTypes';
-import ImageButton from '@/components/ImageButton/ImageButton';
+import ImageCard from '@/components/ImageCard/ImageCard';
 import { getTransformedImageUrl } from '@/utils/imageUtils';
 import styles from './PhotoManager.module.scss';
 import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner';
@@ -106,7 +106,7 @@ const PhotoManager: React.FC<PhotoManagerProps> = ({
               <div className={styles.grid}>
                 {photos.map((photo: Photo, index) => (
                   <div key={index}>
-                    <ImageButton
+                    <ImageCard
                       photoId={photo.id}
                       imageUrl={getTransformedImageUrl(photo.url, 200)}
                       isSelected={selectedPhotos.some(

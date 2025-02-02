@@ -1,16 +1,10 @@
 import React from 'react';
-import styles from './ImageButton.module.scss';
+import styles from './ImageCard.module.scss';
+import { ImageCardProps } from '@/types/PhotoTypes';
+import Image from 'next/image';
+import { getTransformedImageUrl } from '@/utils/imageUtils';
 
-interface ImageButtonProps {
-  photoId: string;
-  imageUrl: string;
-  caption?: string;
-  alt?: string;
-  isSelected: boolean;
-  onClick: () => void;
-}
-
-const ImageButton: React.FC<ImageButtonProps> = ({
+const ImageCard: React.FC<ImageCardProps> = ({
   photoId,
   imageUrl,
   caption,
@@ -25,12 +19,16 @@ const ImageButton: React.FC<ImageButtonProps> = ({
       onClick={onClick}
       type={'button'}
     >
-      <img
-        src={imageUrl}
-        loading="lazy"
+      <Image
+        src={getTransformedImageUrl(imageUrl, 200)}
         alt={alt ?? 'Photo'}
         className={styles.image}
+        width={300}
+        height={200}
+        loading="lazy"
+        layout={'responsive'}
       />
+
       {isSelected && (
         <div className={styles.selectedOverlay}>
           <span className={styles.checkmark}>✓</span>
@@ -40,4 +38,4 @@ const ImageButton: React.FC<ImageButtonProps> = ({
   );
 };
 
-export default ImageButton;
+export default ImageCard;

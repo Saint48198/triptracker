@@ -32,6 +32,7 @@ export default function Modal({
           buttonType={'button'}
           onClick={onClose}
           styleType={'text'}
+          className={styles.closeButton}
         >
           &times;
         </Button>

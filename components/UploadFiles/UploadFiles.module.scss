@@ -1,0 +1,53 @@
+.uploadContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.uploadLabel {
+  display: inline-block;
+  background: #4caf50;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.3s;
+
+  &:hover {
+    background: #45a049;
+  }
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.previewGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.imageCard {
+  position: relative;
+  border: 1px solid #ddd;
+  padding: 5px;
+  border-radius: 5px;
+  text-align: center;
+  background: white;
+}
+
+.imagePreview {
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+}
+
+.imageInfo {
+  font-size: 12px;
+  margin-top: 5px;
+}

@@ -10,7 +10,7 @@ import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { Photo, PhotoSearchProps } from '@/types/PhotoTypes';
 import Message from '@/components/Message/Message';
 import styles from './PhotoSearch.module.scss';
-import ImageButton from '@/components/ImageButton/ImageButton';
+import ImageCard from '@/components/ImageCard/ImageCard';
 import { getTransformedImageUrl } from '@/utils/imageUtils';
 import Button from '@/components/Button/Button';
 import FormInput from '@/components/FormInput/FormInput';
@@ -272,7 +272,7 @@ const PhotoSearch: React.FC<PhotoSearchProps> = ({
         <div className={styles.photoGrid}>
           <div className={styles.columns}>
             {photos.map((photo) => (
-              <ImageButton
+              <ImageCard
                 photoId={photo.photo_id ?? ''}
                 key={photo.photo_id}
                 imageUrl={getTransformedImageUrl(photo.url, 200)}

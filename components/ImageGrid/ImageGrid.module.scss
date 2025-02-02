@@ -1,0 +1,22 @@
+@use "@/styles/variables" as *;
+
+.masonry {
+  column-count: 3;
+  column-gap: 16px;
+  padding: 20px;
+
+  @media (max-width: 1024px) {
+    column-count: 2;
+  }
+
+  @media (max-width: 600px) {
+    column-count: 1;
+  }
+}
+
+.masonryItem {
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 16px;
+  break-inside: avoid;
+}

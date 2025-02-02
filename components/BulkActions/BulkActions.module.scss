@@ -1,0 +1,17 @@
+@use "@/styles/variables" as *;
+
+.bulkActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: $color-red-400;
+  color: $color-white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.selectedCount {
+  font-size: 16px;
+  font-weight: bold;
+}

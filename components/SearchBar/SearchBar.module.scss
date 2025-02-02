@@ -1,0 +1,50 @@
+@use "@/styles/variables" as *;
+
+.searchContainer {
+  position: relative;
+  width: 100%;
+  margin: auto;
+}
+
+.searchForm {
+  display: flex;
+  border: 2px solid $color-gray;
+  border-radius: 8px;
+  overflow: hidden;
+
+  div {
+    flex-grow: 1;
+  }
+
+  input[type="text"] {
+    flex-grow: 1;
+    padding: 0.5rem;
+    border: none;
+    font-size: 16px;
+  }
+}
+
+.suggestionsList {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: $color-white;
+  border: 1px solid $color-gray;
+  border-radius: 4px;
+  list-style: none;
+  padding: 0;
+  margin-top: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.suggestionItem {
+  padding: 10px;
+  cursor: pointer;
+  transition: background 0.3s;
+
+  &:hover, &.active {
+    background-color: $color-gray-500;
+  }
+}

@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
-
+import styles from './CityPage.module.scss';
 import { ENTITY_TYPE_CITIES } from '@/constants';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
@@ -15,14 +15,16 @@ import { handleResponse } from '@/utils/handleResponse';
 import { Country, State, WikiInfo } from '@/types/ContentTypes';
 import { GeocodeResult } from '@/types/MapTypes';
 import { Photo } from '@/types/PhotoTypes';
-import PhotoManager from '@/components/PhotoManager/PhotoManager';
-import PhotoSearch from '@/components/PhotoSearch/PhotoSearch';
 import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner';
-import styles from './CityPage.module.scss';
 import Button from '@/components/Button/Button';
 import FormInput from '@/components/FormInput/FormInput';
 import FormSelect from '@/components/FormSelect/FormSelect';
 import FormTextarea from '@/components/FormTextarea/FormTextarea';
+import Collection from '@/components/Collection/Collection';
+import SearchBar from '@/components/SearchBar/SearchBar';
+import ImageGrid from '@/components/ImageGrid/ImageGrid';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -49,9 +51,13 @@ export default function CityPage() {
   const id = searchParams ? searchParams.get('id') : null; // Get the city ID from the query parameter
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [photos, setPhotos] = useState<Photo[]>([]);
-  const [selectedPhotos, setSelectedPhotos] = useState<Photo[] | null>(null);
-  const [photoUpdates, setPhotoUpdates] = useState<Photo[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [searchResults, setSearchResults] = useState([]);
+  const [selectedSearchPhotos, setSelectedSearchPhotos] = useState<string[]>(
+    []
+  );
+  const [suggestions, setSuggestions] = useState<string[] | null>(null);
+  const searchSubject = useMemo(() => new Subject<string>(), []);
 
   const isNorthAmericanCountry = (countryId: string): boolean => {
     const northAmericanCountryIds = ['1', '5'];
@@ -120,6 +126,63 @@ export default function CityPage() {
     }
   }, []);
 
+  const handleWikiLookup = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/info?query=${wikiTerm}`);
+      if (response.ok) {
+        const data: WikiInfo = await response.json();
+        setWikiInfo(data);
+      } else {
+        console.error('Failed to fetch wiki info');
+        setMessage('Failed to fetch wiki info.');
+        setMessageType('error');
+      }
+    } catch (error) {
+      console.error('Error fetching wiki info:', error);
+      setMessage('An error occurred.');
+      setMessageType('error');
+    }
+  }, [wikiTerm]);
+
+  const fetchSuggestions = (query: string): Promise<string[]> => {
+    searchSubject.next(query); // 🔥 Triggers the debounced API call
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(suggestions || []);
+      }, 350); // Slight delay to ensure state updates before resolving
+    });
+  };
+
+  const fetchData = useCallback(
+    async (id: string) => {
+      setLoading(true);
+
+      try {
+        await Promise.all([fetchCountries(), fetchStates()]);
+        if (id) {
+          setEntityId(id);
+          await Promise.all([fetchCity(id), fetchPhotos(id)]);
+
+          if (wikiTerm && wikiTerm.trim()) {
+            await handleWikiLookup();
+          }
+        }
+      } catch (err) {
+        console.error('Loading Data: ', err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      fetchCountries,
+      fetchStates,
+      fetchCity,
+      fetchPhotos,
+      handleWikiLookup,
+      wikiTerm,
+    ]
+  );
+
   const handleGeocode = async () => {
     if (!name || !countryId) {
       setMessage('City name and country are required for geocoding.');
@@ -179,23 +242,26 @@ export default function CityPage() {
     }
   };
 
-  const handleWikiLookup = useCallback(async () => {
-    try {
-      const response = await fetch(`/api/info?query=${wikiTerm}`);
-      if (response.ok) {
-        const data: WikiInfo = await response.json();
-        setWikiInfo(data);
-      } else {
-        console.error('Failed to fetch wiki info');
-        setMessage('Failed to fetch wiki info.');
-        setMessageType('error');
-      }
-    } catch (error) {
-      console.error('Error fetching wiki info:', error);
-      setMessage('An error occurred.');
-      setMessageType('error');
-    }
-  }, [wikiTerm]);
+  // Handle individual selection
+  const handleImageClick = (photoId: string) => {
+    setPhotos((prevPhotos) =>
+      prevPhotos.map((photo) =>
+        photo.id === photoId ? { ...photo, isSelected: !photo.added } : photo
+      )
+    );
+  };
+
+  // Handle bulk removal
+  const handleRemoveSelected = () => {
+    setPhotos((prevPhotos) => prevPhotos.filter((photo) => !photo.added));
+  };
+
+  // Clear selection
+  const handleClearSelection = () => {
+    setPhotos((prevPhotos) =>
+      prevPhotos.map((photo) => ({ ...photo, isSelected: false }))
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -242,53 +308,56 @@ export default function CityPage() {
     }
   };
 
-  const handleDisplayPhotos = () => {
+  const handleStartPhotoSearch = () => {
     setIsModalOpen(true);
   };
 
-  const closeModal = () => {
+  const handleSearchPhotos = async (query: string) => {
+    const response = await fetch(`/api/photos/search?q=${query}`);
+    if (response.ok) {
+      const data = await response.json();
+      setSearchResults(data.photos);
+    }
+  };
+
+  const handleSelectPhoto = (photoId: string) => {
+    setSelectedSearchPhotos((prevSelected: string[]) =>
+      prevSelected.includes(photoId)
+        ? prevSelected.filter((id) => id !== photoId)
+        : [...prevSelected, photoId]
+    );
+  };
+
+  const handleAddPhotosToCollection = () => {
+    const newPhotos = searchResults.filter((photo: Photo) =>
+      selectedSearchPhotos.includes(photo.id)
+    );
+    setPhotos((prevPhotos) => [...prevPhotos, ...newPhotos]);
     setIsModalOpen(false);
-    console.log('Selected photos:', selectedPhotos);
-    setPhotoUpdates(selectedPhotos);
   };
 
-  const handleUpdatePhotos = (newPhotos: Photo[]) => {
-    setSelectedPhotos((prevSelectedPhotos: Photo[] | null) => {
-      const updatedPhotos = new Set(prevSelectedPhotos);
-      newPhotos.forEach((photo: Photo) => updatedPhotos.add(photo));
-      return Array.from(updatedPhotos);
-    });
-  };
+  useEffect(() => {
+    const subscription = searchSubject
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap(async (term) => {
+          if (!term) return Promise.resolve({ tags: [] });
+          const res = await fetch(`/api/photos/tags/search?query=${term}`);
+          return await res.json();
+        })
+      )
+      .subscribe({
+        next: (data) => {
+          setSuggestions(data.tags || []);
+        },
+        error: (err) => {
+          console.error('Failed to fetch tags:', err);
+        },
+      });
 
-  const fetchData = useCallback(
-    async (id: string) => {
-      setLoading(true);
-
-      try {
-        await Promise.all([fetchCountries(), fetchStates()]);
-        if (id) {
-          setEntityId(id);
-          await Promise.all([fetchCity(id), fetchPhotos(id)]);
-
-          if (wikiTerm && wikiTerm.trim()) {
-            await handleWikiLookup();
-          }
-        }
-      } catch (err) {
-        console.error('Loading Data: ', err);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [
-      fetchCountries,
-      fetchStates,
-      fetchCity,
-      fetchPhotos,
-      handleWikiLookup,
-      wikiTerm,
-    ]
-  );
+    return () => subscription.unsubscribe();
+  }, [searchSubject]);
 
   useEffect(() => {
     fetchData(id || '').finally(() => setLoading(false));
@@ -413,20 +482,12 @@ export default function CityPage() {
                 </article>
                 <hr />
                 <h2 className={styles.detailsTitle}>Photos</h2>
-                <div>
-                  <Button
-                    buttonType={'button'}
-                    styleType={'secondary'}
-                    onClick={handleDisplayPhotos}
-                  >
-                    Display All Photos
-                  </Button>
-                </div>
-                <PhotoManager
-                  entityType={ENTITY_TYPE_CITIES}
-                  entityId={parseInt(entityId)}
-                  initialPhotos={photos}
-                  externalPhotos={photoUpdates}
+                <Collection
+                  images={photos}
+                  onImageClick={handleImageClick}
+                  onRemoveSelected={handleRemoveSelected}
+                  onClearSelection={handleClearSelection}
+                  onStartPhotoSearch={handleStartPhotoSearch}
                 />
                 <hr />
                 <Button
@@ -450,12 +511,39 @@ export default function CityPage() {
         </div>
       </main>
       <Footer />
-      <Modal onClose={closeModal} isOpen={isModalOpen}>
-        <PhotoSearch
-          onPhotoSelect={handleUpdatePhotos}
-          initialSelectedPhotos={photos}
-        />
-      </Modal>
+
+      {isModalOpen && (
+        <Modal
+          onClose={() => {
+            setIsModalOpen(false);
+            setSearchResults([]);
+          }}
+        >
+          <h2>Search & Add Photos</h2>
+          <SearchBar
+            onSearch={handleSearchPhotos}
+            fetchSuggestions={fetchSuggestions}
+          />
+          <div className={styles.imageSearchModalContent}>
+            <ImageGrid
+              images={searchResults}
+              onImageClick={handleSelectPhoto}
+            />
+          </div>
+          <div>
+            <Button buttonType="button" onClick={() => setIsModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              buttonType="button"
+              onClick={handleAddPhotosToCollection}
+              isDisabled={selectedSearchPhotos.length === 0}
+            >
+              Add {selectedSearchPhotos.length} Photos
+            </Button>
+          </div>
+        </Modal>
+      )}
     </>
   );
 }

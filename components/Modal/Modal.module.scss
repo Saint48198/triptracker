@@ -17,23 +17,28 @@
   box-shadow: $box-shadow-lg;
   padding: 1.5rem;
   position: relative;
-  max-height: 80vh;
+  height: 80vh;
+  width: 80vw;
+
+  > button:first-child {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+}
+
+.imageSearchModalContent {
+  overflow: auto;
+  height: 100%;
 }
 
 .closeButton {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  background-color: $color-red-500;
-  color: $color-white;
-  border-radius: 50%;
-  width: 2rem;
-  height: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .modalBody {
   max-height: 100vh;
+  height: 100%;
 }
