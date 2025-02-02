@@ -524,7 +524,7 @@ export default function CityPage() {
             onSearch={handleSearchPhotos}
             fetchSuggestions={fetchSuggestions}
           />
-          <div className={styles.imageSearchModalContent}>
+          <div className={styles.imageGridContainer}>
             <ImageGrid
               images={searchResults}
               onImageClick={handleSelectPhoto}
