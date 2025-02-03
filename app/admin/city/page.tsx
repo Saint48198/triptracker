@@ -25,6 +25,7 @@ import SearchBar from '@/components/SearchBar/SearchBar';
 import ImageGrid from '@/components/ImageGrid/ImageGrid';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { FaSpinner } from 'react-icons/fa';
 
 const MapComponent = dynamic(() => import('@/components/Map/Map'), {
   ssr: false,
@@ -52,6 +53,7 @@ export default function CityPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [addingPhotos, setAddingPhotos] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [selectedSearchPhotos, setSelectedSearchPhotos] = useState<string[]>(
     []
@@ -338,12 +340,44 @@ export default function CityPage() {
     );
   };
 
-  const handleAddPhotosToCollection = () => {
+  const handleAddPhotosToCollection = async () => {
+    setAddingPhotos(true);
     const newPhotos = searchResults.filter((photo: Photo) =>
-      selectedSearchPhotos.includes(photo.id)
+      selectedSearchPhotos.includes(photo.photo_id || '')
     );
-    setPhotos((prevPhotos) => [...prevPhotos, ...newPhotos]);
-    setIsModalOpen(false);
+
+    try {
+      const response = await fetch(`/api/photos/bulk/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          entityType: ENTITY_TYPE_CITIES,
+          entityId,
+          photos: newPhotos.map((photo: Photo) => ({
+            photo_id: photo.photo_id,
+            url: photo.url,
+            caption: photo.caption,
+          })),
+        }),
+      });
+
+      if (response.ok) {
+        setPhotos((prevPhotos) => [...prevPhotos, ...newPhotos]);
+        setIsModalOpen(false);
+        setSearchResults([]);
+        setSelectedSearchPhotos([]);
+      } else {
+        console.error('Failed to add photos to city:', await response.text());
+        setMessage('Failed to add photos to city.');
+        setMessageType('error');
+      }
+    } catch (error) {
+      console.error('Error adding photos to city:', error);
+      setMessage('An error occurred while adding photos to the city.');
+      setMessageType('error');
+    } finally {
+      setAddingPhotos(false);
+    }
   };
 
   useEffect(() => {
@@ -555,9 +589,13 @@ export default function CityPage() {
             <Button
               buttonType="button"
               onClick={handleAddPhotosToCollection}
-              isDisabled={selectedSearchPhotos.length === 0}
+              isDisabled={selectedSearchPhotos.length === 0 || addingPhotos}
             >
-              Add {selectedSearchPhotos.length} Photos
+              {addingPhotos ? (
+                <FaSpinner className="animate-spin mr-2" />
+              ) : (
+                `Add ${selectedSearchPhotos.length} Photos`
+              )}
             </Button>
           </div>
         </Modal>
