@@ -18,10 +18,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
-  const selectedManually = useRef(false); // ✅ Prevents unwanted API calls
-  const submittedManually = useRef(false); // ✅ Prevents reopening on Enter / search button
+  const searchTriggered = useRef(false);
+  const selectingSuggestion = useRef(false);
 
-  // ✅ Handle keyboard navigation
+  //  Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
@@ -31,78 +31,87 @@ const SearchBar: React.FC<SearchBarProps> = ({
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev));
-    } else if (e.key === 'Enter' && focusedIndex >= 0) {
+    } else if (e.key === 'Enter') {
       e.preventDefault();
       if (focusedIndex >= 0) {
-        selectSuggestion(suggestions[focusedIndex]); // Select suggestion
-      } else {
-        performSearch(query); // Perform normal search
+        selectSuggestion(suggestions[focusedIndex]);
       }
+      setShowSuggestions(false);
+      handleSearch();
     } else if (e.key === 'Escape') {
       setShowSuggestions(false);
     }
   };
 
-  // ✅ Handle selecting a suggestion
+  //  Handle selecting a suggestion
   const selectSuggestion = (suggestion: string) => {
-    selectedManually.current = true; // ✅ Prevents triggering another search
+    selectingSuggestion.current = true;
     setQuery(suggestion);
     setShowSuggestions(false);
-    onSearch(suggestion);
-    inputRef.current?.focus();
+    handleSearch();
 
     setTimeout(() => {
-      selectedManually.current = false; // ✅ Reset after short delay
+      if (inputRef.current) {
+        inputRef.current.blur();
+      }
+    }, 100);
+  };
+
+  const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const term = e.target.value.trim(); // Trim unnecessary spaces
+    setQuery(term);
+    if (term === '') {
+      setSuggestions([]); // Clear suggestions
+      searchTriggered.current = false; // Prevent search trigger
+    }
+
+    setFocusedIndex(-1); // Reset focus index
+  };
+
+  //  Handle performing a search with Enter key or Search button
+  const handleSearch = () => {
+    searchTriggered.current = true;
+    setShowSuggestions(false);
+    selectingSuggestion.current = true;
+    onSearch(query);
+
+    setTimeout(() => {
+      searchTriggered.current = false;
     }, 500);
   };
 
-  // ✅ Handle performing a normal search (Enter or button click)
-  const performSearch = (searchQuery: string) => {
-    submittedManually.current = true;
-    setShowSuggestions(false); // ✅ Close suggestion box on search
-    onSearch(searchQuery);
+  //  Close search suggestions when clicking outside the search bar
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        !inputRef.current?.contains(event.target as Node) && //  Click is outside search input
+        !listRef.current?.contains(event.target as Node) //  Click is outside suggestions list
+      ) {
+        selectingSuggestion.current = true;
+        setShowSuggestions(false);
+      }
+    };
 
-    setTimeout(() => {
-      submittedManually.current = false; // ✅ Reset to allow new searches
-    }, 500);
-  };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-  // ✅ Fetch suggestions only when manually typing (not selecting)
   useEffect(() => {
     if (
       query &&
       query.length >= 3 &&
-      !selectedManually.current &&
-      !submittedManually.current
+      !searchTriggered.current &&
+      !selectingSuggestion.current
     ) {
       fetchSuggestions(query).then((results) => {
-        if (!selectedManually.current && !submittedManually.current) {
-          // ✅ Prevent reopening after selection
-          setSuggestions(results);
-          setShowSuggestions(results.length > 0);
-        }
+        setSuggestions(results);
+        setShowSuggestions(results.length > 0);
       });
     } else {
-      setSuggestions([]);
+      setSuggestions([]); //  Clears suggestions when query is too short
       setShowSuggestions(false);
     }
   }, [query, fetchSuggestions]);
-
-  // ✅ Close suggestions when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        listRef.current &&
-        !listRef.current.contains(event.target as Node) &&
-        inputRef.current &&
-        !inputRef.current.contains(event.target as Node)
-      ) {
-        setShowSuggestions(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   return (
     <div
@@ -115,7 +124,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          performSearch(query);
+          handleSearch();
         }}
         className={styles.searchForm}
       >
@@ -126,7 +135,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
           hideLabel
           id="search"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => {
+            if (query.length >= 3) setShowSuggestions(true); //  Show suggestions only when there’s a valid query
+            selectingSuggestion.current = false;
+          }}
+          onChange={handleSearchInput}
           placeholder="Search for images..."
           onKeyDown={handleKeyDown}
           aria-autocomplete="list"
@@ -155,6 +168,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
               id={`suggestion-${index}`}
               role="option"
               aria-selected={focusedIndex === index}
+              onMouseDown={(e) => {
+                e.preventDefault(); //  Prevents re-focusing on input
+                selectSuggestion(suggestion);
+              }}
               onClick={() => selectSuggestion(suggestion)}
               className={`${styles.suggestionItem} ${focusedIndex === index ? styles.active : ''}`}
               onMouseEnter={() => setFocusedIndex(index)}

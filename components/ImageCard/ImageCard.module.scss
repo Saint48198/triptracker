@@ -16,9 +16,16 @@
   border-color: $color-blue-500; // Tailwind's border-blue-500
 }
 
+.imageContainer {
+  position: relative;
+  height: 200px;
+  display: flex;
+}
+
 .image {
-  width: 100%;
-  height: auto;
+  height: 100%;
+  width: auto;
+  object-fit: cover;
 }
 
 .selectedOverlay {

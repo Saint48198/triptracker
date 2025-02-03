@@ -145,6 +145,11 @@ export default function CityPage() {
   }, [wikiTerm]);
 
   const fetchSuggestions = (query: string): Promise<string[]> => {
+    if (!query) {
+      setSuggestions(null);
+      return Promise.resolve([]);
+    }
+    console.log('Fetching suggestions for:', query);
     searchSubject.next(query); // 🔥 Triggers the debounced API call
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -313,6 +318,11 @@ export default function CityPage() {
   };
 
   const handleSearchPhotos = async (query: string) => {
+    if (!query) {
+      setSearchResults([]);
+      return;
+    }
+
     const response = await fetch(`/api/photos/search?q=${query}`);
     if (response.ok) {
       const data = await response.json();
@@ -342,6 +352,7 @@ export default function CityPage() {
         debounceTime(300),
         distinctUntilChanged(),
         switchMap(async (term) => {
+          console.log('Searching for:', term);
           if (!term) return Promise.resolve({ tags: [] });
           const res = await fetch(`/api/photos/tags/search?query=${term}`);
           return await res.json();
@@ -530,8 +541,15 @@ export default function CityPage() {
               onImageClick={handleSelectPhoto}
             />
           </div>
-          <div>
-            <Button buttonType="button" onClick={() => setIsModalOpen(false)}>
+          <div className={styles.modalActions}>
+            <Button
+              styleType={'secondary'}
+              buttonType="button"
+              onClick={() => {
+                setIsModalOpen(false);
+                setSearchResults([]);
+              }}
+            >
               Cancel
             </Button>
             <Button

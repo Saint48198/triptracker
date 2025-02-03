@@ -56,4 +56,11 @@
 .imageGridContainer {
   height: calc(100% - 120px); // Adjust as needed to fit the available area
   overflow-y: auto; // Enable vertical scrolling if content is too long
+  pointer-events: auto;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
 }

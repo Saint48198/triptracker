@@ -25,7 +25,14 @@ export default function Modal({
   if (!isOpen) return null;
 
   return (
-    <div className={styles.modalOverlay}>
+    <div
+      className={styles.modalOverlay}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
       <div className={styles.modalContent}>
         <Button
           ariaLabel={'Close'}

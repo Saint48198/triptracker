@@ -40,12 +40,12 @@ export interface ImageCardProps {
   caption?: string;
   alt?: string;
   isSelected: boolean;
-  onClick: () => void;
+  onClick: (id: string) => void;
 }
 
 export interface ImageGridProps {
   images: Photo[];
-  onImageClick: (image: string) => void;
+  onImageClick: (id: string) => void;
 }
 
 export interface UploadedImage {

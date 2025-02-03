@@ -16,19 +16,22 @@ const ImageCard: React.FC<ImageCardProps> = ({
     <button
       key={photoId}
       className={`${styles.imageButton} ${isSelected ? styles.imageButtonSelected : ''}`}
-      onClick={onClick}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick(photoId);
+      }}
       type={'button'}
     >
-      <Image
-        src={getTransformedImageUrl(imageUrl, 200)}
-        alt={alt ?? 'Photo'}
-        className={styles.image}
-        width={300}
-        height={200}
-        loading="lazy"
-        layout={'responsive'}
-      />
-
+      <div className={styles.imageContainer}>
+        <Image
+          src={getTransformedImageUrl(imageUrl, 200)}
+          alt={alt ?? 'Photo'}
+          className={styles.image}
+          height={200}
+          width={300}
+          loading="lazy"
+        />
+      </div>
       {isSelected && (
         <div className={styles.selectedOverlay}>
           <span className={styles.checkmark}>✓</span>
