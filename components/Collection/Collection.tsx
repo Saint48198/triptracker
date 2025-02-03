@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './Collection.module.scss';
 import ImageGrid from '../ImageGrid/ImageGrid';
 import BulkActions from '../BulkActions/BulkActions';
@@ -12,7 +12,21 @@ const Collection: React.FC<CollectionProps> = ({
   onClearSelection,
   onStartPhotoSearch,
 }) => {
-  const selectedCount = images.filter((img: Photo) => img.added).length;
+  const [photos, setPhotos] = useState<Photo[]>(images);
+
+  useEffect(() => {
+    setPhotos(images);
+  }, [images]);
+
+  const handleImageClick = (photoId: string) => {
+    setPhotos((prevPhotos) =>
+      prevPhotos.map((photo) =>
+        photo.photo_id === photoId ? { ...photo, added: !photo.added } : photo
+      )
+    );
+  };
+
+  const selectedCount = photos.filter((img: Photo) => img.added).length;
 
   return (
     <div className={styles.collectionContainer}>
@@ -23,12 +37,14 @@ const Collection: React.FC<CollectionProps> = ({
       {selectedCount > 0 && (
         <BulkActions
           selectedCount={selectedCount}
-          onRemoveSelected={onRemoveSelected}
+          onRemoveSelected={() =>
+            onRemoveSelected(photos.filter((img: Photo) => img.added))
+          }
           onClearSelection={onClearSelection}
         />
       )}
       {images.length > 0 ? (
-        <ImageGrid images={images} onImageClick={onImageClick} />
+        <ImageGrid images={photos} onImageClick={handleImageClick} />
       ) : (
         <p className={styles.emptyMessage}>
           Your collection is empty. Start adding images!

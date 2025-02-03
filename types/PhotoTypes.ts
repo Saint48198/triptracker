@@ -65,7 +65,7 @@ export interface UploadFilesProps {
 export interface CollectionProps {
   images: Photo[];
   onImageClick: (photoId: string) => void;
-  onRemoveSelected: () => void;
+  onRemoveSelected: (photos: Photo[]) => void;
   onClearSelection: () => void;
   onStartPhotoSearch: () => void;
 }

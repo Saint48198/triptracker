@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './ImageGrid.module.scss';
 import { Photo, ImageGridProps } from '@/types/PhotoTypes';
 import ImageCard from '@/components/ImageCard/ImageCard';
@@ -18,6 +18,13 @@ const ImageGrid: React.FC<ImageGridProps> = ({
     );
     onImageClick(photoId);
   };
+
+  useEffect(() => {
+    const hasAddedImages = images.some((image) => image.added);
+    if (!hasAddedImages) {
+      setSelectedImages([]);
+    }
+  }, [images]);
 
   return (
     <div className={styles.masonry}>

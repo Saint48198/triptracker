@@ -54,6 +54,7 @@ export default function CityPage() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
   const [addingPhotos, setAddingPhotos] = useState(false);
+  const [removingPhotos, setRemovingPhotos] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [selectedSearchPhotos, setSelectedSearchPhotos] = useState<string[]>(
     []
@@ -151,7 +152,6 @@ export default function CityPage() {
       setSuggestions(null);
       return Promise.resolve([]);
     }
-    console.log('Fetching suggestions for:', query);
     searchSubject.next(query); // 🔥 Triggers the debounced API call
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -259,14 +259,51 @@ export default function CityPage() {
   };
 
   // Handle bulk removal
-  const handleRemoveSelected = () => {
-    setPhotos((prevPhotos) => prevPhotos.filter((photo) => !photo.added));
+  const handleRemoveSelected = async (selectedPhotos: Photo[]) => {
+    if (selectedPhotos.length === 0) return;
+
+    setRemovingPhotos(true);
+
+    try {
+      const response = await fetch(`/api/photos/bulk/remove`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          entityType: ENTITY_TYPE_CITIES,
+          entityId,
+          photos: selectedPhotos,
+        }),
+      });
+
+      if (response.ok) {
+        setPhotos((prevPhotos) =>
+          prevPhotos.filter(
+            (photo: Photo) =>
+              !selectedPhotos.some(
+                (selected) => selected.photo_id === photo.photo_id
+              )
+          )
+        );
+        setMessage('Selected photos removed successfully.');
+        setMessageType('success');
+      } else {
+        console.error('Failed to remove photos:', await response.text());
+        setMessage('Failed to remove selected photos.');
+        setMessageType('error');
+      }
+    } catch (error) {
+      console.error('Error removing photos:', error);
+      setMessage('An error occurred while removing photos.');
+      setMessageType('error');
+    } finally {
+      setRemovingPhotos(false);
+    }
   };
 
   // Clear selection
   const handleClearSelection = () => {
     setPhotos((prevPhotos) =>
-      prevPhotos.map((photo) => ({ ...photo, isSelected: false }))
+      prevPhotos.map((photo) => ({ ...photo, added: false }))
     );
   };
 
@@ -386,7 +423,6 @@ export default function CityPage() {
         debounceTime(300),
         distinctUntilChanged(),
         switchMap(async (term) => {
-          console.log('Searching for:', term);
           if (!term) return Promise.resolve({ tags: [] });
           const res = await fetch(`/api/photos/tags/search?query=${term}`);
           return await res.json();
