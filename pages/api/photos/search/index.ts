@@ -35,45 +35,51 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return handleApiError(null, res, 'Method not allowed', 405);
   }
 
-  const { folder, tag, max_results, next_cursor } = req.query;
-
   try {
-    const query: { expression: string[] } = {
-      expression: [],
-    };
+    const { folder, tag, max_results = 10, next_cursor } = req.query;
+    const searchOptions: any = { max_results: Number(max_results) };
+    if (folder) searchOptions.folder = folder;
+    if (tag) searchOptions.tags = [tag];
+    if (next_cursor) searchOptions.next_cursor = next_cursor;
 
-    // Add folder condition
-    if (typeof folder === 'string') {
-      query.expression.push(`folder:${folder}`);
-    }
-
-    // Add tag condition
-    if (typeof tag === 'string') {
-      query.expression.push(`tags=${tag}`);
-    }
-
-    const searchQuery = query.expression.join(' AND ');
-
-    // Fetch resources using the search API
-    const results = await cloudinary.search
-      .expression(searchQuery)
-      .max_results(Number(max_results) || 10)
-      .next_cursor(typeof next_cursor === 'string' ? next_cursor : undefined)
+    const result = await cloudinary.search
+      .expression('*')
+      .with_field('context')
+      .max_results(Number(max_results))
       .execute();
 
-    const photos: Photo[] = results.resources.map(
-      (resource: CloudinaryPhoto) => ({
-        url: resource.secure_url,
-        created_at: resource.created_at,
-        format: resource.format,
-        photo_id: resource.asset_id,
-      })
-    );
+    // Process results to determine public or signed URL
+    const photos: Photo[] = result.resources.map((photo: CloudinaryPhoto) => {
+      if (photo.type === 'private') {
+        const timestamp = Math.floor(Date.now() / 1000);
+        const signature = cloudinary.utils.api_sign_request(
+          { public_id: photo.public_id, timestamp },
+          process.env.CLOUDINARY_API_SECRET as string
+        );
+        return {
+          photo_id: photo.public_id,
+          title: photo.context?.custom?.caption || '',
+          caption: photo.context?.custom?.alt || '',
+          created_at: photo.created_at,
+          format: photo.format,
+          url: `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/authenticated/${photo.public_id}?api_key=${process.env.CLOUDINARY_API_KEY}&timestamp=${timestamp}&signature=${signature}`,
+        };
+      } else {
+        return {
+          url: photo.secure_url,
+          title: photo.context?.custom?.caption || '',
+          caption: photo.context?.custom?.alt || '',
+          created_at: photo.created_at,
+          format: photo.format,
+          photo_id: photo.public_id,
+        };
+      }
+    });
 
-    res.status(200).json({ photos, next_cursor: results.next_cursor });
+    return res.status(200).json({ photos, next_cursor: result.next_cursor });
   } catch (error: unknown) {
     return handleApiError(error, res, 'Failed to fetch photos', 500);
   }

@@ -19,7 +19,9 @@ export interface CloudinaryPhoto {
   public_id: string;
   version: number;
   access_mode: string;
+  type: string;
   access_control: { access_type: string }[];
+  context: { custom: { caption: string; alt: string } };
 }
 
 export interface PhotoManagerProps {
