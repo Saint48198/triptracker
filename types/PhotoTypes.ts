@@ -68,4 +68,5 @@ export interface CollectionProps {
   onRemoveSelected: (photos: Photo[]) => void;
   onClearSelection: () => void;
   onStartPhotoSearch: () => void;
+  removingPhotos: boolean;
 }

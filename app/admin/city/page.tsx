@@ -576,6 +576,7 @@ export default function CityPage() {
                   onRemoveSelected={handleRemoveSelected}
                   onClearSelection={handleClearSelection}
                   onStartPhotoSearch={handleStartPhotoSearch}
+                  removingPhotos={removingPhotos}
                 />
                 <hr />
                 <Button

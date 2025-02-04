@@ -11,6 +11,7 @@ const Collection: React.FC<CollectionProps> = ({
   onRemoveSelected,
   onClearSelection,
   onStartPhotoSearch,
+  removingPhotos = false,
 }) => {
   const [photos, setPhotos] = useState<Photo[]>(images);
 
@@ -41,6 +42,7 @@ const Collection: React.FC<CollectionProps> = ({
             onRemoveSelected(photos.filter((img: Photo) => img.added))
           }
           onClearSelection={onClearSelection}
+          removingPhotos={removingPhotos}
         />
       )}
       {images.length > 0 ? (
