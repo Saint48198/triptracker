@@ -20,10 +20,10 @@ const ImageGrid: React.FC<ImageGridProps> = ({
   };
 
   useEffect(() => {
-    const hasAddedImages = images.some((image) => image.added);
-    if (!hasAddedImages) {
-      setSelectedImages([]);
-    }
+    const selected = images
+      .filter((image) => image.added)
+      .map((img) => img.photo_id || '');
+    setSelectedImages(selected);
   }, [images]);
 
   return (

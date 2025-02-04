@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import styles from './CityPage.module.scss';
-import { ENTITY_TYPE_CITIES } from '@/constants';
+import { ENTITY_TYPE_CITIES } from '@/constants'; // this may show in the ide as being unused, but it is used in the code
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
@@ -365,7 +365,14 @@ export default function CityPage() {
     const response = await fetch(`/api/photos/search?q=${query}`);
     if (response.ok) {
       const data = await response.json();
-      setSearchResults(data.photos);
+      setSearchResults(
+        (data.photos || []).map((photo: Photo) => {
+          const isAdded = photos.some(
+            (p: Photo) => p.photo_id === photo.photo_id
+          );
+          return { ...photo, added: isAdded };
+        })
+      );
     }
   };
 
