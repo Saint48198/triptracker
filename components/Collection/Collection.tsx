@@ -6,6 +6,7 @@ import { CollectionProps, Photo } from '@/types/PhotoTypes';
 import Button from '@/components/Button/Button';
 import { FaSpinner } from 'react-icons/fa';
 import Modal from '@/components/Modal/Modal';
+import Link from 'next/link';
 
 const Collection: React.FC<CollectionProps> = ({
   images,
@@ -49,6 +50,8 @@ const Collection: React.FC<CollectionProps> = ({
       <Button buttonType="button" onClick={onStartPhotoSearch}>
         ➕ Add Photos
       </Button>
+
+      <Link href={'/admin/image/upload'}>Upload new image</Link>
 
       {selectedCount > 0 && (
         <BulkActions

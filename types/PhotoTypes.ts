@@ -22,6 +22,7 @@ export interface CloudinaryPhoto {
   type: string;
   access_control: { access_type: string }[];
   context: { custom: { caption: string; alt: string } };
+  tags: string[];
 }
 
 export interface PhotoManagerProps {

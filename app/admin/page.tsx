@@ -40,6 +40,12 @@ export default function AdminLandingPage() {
           >
             Manage Users
           </Link>
+          <Link
+            href={'/admin/image/upload'}
+            className={`${styles.link} ${styles.linkPurple}`}
+          >
+            Upload Images
+          </Link>
         </div>
       </main>
       <Footer />

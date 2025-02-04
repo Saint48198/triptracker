@@ -1,10 +1,12 @@
+'use client';
+
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from './AdminLocalNav.module.scss';
 
 interface LocalNavProps {
-  currentSection: 'attraction' | 'city' | 'state' | 'country';
+  currentSection: 'attraction' | 'city' | 'state' | 'country' | 'image';
 }
 
 const AdminLocalNav: React.FC<LocalNavProps> = ({ currentSection }) => {
@@ -39,6 +41,9 @@ const AdminLocalNav: React.FC<LocalNavProps> = ({ currentSection }) => {
         </li>
         <li>
           <Link href={`/admin/country`}>Add Country</Link>
+        </li>
+        <li>
+          <Link href={`/admin/image/upload`}>Upload Images</Link>
         </li>
       </ul>
     </nav>
