@@ -48,7 +48,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
     selectingSuggestion.current = true;
     setQuery(suggestion);
     setShowSuggestions(false);
-    handleSearch();
+    //handleSearch(suggestion);
 
     setTimeout(() => {
       if (inputRef.current) {
@@ -69,11 +69,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   //  Handle performing a search with Enter key or Search button
-  const handleSearch = () => {
+  const handleSearch = (searchQuery?: string) => {
+    const queryToSearch = searchQuery || query;
     searchTriggered.current = true;
     setShowSuggestions(false);
     selectingSuggestion.current = true;
-    onSearch(query);
+    onSearch(queryToSearch);
 
     setTimeout(() => {
       searchTriggered.current = false;
@@ -124,7 +125,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          handleSearch();
+          handleSearch(query);
         }}
         className={styles.searchForm}
       >

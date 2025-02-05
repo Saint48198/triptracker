@@ -130,6 +130,13 @@ db.exec(`
         );
 `);
 
+db.exec(`
+    CREATE TABLE IF NOT EXISTS tags (
+                                        id SERIAL PRIMARY KEY,
+                                        name TEXT UNIQUE
+    );
+`);
+
 // Trigger: Update `countries.last_visited` based on `attractions.last_visited`
 db.exec(`
   CREATE TRIGGER IF NOT EXISTS update_country_last_visited_from_attraction

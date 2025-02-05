@@ -2,7 +2,7 @@ import React from 'react';
 import UploadForm from './UploadForm';
 import Navbar from '@/components/Navbar/Navbar';
 import styles from '@/app/admin/city/CityPage.module.scss';
-import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
+import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalNav';
 import Footer from '@/components/Footer/Footer';
 
 const UploadPage: React.FC = () => {

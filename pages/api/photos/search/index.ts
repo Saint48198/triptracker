@@ -1,7 +1,7 @@
 /**
  * API Route: /api/photos/search
  *
- * This API route searches for photo resources from Cloudinary based on specified criteria.
+ * This API route searches for both public and private photo resources from Cloudinary based on specified criteria.
  *
  * Methods:
  * - GET: Search for photo resources using folder and tag filters.
@@ -40,28 +40,34 @@ export default async function handler(
 
   try {
     const { folder, tag, max_results = 10, next_cursor } = req.query;
-    const searchOptions: any = { max_results: Number(max_results) };
-    if (folder) searchOptions.folder = folder;
-    if (tag) searchOptions.tags = [tag];
-    if (next_cursor) searchOptions.next_cursor = next_cursor;
+    const expression = ['resource_type:image'];
+    if (folder) expression.push(`folder=${folder}`);
+    if (tag) expression.push(`tags=${tag}`);
+
+    const searchExpression = expression.length
+      ? expression.join(' AND ')
+      : 'resource_type:image';
 
     const result = await cloudinary.search
-      .expression('*')
+      .expression(searchExpression)
       .with_field('context')
+      .with_field('tags')
       .max_results(Number(max_results))
       .execute();
 
-    // Process results to determine public or signed URL
+    console.log('Cloudinary API response:', JSON.stringify(result, null, 2));
+
     const photos: Photo[] = result.resources.map((photo: CloudinaryPhoto) => {
-      if (photo.type === 'private') {
+      if (photo.access_mode === 'authenticated' || photo.type === 'private') {
         const timestamp = Math.floor(Date.now() / 1000);
         const signature = cloudinary.utils.api_sign_request(
           { public_id: photo.public_id, timestamp },
           process.env.CLOUDINARY_API_SECRET as string
         );
+
         return {
           photo_id: photo.public_id,
-          title: photo.context?.custom?.caption || '',
+          title: photo.context?.custom?.caption || 'Untitled',
           caption: photo.context?.custom?.alt || '',
           created_at: photo.created_at,
           format: photo.format,
@@ -70,7 +76,7 @@ export default async function handler(
       } else {
         return {
           url: photo.secure_url,
-          title: photo.context?.custom?.caption || '',
+          title: photo.context?.custom?.caption || 'Untitled',
           caption: photo.context?.custom?.alt || '',
           created_at: photo.created_at,
           format: photo.format,
@@ -81,6 +87,7 @@ export default async function handler(
 
     return res.status(200).json({ photos, next_cursor: result.next_cursor });
   } catch (error: unknown) {
+    console.error('Cloudinary API error:', error);
     return handleApiError(error, res, 'Failed to fetch photos', 500);
   }
 }

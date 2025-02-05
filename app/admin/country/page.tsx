@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
-import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
+import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalNav';
 import Message from '@/components/Message/Message';
 import { handleResponse } from '@/utils/handleResponse';
 import Button from '@/components/Button/Button';

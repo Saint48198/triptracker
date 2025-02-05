@@ -7,7 +7,7 @@ import styles from './CityPage.module.scss';
 import { ENTITY_TYPE_CITIES } from '@/constants'; // this may show in the ide as being unused, but it is used in the code
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
-import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
+import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalNav';
 import Message from '@/components/Message/Message';
 import Modal from '@/components/Modal/Modal';
 import LatLngField from '@/components/LatLngField/LatLngField';
@@ -357,6 +357,7 @@ export default function CityPage() {
   };
 
   const handleSearchPhotos = async (query: string) => {
+    console.log('Searching photos:', query);
     if (!query) {
       setSearchResults([]);
       return;
@@ -431,7 +432,7 @@ export default function CityPage() {
         distinctUntilChanged(),
         switchMap(async (term) => {
           if (!term) return Promise.resolve({ tags: [] });
-          const res = await fetch(`/api/photos/tags/search?query=${term}`);
+          const res = await fetch(`/api/photos/tags?query=${term}`);
           return await res.json();
         })
       )

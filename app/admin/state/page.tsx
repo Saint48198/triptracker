@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Country } from '@/types/ContentTypes';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
-import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalAdmin';
+import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalNav';
 import { handleResponse } from '@/utils/handleResponse';
 import Message from '@/components/Message/Message';
 import Button from '@/components/Button/Button';

@@ -132,6 +132,20 @@ export default function UploadForm() {
     }
   };
 
+  const addTagsToDB = async (tags: string[]) => {
+    const response = await fetch('/api/photos/tags', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ tags }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to add tags to the database');
+    }
+  };
+
   const uploadImages = async () => {
     if (!files || files.length === 0) {
       setMessage('No files selected');
@@ -141,33 +155,43 @@ export default function UploadForm() {
 
     setUploading(true);
     setMessage('');
-    const formData = new FormData();
 
-    Array.from(files).forEach((file) => {
-      formData.append('files', file);
-    });
+    try {
+      // Add tags to the database
+      await addTagsToDB(selectedTags);
 
-    formData.append('visibility', visibility);
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('tags', selectedTags.join(',')); // Comma-separated list
+      const formData = new FormData();
+      Array.from(files).forEach((file) => {
+        formData.append('files', file);
+      });
 
-    const response = await fetch('/api/photos/upload', {
-      method: 'POST',
-      body: formData,
-    });
+      formData.append('visibility', visibility);
+      formData.append('title', title);
+      formData.append('description', description);
+      formData.append('tags', selectedTags.join(',')); // Comma-separated list
 
-    if (response.ok) {
-      const data = await response.json();
-      const urls = data.images.map((img: any) => img.secure_url).join('\n');
-      setMessage(`Upload successful.\n${urls}`);
-      setMessageType('success');
-    } else {
-      setMessage('Upload failed');
+      const response = await fetch('/api/photos/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const urls = data.images.map((img: any) => img.secure_url).join('\n');
+        setMessage(`Upload successful.\n${urls}`);
+        setMessageType('success');
+      } else {
+        setMessage('Upload failed');
+        setMessageType('error');
+      }
+    } catch (error: unknown) {
+      const message = (error as Error).message || 'An unknown error occurred';
+      setMessage(message);
       setMessageType('error');
+    } finally {
+      setUploading(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    setUploading(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (

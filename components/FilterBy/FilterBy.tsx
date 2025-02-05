@@ -29,6 +29,7 @@ const FilterBy: React.FC<FilterByProps> = ({
       <FormSelect
         label={'Filter options'}
         id={'filters'}
+        hideLabel={true}
         options={options.map(({ id, label }) => ({
           value: id,
           label,
