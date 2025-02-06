@@ -1,22 +1,29 @@
 @use "@/styles/variables" as *;
 
 .masonry {
-  column-count: 3;
-  column-gap: 16px;
-  padding: 20px;
+  column-count: 5; // Number of masonry columns
+  padding: 16px;
 
   @media (max-width: 1024px) {
-    column-count: 2;
+    column-count: 4;
   }
 
   @media (max-width: 600px) {
-    column-count: 1;
+    column-count: 2;
   }
+
 }
 
 .masonryItem {
   display: inline-block;
-  width: 100%;
   margin-bottom: 16px;
   break-inside: avoid;
+
+  img {
+    width: 100%; // Image takes full width
+    height: auto; // Keeps aspect ratio
+    max-height: 200px; // Ensures images are visually consistent
+  }
 }
+
+
