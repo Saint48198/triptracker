@@ -201,7 +201,9 @@ export default function PhotoManager({
   };
 
   const handleClearSelection = () => {
-    setSelectedSearchPhotos([]);
+    setPhotos((prevPhotos) =>
+      prevPhotos.map((photo) => ({ ...photo, added: false }))
+    );
   };
 
   return (
@@ -225,32 +227,42 @@ export default function PhotoManager({
             setSelectedSearchPhotos([]);
           }}
         >
-          <h2>Search & Add Photos</h2>
-          <SearchBar
-            onSearch={handleSearchPhotos}
-            fetchSuggestions={fetchSuggestions}
-          />
-          <div className={styles.photoSearchResultsModal}>
-            <ImageGrid
-              images={searchResults}
-              onImageClick={handleSelectPhoto}
-            />
-          </div>
-          <div>
-            <Button buttonType="button" onClick={() => setIsModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              buttonType="button"
-              onClick={handleAddPhotos}
-              isDisabled={selectedSearchPhotos.length === 0 || addingPhotos}
-            >
-              {addingPhotos ? (
-                <FaSpinner className="animate-spin mr-2" />
-              ) : (
-                `Add ${selectedSearchPhotos.length} Photos`
-              )}
-            </Button>
+          <div className={styles.modalContent}>
+            <div className={styles.modelHeader}>
+              <h2>Search & Add Photos</h2>
+              <SearchBar
+                onSearch={handleSearchPhotos}
+                fetchSuggestions={fetchSuggestions}
+              />
+            </div>
+            <div className={styles.photoSearchResultsModal}>
+              <ImageGrid
+                images={searchResults}
+                onImageClick={handleSelectPhoto}
+              />
+            </div>
+            {searchResults.length > 0 && (
+              <div className={styles.modalActions}>
+                <Button
+                  buttonType="button"
+                  onClick={() => setIsModalOpen(false)}
+                  styleType={'secondary'}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  buttonType="button"
+                  onClick={handleAddPhotos}
+                  isDisabled={selectedSearchPhotos.length === 0 || addingPhotos}
+                >
+                  {addingPhotos ? (
+                    <FaSpinner className="animate-spin mr-2" />
+                  ) : (
+                    `Add ${selectedSearchPhotos.length} Photos`
+                  )}
+                </Button>
+              </div>
+            )}
           </div>
         </Modal>
       )}

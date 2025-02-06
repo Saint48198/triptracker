@@ -1,6 +1,16 @@
-.photoSearchResultsModal{
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.modelHeader {
+  flex-shrink: 0;
+}
+
+.photoSearchResultsModal {
+  flex-grow: 1;
   overflow-y: auto;
-  max-height: 80%;
 
   /* WebKit browsers */
   &::-webkit-scrollbar {
@@ -23,4 +33,12 @@
   /* Firefox */
   scrollbar-width: thin;
   scrollbar-color: #888 #f1f1f1;
+}
+
+.modalActions {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
 }
