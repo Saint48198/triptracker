@@ -96,7 +96,7 @@ export default function PhotoManager({
     }
 
     try {
-      const response = await fetch(`/api/photos/search?tags=${query}`);
+      const response = await fetch(`/api/photos/search?tag=${query}`);
       if (response.ok) {
         const data = await response.json();
         setSearchResults(
