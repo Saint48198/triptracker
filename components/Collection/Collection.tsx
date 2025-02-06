@@ -48,21 +48,28 @@ const Collection: React.FC<CollectionProps> = ({
   return (
     <div className={styles.collectionContainer}>
       <div className={styles.collectionHeader}>
-        <Button buttonType="button" onClick={onStartPhotoSearch}>
-          ➕ Add Photos
-        </Button>
+        <div className={styles.addPhotosButton}>
+          <Button buttonType="button" onClick={onStartPhotoSearch}>
+            ➕ Add Photos
+          </Button>
+        </div>
 
-        <Link href={'/admin/image/upload'}>Upload new image</Link>
+        {selectedCount > 0 && (
+          <div className={styles.bulkActions}>
+            <BulkActions
+              selectedCount={selectedCount}
+              onRemoveSelected={handleRemoveSelected}
+              onClearSelection={onClearSelection}
+              removingPhotos={removingPhotos}
+            />
+          </div>
+        )}
+
+        <div className={styles.uploadLink}>
+          <Link href={'/admin/image/upload'}>Upload new image</Link>
+        </div>
       </div>
 
-      {selectedCount > 0 && (
-        <BulkActions
-          selectedCount={selectedCount}
-          onRemoveSelected={handleRemoveSelected}
-          onClearSelection={onClearSelection}
-          removingPhotos={removingPhotos}
-        />
-      )}
       {images.length > 0 ? (
         <ImageGrid images={photos} onImageClick={handleImageClick} />
       ) : (

@@ -1,6 +1,5 @@
 .collectionContainer {
   width: 100%;
-  max-width: 900px;
   margin: auto;
   padding: 20px;
   text-align: center;
@@ -14,7 +13,24 @@
 
 .collectionHeader {
   display: flex;
-  button {
-    margin-left: auto;
-  }
+  justify-content: space-between;
+  align-items: center;
+}
+
+.addPhotosButton {
+  flex: 1;
+  justify-content: left;
+  display: flex;
+}
+
+.bulkActions {
+  flex: 1;
+  justify-content: center;
+  display: flex;
+}
+
+.uploadLink {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
 }
