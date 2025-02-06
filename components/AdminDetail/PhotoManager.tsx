@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Collection from '@/components/Collection/Collection';
 import SearchBar from '@/components/SearchBar/SearchBar';
 import ImageGrid from '@/components/ImageGrid/ImageGrid';
@@ -29,6 +29,8 @@ export default function PhotoManager({
   const [removingPhotos, setRemovingPhotos] = useState(false);
   const [suggestions, setSuggestions] = useState<string[] | null>(null);
   const searchSubject = useMemo(() => new Subject<string>(), []);
+  const [nextCursor, setNextCursor] = useState(null);
+  const [query, setQuery] = useState('');
 
   // Ensure API calls happen only when user is actively typing
   useEffect(() => {
@@ -61,7 +63,6 @@ export default function PhotoManager({
 
   // Fetch existing photos for the entity
   const fetchPhotos = useCallback(async () => {
-    setPhotos([]);
     try {
       const response = await fetch(`/api/photos/${entityType}s/${entityId}`);
       if (response.ok) {
@@ -89,23 +90,52 @@ export default function PhotoManager({
   };
 
   // Handle photo search
-  const handleSearchPhotos = async (query: string) => {
-    console.log('Searching for:', query);
+  const handleSearchPhotos = async (
+    query: string,
+    cursor: string | null = null
+  ) => {
+    if (!cursor) {
+      setSearchResults([]); // Clear old search results
+    }
+
     if (!query.trim()) {
-      setSearchResults([]); // Don't fetch if input is empty
       return;
     }
 
+    setQuery(query);
+
     try {
-      const response = await fetch(`/api/photos/search?tag=${query}`);
+      const url = cursor
+        ? `/api/photos/search?tag=${query}&next_cursor=${cursor}`
+        : `/api/photos/search?tag=${query}`;
+      const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
-        setSearchResults(
-          (data.photos || []).map((photo: Photo) => ({
-            ...photo,
-            added: photos.some((p) => p.photo_id === photo.photo_id),
-          }))
-        );
+        setNextCursor(data.next_cursor);
+
+        setSearchResults((prevResults) => {
+          const newResults = (data.photos || []).map((photo: Photo) => {
+            const existingPhoto = prevResults.find(
+              (p) => p.photo_id === photo.photo_id
+            );
+            return {
+              ...photo,
+              added: existingPhoto
+                ? existingPhoto.added
+                : photos.some((p: Photo) => p.photo_id === photo.photo_id),
+            };
+          });
+
+          return nextCursor
+            ? [
+                ...prevResults,
+                ...newResults.filter(
+                  (p: Photo) =>
+                    !prevResults.some((prev) => prev.photo_id === p.photo_id)
+                ),
+              ]
+            : newResults;
+        });
       }
     } catch (error) {
       console.error('Error searching for photos:', error);
@@ -243,6 +273,14 @@ export default function PhotoManager({
             </div>
             {searchResults.length > 0 && (
               <div className={styles.modalActions}>
+                {nextCursor && searchResults.length > 0 && (
+                  <button
+                    type={'button'}
+                    onClick={() => handleSearchPhotos(query, nextCursor)}
+                  >
+                    Load More
+                  </button>
+                )}
                 <Button
                   buttonType="button"
                   onClick={() => setIsModalOpen(false)}

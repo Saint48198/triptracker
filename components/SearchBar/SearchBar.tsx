@@ -4,7 +4,7 @@ import FormInput from '@/components/FormInput/FormInput';
 import Button from '@/components/Button/Button';
 
 interface SearchBarProps {
-  onSearch: (query: string) => void;
+  onSearch: (query: string, cursor: string | null) => void;
   fetchSuggestions: (query: string) => Promise<string[]>;
 }
 
@@ -63,12 +63,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   // Handle performing a search
-  const handleSearch = (searchQuery?: string) => {
+  const handleSearch = (searchQuery?: string, cursor = null) => {
     const queryToSearch = searchQuery || query;
     if (!queryToSearch) return;
     searchTriggered.current = true;
     setShowSuggestions(false);
-    onSearch(queryToSearch);
+    onSearch(queryToSearch, cursor);
     setTimeout(() => {
       searchTriggered.current = false;
     }, 500);

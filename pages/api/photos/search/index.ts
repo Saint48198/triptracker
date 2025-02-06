@@ -44,16 +44,22 @@ export default async function handler(
     if (folder) expression.push(`folder=${folder}`);
     if (tag) expression.push(`tags=${tag}`);
 
-    const searchExpression = expression.length
-      ? expression.join(' AND ')
-      : 'resource_type:image';
+    const searchExpression = expression.join(' AND ');
 
-    const result = await cloudinary.search
+    console.log('Search Expression:', searchExpression);
+
+    const searchQuery = cloudinary.search
       .expression(searchExpression)
       .with_field('context')
       .with_field('tags')
-      .max_results(Number(max_results))
-      .execute();
+      .max_results(Number(max_results));
+
+    // Pass next_cursor only if it exists
+    if (next_cursor) {
+      searchQuery.next_cursor(String(next_cursor));
+    }
+
+    const result = await searchQuery.execute();
 
     console.log('Cloudinary API response:', JSON.stringify(result, null, 2));
 
@@ -85,7 +91,9 @@ export default async function handler(
       }
     });
 
-    return res.status(200).json({ photos, next_cursor: result.next_cursor });
+    return res
+      .status(200)
+      .json({ photos, next_cursor: result.next_cursor || null });
   } catch (error: unknown) {
     console.error('Cloudinary API error:', error);
     return handleApiError(error, res, 'Failed to fetch photos', 500);
