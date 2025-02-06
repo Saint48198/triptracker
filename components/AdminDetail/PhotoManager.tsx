@@ -8,6 +8,7 @@ import { FaSpinner } from 'react-icons/fa';
 import { Photo } from '@/types/PhotoTypes';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import styles from './PhotoManager.module.scss';
 
 interface PhotoManagerProps {
   entityId: string;
@@ -229,7 +230,7 @@ export default function PhotoManager({
             onSearch={handleSearchPhotos}
             fetchSuggestions={fetchSuggestions}
           />
-          <div>
+          <div className={styles.photoSearchResultsModal}>
             <ImageGrid
               images={searchResults}
               onImageClick={handleSelectPhoto}
