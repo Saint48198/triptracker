@@ -47,11 +47,13 @@ const Collection: React.FC<CollectionProps> = ({
 
   return (
     <div className={styles.collectionContainer}>
-      <Button buttonType="button" onClick={onStartPhotoSearch}>
-        ➕ Add Photos
-      </Button>
+      <div className={styles.collectionHeader}>
+        <Button buttonType="button" onClick={onStartPhotoSearch}>
+          ➕ Add Photos
+        </Button>
 
-      <Link href={'/admin/image/upload'}>Upload new image</Link>
+        <Link href={'/admin/image/upload'}>Upload new image</Link>
+      </div>
 
       {selectedCount > 0 && (
         <BulkActions

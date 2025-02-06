@@ -11,7 +11,12 @@ import AdminForm from '@/components/AdminDetail/AdminDetailForm';
 import Button from '@/components/Button/Button';
 import PhotoManager from '@/components/AdminDetail/PhotoManager';
 import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner';
-import { ENTITY_TYPE_ATTRACTION, ENTITY_TYPE_CITY } from '@/constants';
+import {
+  ENTITY_TYPE_ATTRACTION,
+  ENTITY_TYPE_ATTRACTIONS,
+  ENTITY_TYPE_CITIES,
+  ENTITY_TYPE_CITY,
+} from '@/constants';
 
 export default function AdminPage({
   entity,
@@ -61,7 +66,11 @@ export default function AdminPage({
   const fetchEntity = useCallback(async () => {
     if (!entityId) return;
     try {
-      const response = await fetch(`/api/${entity}s/${entityId}`);
+      const entityType =
+        entity === ENTITY_TYPE_CITY
+          ? ENTITY_TYPE_CITIES
+          : ENTITY_TYPE_ATTRACTIONS;
+      const response = await fetch(`/api/${entityType}/${entityId}`);
       const data = await response.json();
       if (response.ok) {
         console.log(data);
@@ -92,8 +101,12 @@ export default function AdminPage({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const entityType =
+      entity === ENTITY_TYPE_CITY
+        ? ENTITY_TYPE_CITIES
+        : ENTITY_TYPE_ATTRACTIONS;
     const method = entityId ? 'PUT' : 'POST';
-    const url = entityId ? `/api/${entity}s/${entityId}` : `/api/${entity}s`;
+    const url = entityId ? `/api/${entityType}/${entityId}` : `/api/${entity}s`;
 
     try {
       const response = await fetch(url, {
@@ -161,11 +174,18 @@ export default function AdminPage({
 
                 {/* Photo Manager is only included if entityId exists */}
                 {entityId && (
-                  <PhotoManager entityId={entityId} entityType={entity} />
+                  <PhotoManager
+                    entityId={entityId}
+                    entityType={
+                      entity === ENTITY_TYPE_CITY
+                        ? ENTITY_TYPE_CITIES
+                        : ENTITY_TYPE_ATTRACTIONS
+                    }
+                  />
                 )}
                 <div>
                   <Button buttonType="submit" isDisabled={loading}>
-                    {entityId ? 'Update' : 'Add'}
+                    {entityId ? 'Update' : 'Add'} {entity}
                   </Button>
                 </div>
               </form>

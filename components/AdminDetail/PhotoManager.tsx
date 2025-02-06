@@ -9,10 +9,11 @@ import { Photo } from '@/types/PhotoTypes';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import styles from './PhotoManager.module.scss';
+import { ENTITY_TYPE_ATTRACTIONS, ENTITY_TYPE_CITIES } from '@/constants';
 
 interface PhotoManagerProps {
   entityId: string;
-  entityType: 'city' | 'attraction';
+  entityType: typeof ENTITY_TYPE_CITIES | typeof ENTITY_TYPE_ATTRACTIONS;
 }
 
 export default function PhotoManager({
@@ -64,7 +65,7 @@ export default function PhotoManager({
   // Fetch existing photos for the entity
   const fetchPhotos = useCallback(async () => {
     try {
-      const response = await fetch(`/api/photos/${entityType}s/${entityId}`);
+      const response = await fetch(`/api/photos/${entityType}/${entityId}`);
       if (response.ok) {
         const data = await response.json();
         setPhotos(data.photos || []);
