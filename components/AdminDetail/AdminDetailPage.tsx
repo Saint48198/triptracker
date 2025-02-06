@@ -133,22 +133,17 @@ export default function AdminPage({
               handleGeocode={() => {}}
               loading={loading}
             />
+
+            {/* Photo Manager is only included if entityId exists */}
+            {!loading && entityId && (
+              <PhotoManager entityId={entityId} entityType={entity} />
+            )}
+            <div>
+              <Button buttonType="submit" isDisabled={loading}>
+                {entityId ? 'Update' : 'Add'}
+              </Button>
+            </div>
           </form>
-
-          {/* Photo Manager is only included if entityId exists */}
-          {!loading && entityId && (
-            <PhotoManager entityId={entityId} entityType={entity} />
-          )}
-
-          <div>
-            <Button
-              buttonType="button"
-              isDisabled={loading}
-              onClick={() => handleSubmit}
-            >
-              {entityId ? 'Update' : 'Add'}
-            </Button>
-          </div>
         </div>
       </main>
       <Footer />

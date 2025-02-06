@@ -6,7 +6,7 @@
   margin: auto;
 }
 
-.searchForm {
+.searchBar {
   display: flex;
   border: 2px solid $color-gray;
   border-radius: 8px;
@@ -21,6 +21,12 @@
     padding: 0.5rem;
     border: none;
     font-size: 16px;
+    border: 0;
+  }
+
+  button {
+    border-radius: 0 8px 8px 0;
+    border: 0;
   }
 }
 

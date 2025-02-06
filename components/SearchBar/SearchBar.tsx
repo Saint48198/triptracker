@@ -21,7 +21,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const searchTriggered = useRef(false);
   const selectingSuggestion = useRef(false);
 
-  //  Handle keyboard navigation
+  // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
@@ -35,67 +35,44 @@ const SearchBar: React.FC<SearchBarProps> = ({
       e.preventDefault();
       if (focusedIndex >= 0) {
         selectSuggestion(suggestions[focusedIndex]);
+      } else {
+        handleSearch();
       }
       setShowSuggestions(false);
-      handleSearch();
     } else if (e.key === 'Escape') {
       setShowSuggestions(false);
     }
   };
 
-  //  Handle selecting a suggestion
+  // Handle selecting a suggestion
   const selectSuggestion = (suggestion: string) => {
     selectingSuggestion.current = true;
     setQuery(suggestion);
     setShowSuggestions(false);
-    //handleSearch(suggestion);
-
-    setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.blur();
-      }
-    }, 100);
+    handleSearch(suggestion);
   };
 
   const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const term = e.target.value.trim(); // Trim unnecessary spaces
+    const term = e.target.value.trim();
     setQuery(term);
     if (term === '') {
-      setSuggestions([]); // Clear suggestions
-      searchTriggered.current = false; // Prevent search trigger
+      setSuggestions([]);
+      searchTriggered.current = false;
     }
-
-    setFocusedIndex(-1); // Reset focus index
+    setFocusedIndex(-1);
   };
 
-  //  Handle performing a search with Enter key or Search button
+  // Handle performing a search
   const handleSearch = (searchQuery?: string) => {
     const queryToSearch = searchQuery || query;
+    if (!queryToSearch) return;
     searchTriggered.current = true;
     setShowSuggestions(false);
-    selectingSuggestion.current = true;
     onSearch(queryToSearch);
-
     setTimeout(() => {
       searchTriggered.current = false;
     }, 500);
   };
-
-  //  Close search suggestions when clicking outside the search bar
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        !inputRef.current?.contains(event.target as Node) && //  Click is outside search input
-        !listRef.current?.contains(event.target as Node) //  Click is outside suggestions list
-      ) {
-        selectingSuggestion.current = true;
-        setShowSuggestions(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   useEffect(() => {
     if (
@@ -109,26 +86,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
         setShowSuggestions(results.length > 0);
       });
     } else {
-      setSuggestions([]); //  Clears suggestions when query is too short
+      setSuggestions([]);
       setShowSuggestions(false);
     }
   }, [query, fetchSuggestions]);
 
   return (
-    <div
-      className={styles.searchContainer}
-      role="combobox"
-      aria-expanded={showSuggestions}
-      aria-owns="suggestions-list"
-      aria-haspopup="listbox"
-    >
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSearch(query);
-        }}
-        className={styles.searchForm}
-      >
+    <div className={styles.searchContainer}>
+      <div className={styles.searchBar}>
         <FormInput
           ref={inputRef as React.RefObject<HTMLInputElement>}
           type="text"
@@ -137,7 +102,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
           id="search"
           value={query}
           onFocus={() => {
-            if (query.length >= 3) setShowSuggestions(true); //  Show suggestions only when there’s a valid query
+            if (query.length >= 3) setShowSuggestions(true);
             selectingSuggestion.current = false;
           }}
           onChange={handleSearchInput}
@@ -149,12 +114,16 @@ const SearchBar: React.FC<SearchBarProps> = ({
           aria-activedescendant={
             focusedIndex >= 0 ? `suggestion-${focusedIndex}` : undefined
           }
+          role="combobox"
         />
-        <Button buttonType="submit" styleType="primary">
+        <Button
+          buttonType="button"
+          styleType="primary"
+          onClick={() => handleSearch()}
+        >
           🔍
         </Button>
-      </form>
-
+      </div>
       {showSuggestions && (
         <ul
           className={styles.suggestionsList}
@@ -170,7 +139,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
               role="option"
               aria-selected={focusedIndex === index}
               onMouseDown={(e) => {
-                e.preventDefault(); //  Prevents re-focusing on input
+                e.preventDefault();
                 selectSuggestion(suggestion);
               }}
               onClick={() => selectSuggestion(suggestion)}
