@@ -13,6 +13,9 @@ interface AdminFormProps {
   countryId: string;
   setCountryId: (value: string) => void;
   countries: Country[];
+  states?: { id: string; name: string }[];
+  stateId?: string;
+  setStateId?: (value: string) => void;
   lat: string;
   setLat: (value: string) => void;
   lng: string;
@@ -32,12 +35,15 @@ interface AdminFormProps {
 export default function AdminForm({
   name,
   setName,
-  countryId,
+  countryId = '',
   setCountryId,
-  countries,
-  lat,
+  countries = [],
+  states = [],
+  stateId,
+  setStateId,
+  lat = '',
   setLat,
-  lng,
+  lng = '',
   setLng,
   lastVisited,
   setLastVisited,
@@ -61,11 +67,27 @@ export default function AdminForm({
         required
       />
 
+      {/* Conditionally render states dropdown */}
+      {states.length > 0 && setStateId && (
+        <FormSelect
+          label="State"
+          id="stateId"
+          options={states.map((state) => ({
+            value: state.id?.toString(),
+            label: state.name,
+          }))}
+          noValueOption={{ include: true, label: 'Select a state' }}
+          value={stateId || ''}
+          onChange={(e) => setStateId(e.target.value)}
+          required
+        />
+      )}
+
       <FormSelect
         label="Country"
         id="countryId"
         options={countries.map((country: Country) => ({
-          value: country.id.toString(),
+          value: country.id?.toString(),
           label: country.name,
         }))}
         noValueOption={{ include: true, label: 'Select a country' }}
@@ -104,9 +126,9 @@ export default function AdminForm({
       <h2>Location</h2>
       <LatLngField
         latLabel="Latitude"
-        lat={parseFloat(lat)}
+        lat={parseFloat(lat || '0')}
         lngLabel="Longitude"
-        lng={parseFloat(lng)}
+        lng={parseFloat(lng || '0')}
         isLoading={loading}
         onLatChange={(lat) => setLat(lat.toString())}
         onLngChange={(lng) => setLng(lng.toString())}
@@ -116,7 +138,11 @@ export default function AdminForm({
       {lat && lng && (
         <MapComponent
           markers={[
-            { lat: parseFloat(lat), lng: parseFloat(lng), popupText: name },
+            {
+              lat: parseFloat(lat || '0'),
+              lng: parseFloat(lng || '0'),
+              popupText: name,
+            },
           ]}
           zoom={8}
         />
