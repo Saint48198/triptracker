@@ -134,7 +134,8 @@ const HomePage: React.FC = () => {
   const fetchFilteredGeoJsonData = async (type: string) => {
     try {
       const response = await fetch(`/api/${type}`);
-      const places = await response.json();
+      const placesData = await response.json();
+      const places = placesData[type];
 
       const geoJsonResponse = await fetch(
         type === 'countries'
