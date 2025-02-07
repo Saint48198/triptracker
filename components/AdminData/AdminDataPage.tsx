@@ -34,7 +34,7 @@ export default function DataPage({
   const [data, setData] = useState<any[]>([]);
   const [filters, setFilters] = useState<FilterOption[]>([]);
   const [filterValue, setFilterValue] = useState(
-    searchParams?.get(filterKey) || ''
+    filterKey ? searchParams?.get(filterKey) || '' : ''
   );
   const [page, setPage] = useState(Number(searchParams?.get('page')) || 1);
   const [limit] = useState(10);
@@ -48,8 +48,10 @@ export default function DataPage({
   const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchFiltersData = useCallback(async () => {
-    const data = await fetchFiltersAction();
-    setFilters(data);
+    if (fetchFiltersAction) {
+      const data = await fetchFiltersAction();
+      setFilters(data);
+    }
   }, [fetchFiltersAction]);
 
   const fetchDataEntries = useCallback(async () => {
@@ -57,7 +59,7 @@ export default function DataPage({
     setMessage('');
     try {
       const query = new URLSearchParams({
-        ...(filterValue && { [filterKey]: filterValue }),
+        ...(filterValue && filterKey && { [filterKey]: filterValue }),
         ...(sortBy && { sortBy }),
         ...(sort && { sort }),
         page: page.toString(),
@@ -125,18 +127,20 @@ export default function DataPage({
         <h1 className={styles.title}>{title}</h1>
         {message && <Message message={message} type={messageType} />}
         <div className={styles.flexBetween}>
-          <FormSelect
-            label={filterLabel}
-            id={filterKey}
-            options={filters.map((filter: FilterOption) => ({
-              value: filter.id.toString(),
-              label: filter.name,
-            }))}
-            value={filterValue}
-            onChange={(e) => setFilterValue(e.target.value)}
-            noValueOption={{ include: true, label: 'All' }}
-            hideLabel={true}
-          />
+          {filterLabel && filterKey && (
+            <FormSelect
+              label={filterLabel}
+              id={filterKey}
+              options={filters.map((filter: FilterOption) => ({
+                value: filter.id.toString(),
+                label: filter.name,
+              }))}
+              value={filterValue}
+              onChange={(e) => setFilterValue(e.target.value)}
+              noValueOption={{ include: true, label: 'All' }}
+              hideLabel={true}
+            />
+          )}
           <Button
             buttonType="button"
             styleType="secondary"

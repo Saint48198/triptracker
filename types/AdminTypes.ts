@@ -35,10 +35,10 @@ export interface DataPageProps {
   fetchDataAction: (
     query: string
   ) => Promise<{ entries: any[]; total: number }>;
-  fetchFiltersAction: () => Promise<FilterOption[]>;
+  fetchFiltersAction?: () => Promise<FilterOption[]>;
   columns: { key: string; label: string }[];
-  filterLabel: string;
-  filterKey: string;
+  filterLabel?: string;
+  filterKey?: string;
   action: (
     row: any,
     handleDelete: (id: string) => Promise<void>
