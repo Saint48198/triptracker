@@ -27,7 +27,7 @@ export default function CountriesPage() {
       action={(row: { id: string }, handleDelete) => (
         <>
           <div className={styles.actionButtons}>
-            <Link href={`/admin/cities?id=${row.id}`}>Edit</Link>
+            <Link href={`/admin/country?id=${row.id}`}>Edit</Link>
             <Button
               onClick={() => handleDelete(row.id)}
               buttonType="button"
