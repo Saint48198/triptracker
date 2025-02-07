@@ -3,17 +3,25 @@ import db from '../../../database/db';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
-    const { page = 1, limit = 10 } = req.query;
+    const { page = 1, limit = 10, all } = req.query;
     const offset = (Number(page) - 1) * Number(limit);
 
     try {
-      const total = db
-        .prepare('SELECT COUNT(*) AS count FROM countries')
-        .get().count;
-      const countries = db
-        .prepare('SELECT * FROM countries ORDER BY name ASC LIMIT ? OFFSET ?')
-        .all(Number(limit), offset);
-      res.status(200).json({ total, countries });
+      if (all === 'true') {
+        const countries = db
+          .prepare('SELECT * FROM countries ORDER BY name ASC')
+          .all();
+        res.status(200).json({ total: countries.length, countries });
+      } else {
+        const offset = (Number(page) - 1) * Number(limit);
+        const total = db
+          .prepare('SELECT COUNT(*) AS count FROM countries')
+          .get().count;
+        const countries = db
+          .prepare('SELECT * FROM countries ORDER BY name ASC LIMIT ? OFFSET ?')
+          .all(Number(limit), offset);
+        res.status(200).json({ total, countries });
+      }
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Failed to fetch countries.' });

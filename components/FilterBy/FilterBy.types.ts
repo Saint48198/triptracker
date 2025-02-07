@@ -1,7 +1,7 @@
 export interface FilterOption {
   id: string; // Unique identifier
   value: string; // Value to filter by
-  name: string; // Display label
+  label: string; // Display label
 }
 
 export interface FilterByProps {

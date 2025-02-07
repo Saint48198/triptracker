@@ -1,0 +1,55 @@
+@use "@/styles/variables" as *;
+
+// Dropdown Container
+.menu {
+  position: relative;
+  display: inline-block;
+}
+
+// User Avatar Button
+.menuButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+// Dropdown Menu
+.menuDropdown {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background: $color-white;
+  border: 1px solid $color-gray;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  z-index: 1000;
+}
+
+// Menu Items
+.menuItem {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  padding: 10px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.menuItem:hover {
+  background: $color-gray-50;
+}

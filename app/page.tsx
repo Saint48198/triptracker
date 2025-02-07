@@ -122,9 +122,9 @@ const HomePage: React.FC = () => {
 
   const fetchCountries = async () => {
     try {
-      const response = await fetch('/api/countries');
+      const response = await fetch('/api/countries?all=true');
       const result = await response.json();
-      setCountries(result);
+      setCountries(result.countries);
     } catch (error) {
       console.error('Failed to fetch countries:', error);
       setMessage('Failed to fetch countries.');

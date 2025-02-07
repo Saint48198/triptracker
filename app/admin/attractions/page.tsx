@@ -21,7 +21,7 @@ export default function AttractionsPage() {
         return { entries: data[ENTITY_TYPE_ATTRACTIONS], total: data.total };
       }}
       fetchFiltersAction={async () => {
-        const response = await fetch('/api/countries');
+        const response = await fetch('/api/countries?all=true');
         return await response.json();
       }}
       columns={[

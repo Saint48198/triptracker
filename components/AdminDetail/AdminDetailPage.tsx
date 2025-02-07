@@ -44,9 +44,9 @@ export default function AdminDetailPage({
 
   const fetchStates = useCallback(async () => {
     try {
-      const response = await fetch('/api/states');
+      const response = await fetch('/api/states?all=true');
       const data = await response.json();
-      setStates(data);
+      setStates(data.states);
     } catch (error) {
       console.error('Failed to fetch states:', error);
       setMessage('Failed to fetch states.');
@@ -56,9 +56,9 @@ export default function AdminDetailPage({
 
   const fetchCountries = useCallback(async () => {
     try {
-      const response = await fetch('/api/countries');
+      const response = await fetch('/api/countries?all=true');
       const data = await response.json();
-      setCountries(data);
+      setCountries(data.countries);
     } catch (error) {
       console.error('Failed to fetch countries:', error);
       setMessage('Failed to fetch countries.');
