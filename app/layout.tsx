@@ -1,5 +1,6 @@
 import './globals.scss';
 import { ReactNode } from 'react';
+import { ModalProvider } from '@/components/Modal/ModalContext';
 
 export const metadata = {
   title: 'Trip Tracker',
@@ -9,7 +10,9 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ModalProvider>{children}</ModalProvider>
+      </body>
     </html>
   );
 }

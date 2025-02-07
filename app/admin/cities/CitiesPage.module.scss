@@ -1,34 +1,6 @@
 // CitiesPage.module.scss
-.container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-}
-
-.title {
-  font-size: 1.875rem; // Tailwind text-3xl
-  font-weight: 700; // Tailwind font-bold
-  margin-bottom: 1.5rem; // Tailwind mb-6
-}
-
-.flexBetween {
-  display: flex; // Tailwind flex
-  justify-content: space-between; // Tailwind justify-between
-  margin-bottom: 1rem; // Tailwind mb-4
-}
-
-.label {
-  display: block; // Tailwind block
-  margin-bottom: 0.5rem; // Tailwind mb-2
-  font-weight: 500; // Tailwind font-medium
-}
-
-.select {
-  border: 1px solid #d1d5db; // Tailwind border
-  padding: 0.5rem 1rem; // Tailwind px-4 py-2
-  border-radius: 0.25rem; // Tailwind rounded
-}
-
-.overflowXAuto {
-  overflow-x: auto; // Tailwind overflow-x-auto
+.actionButtons {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
 }

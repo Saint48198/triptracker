@@ -18,10 +18,12 @@ import {
   ENTITY_TYPE_CITY,
 } from '@/constants';
 
-export default function AdminPage({
+export default function AdminDetailPage({
   entity,
+  entities,
 }: {
   entity: typeof ENTITY_TYPE_CITY | typeof ENTITY_TYPE_ATTRACTION;
+  entities: typeof ENTITY_TYPE_CITIES | typeof ENTITY_TYPE_ATTRACTIONS;
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -66,14 +68,9 @@ export default function AdminPage({
   const fetchEntity = useCallback(async () => {
     if (!entityId) return;
     try {
-      const entityType =
-        entity === ENTITY_TYPE_CITY
-          ? ENTITY_TYPE_CITIES
-          : ENTITY_TYPE_ATTRACTIONS;
-      const response = await fetch(`/api/${entityType}/${entityId}`);
+      const response = await fetch(`/api/${entities}/${entityId}`);
       const data = await response.json();
       if (response.ok) {
-        console.log(data);
         setName(data.name);
         setLat(data.lat?.toString() || '');
         setLng(data.lng?.toString() || '');
@@ -101,12 +98,9 @@ export default function AdminPage({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const entityType =
-      entity === ENTITY_TYPE_CITY
-        ? ENTITY_TYPE_CITIES
-        : ENTITY_TYPE_ATTRACTIONS;
+
     const method = entityId ? 'PUT' : 'POST';
-    const url = entityId ? `/api/${entityType}/${entityId}` : `/api/${entity}s`;
+    const url = entityId ? `/api/${entities}/${entityId}` : `/api/${entity}s`;
 
     try {
       const response = await fetch(url, {
@@ -152,6 +146,8 @@ export default function AdminPage({
             ) : (
               <form onSubmit={handleSubmit}>
                 <AdminForm
+                  entity={entity}
+                  entities={entities}
                   name={name}
                   setName={setName}
                   stateId={stateId}
@@ -174,14 +170,7 @@ export default function AdminPage({
 
                 {/* Photo Manager is only included if entityId exists */}
                 {entityId && (
-                  <PhotoManager
-                    entityId={entityId}
-                    entityType={
-                      entity === ENTITY_TYPE_CITY
-                        ? ENTITY_TYPE_CITIES
-                        : ENTITY_TYPE_ATTRACTIONS
-                    }
-                  />
+                  <PhotoManager entityId={entityId} entityType={entities} />
                 )}
                 <div>
                   <Button buttonType="submit" isDisabled={loading}>

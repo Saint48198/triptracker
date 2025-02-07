@@ -6,33 +6,11 @@ import LatLngField from '@/components/LatLngField/LatLngField';
 import MapComponent from '@/components/Map/Map';
 import { Country } from '@/types/ContentTypes';
 import WikiLookup from '@/components/AdminDetail/WikiLookup';
-
-interface AdminFormProps {
-  name: string;
-  setName: (value: string) => void;
-  countryId: string;
-  setCountryId: (value: string) => void;
-  countries: Country[];
-  states?: { id: string; name: string }[];
-  stateId?: string;
-  setStateId?: (value: string) => void;
-  lat: string;
-  setLat: (value: string) => void;
-  lng: string;
-  setLng: (value: string) => void;
-  lastVisited?: string;
-  setLastVisited?: (value: string) => void;
-  wikiTerm?: string;
-  setWikiTerm?: (value: string) => void;
-  handleGeocode: () => void;
-  loading: boolean;
-  isUnesco?: boolean;
-  setIsUnesco?: (value: boolean) => void;
-  isNationalPark?: boolean;
-  setIsNationalPark?: (value: boolean) => void;
-}
+import { AdminFormProps } from '@/types/AdminTypes';
 
 export default function AdminForm({
+  entity,
+  entities,
   name,
   setName,
   countryId = '',

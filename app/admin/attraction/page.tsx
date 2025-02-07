@@ -1,5 +1,11 @@
-import AdminPage from '@/components/AdminDetail/AdminDetailPage';
+import AdminDetailPage from '@/components/AdminDetail/AdminDetailPage';
+import { ENTITY_TYPE_ATTRACTION, ENTITY_TYPE_ATTRACTIONS } from '@/constants';
 
 export default function AttractionPage() {
-  return <AdminPage entity="attraction" />;
+  return (
+    <AdminDetailPage
+      entity={ENTITY_TYPE_ATTRACTION}
+      entities={ENTITY_TYPE_ATTRACTIONS}
+    />
+  );
 }
