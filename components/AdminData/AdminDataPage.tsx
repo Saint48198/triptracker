@@ -104,10 +104,6 @@ export default function DataPage({
     }
   };
 
-  const handleNavToDetail = (id: string) => {
-    router.push(`/admin/${entity}?id=${id}`);
-  };
-
   const confirmDelete = async (id: string) => {
     setSelectedItemId(id);
     openModal();
@@ -156,7 +152,7 @@ export default function DataPage({
             <DataTable
               columns={columns}
               data={data || []}
-              actions={(row) => action(row, confirmDelete, handleNavToDetail)}
+              actions={(row) => action(row, confirmDelete)}
             />
             <Pagination
               currentPage={page}

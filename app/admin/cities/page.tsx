@@ -4,6 +4,7 @@ import DataPage from '@/components/AdminData/AdminDataPage';
 import Button from '@/components/Button/Button';
 import { ENTITY_TYPE_CITIES, ENTITY_TYPE_CITY } from '@/constants';
 import styles from './CitiesPage.module.scss';
+import Link from 'next/link';
 
 export default function CitiesPage() {
   return (
@@ -31,16 +32,10 @@ export default function CitiesPage() {
       ]}
       filterLabel="Filter by Country"
       filterKey="country_id"
-      action={(row: { id: string }, handleDelete, handleNavToDetail) => (
+      action={(row: { id: string }, handleDelete) => (
         <>
           <div className={styles.actionButtons}>
-            <Button
-              onClick={() => handleNavToDetail(row.id)}
-              buttonType="button"
-              styleType="text"
-            >
-              Edit
-            </Button>
+            <Link href={`/admin/cities?id=${row.id}`}>Edit</Link>
             <Button
               onClick={() => handleDelete(row.id)}
               buttonType="button"

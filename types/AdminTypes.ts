@@ -41,7 +41,6 @@ export interface DataPageProps {
   filterKey: string;
   action: (
     row: any,
-    handleDelete: (id: string) => Promise<void>,
-    handleNavToDetail: (id: string) => void
+    handleDelete: (id: string) => Promise<void>
   ) => React.JSX.Element;
 }
