@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { DataTableProps, Column } from './DataTable.types';
 import styles from './DataTable.module.scss';
+import Link from 'next/link';
 
 const DataTable: React.FC<DataTableProps> = ({
   columns,
@@ -57,7 +58,7 @@ const DataTable: React.FC<DataTableProps> = ({
         {data.map((row, rowIndex: number) => (
           <tr
             key={rowIndex}
-            className={`${styles.dataTableRow} ${onRowClick ? 'clickable' : ''}`}
+            className={`${styles.dataTableRow}`}
             onClick={onRowClick ? () => onRowClick(row) : undefined}
             onKeyDown={
               onRowClick ? (event) => handleKeyDown(event, row) : undefined
@@ -66,9 +67,21 @@ const DataTable: React.FC<DataTableProps> = ({
             tabIndex={onRowClick ? 0 : undefined}
             aria-label={onRowClick ? `Row ${rowIndex + 1}` : undefined}
           >
-            {columns.map((column: Column) => (
+            {columns.map((column: Column, colIndex: number) => (
               <td key={column.key} className={styles.dataTableCell}>
-                {row[column.key]}
+                {colIndex === 0 && onRowClick ? (
+                  <Link
+                    href={`#${row[column.key].split(' ').join('_')}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onRowClick(row);
+                    }}
+                  >
+                    {row[column.key]}
+                  </Link>
+                ) : (
+                  <>{row[column.key]}</>
+                )}
               </td>
             ))}
             {actions && (

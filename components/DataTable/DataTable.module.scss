@@ -24,11 +24,15 @@
 }
 
 .dataTableRow {
-  &.clickable {
-    cursor: pointer;
+  a {
+    color: $color-blue-500;
     &:hover {
-      background-color: $color-gray-100;
+      text-decoration: underline;
     }
+  }
+
+  &:nth-child(even) {
+    background-color: $color-gray-50;
   }
 }
 

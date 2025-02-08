@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Navbar from '@/components/Navbar/Navbar';
@@ -68,58 +68,46 @@ const HomePage: React.FC = () => {
     }
   }, [mapType]);
 
-  useEffect(() => {
-    if (
-      (mapType === ENTITY_TYPE_CITIES || mapType === ENTITY_TYPE_ATTRACTIONS) &&
-      countries.length === 0
-    ) {
-      fetchCountries();
-    }
+  const fetchData = useCallback(
+    async (view: string, page: number, country?: string) => {
+      setLoading(true);
 
-    fetchData(mapType, page);
-    updateURL();
-    if (mapType === ENTITY_TYPE_COUNTRIES || mapType === ENTITY_TYPE_STATES) {
-      fetchFilteredGeoJsonData(mapType);
-    }
-  }, [mapType, page]);
+      try {
+        let url = page ? `/api/${view}?page=${page}` : `/api/${view}`;
+        if (country) {
+          url += `&country_id=${country}`;
+        }
 
-  const fetchData = async (view: string, page: number, country?: string) => {
-    setLoading(true);
+        const response = await fetch(url);
+        const result = await response.json();
 
-    try {
-      let url = page ? `/api/${view}?page=${page}` : `/api/${view}`;
-      if (country) {
-        url += `&country_id=${country}`;
+        setHasPageProperty(!!(result && result.page));
+        setData(result[view] || result);
+        setTotal(result.total || result.length);
+
+        if (view === ENTITY_TYPE_COUNTRIES) {
+          setCountries(countries);
+        }
+
+        if (view === ENTITY_TYPE_CITIES || view === ENTITY_TYPE_ATTRACTIONS) {
+          const extractedMarkers = result[view].map((item: any) => ({
+            lat: item.lat,
+            lng: item.lng,
+            popupText: item.name,
+          }));
+          setMarkers(extractedMarkers);
+        } else {
+          setMarkers([]);
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error(`Failed to fetch ${view}:`, error);
+        setMessage(`Failed to fetch ${view}.`);
+        setLoading(false);
       }
-
-      const response = await fetch(url);
-      const result = await response.json();
-
-      setHasPageProperty(!!(result && result.page));
-      setData(result[view] || result);
-      setTotal(result.total || result.length);
-
-      if (view === ENTITY_TYPE_COUNTRIES) {
-        setCountries(countries);
-      }
-
-      if (view === ENTITY_TYPE_CITIES || view === ENTITY_TYPE_ATTRACTIONS) {
-        const extractedMarkers = result[view].map((item: any) => ({
-          lat: item.lat,
-          lng: item.lng,
-          popupText: item.name,
-        }));
-        setMarkers(extractedMarkers);
-      } else {
-        setMarkers([]);
-      }
-      setLoading(false);
-    } catch (error) {
-      console.error(`Failed to fetch ${view}:`, error);
-      setMessage(`Failed to fetch ${view}.`);
-      setLoading(false);
-    }
-  };
+    },
+    [countries]
+  );
 
   const fetchCountries = async () => {
     try {
@@ -164,14 +152,14 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const updateURL = () => {
+  const updateURL = useCallback(() => {
     const params = new URLSearchParams(
       searchParams ? searchParams.toString() : ''
     );
     params.set('view', mapType);
     params.set('page', page.toString());
     router.push(`?${params.toString()}`, { scroll: false });
-  };
+  }, [mapType, page, router, searchParams]);
 
   const columns = useMemo(() => {
     return mapType === ENTITY_TYPE_CITIES
@@ -249,6 +237,21 @@ const HomePage: React.FC = () => {
 
   const totalPages = Math.ceil(total / limit);
 
+  useEffect(() => {
+    if (
+      (mapType === ENTITY_TYPE_CITIES || mapType === ENTITY_TYPE_ATTRACTIONS) &&
+      countries.length === 0
+    ) {
+      fetchCountries();
+    }
+
+    fetchData(mapType, page);
+    updateURL();
+    if (mapType === ENTITY_TYPE_COUNTRIES || mapType === ENTITY_TYPE_STATES) {
+      fetchFilteredGeoJsonData(mapType);
+    }
+  }, [countries.length, fetchData, mapType, page, updateURL]);
+
   return (
     <>
       <Navbar />
@@ -292,7 +295,7 @@ const HomePage: React.FC = () => {
         ) : (
           <div className={styles.content}>
             <h2 className={styles.title}>
-              {mapType.charAt(0).toUpperCase() + mapType.slice(1)} Data
+              {mapType.charAt(0).toUpperCase() + mapType.slice(1)}
             </h2>
             {(mapType === 'cities' || mapType === 'attractions') &&
               countries &&

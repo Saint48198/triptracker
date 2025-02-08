@@ -4,8 +4,9 @@
 .main {
   .button-group {
     display: flex;
+    padding-left: 1rem;
     gap: 1rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 
     .button {
       padding: 0.5rem 1rem;
