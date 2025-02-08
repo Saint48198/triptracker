@@ -14,7 +14,6 @@ const DataTable: React.FC<DataTableProps> = ({
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const handleSort = (columnKey: string) => {
-    console.log('Sorting by:', columnKey);
     let newSortOrder: 'asc' | 'desc' = 'asc';
     if (sortBy === columnKey) {
       newSortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
@@ -24,7 +23,6 @@ const DataTable: React.FC<DataTableProps> = ({
       sortBy === columnKey ? (prev === 'asc' ? 'desc' : 'asc') : 'asc'
     );
 
-    console.log('New sortBy:', columnKey);
     if (onSort) {
       onSort(columnKey, newSortOrder);
     }
@@ -57,7 +55,6 @@ const DataTable: React.FC<DataTableProps> = ({
               {column.label}
               {column.sortable && (
                 <span className={styles.sortIcon}>
-                  sortby:{sortBy} col:{column.key} order:{sortOrder}
                   {sortBy === column.key
                     ? sortOrder === 'asc'
                       ? '⬆️'

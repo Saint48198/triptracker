@@ -7,6 +7,7 @@ import Button from '@/components/Button/Button';
 import { FaSpinner } from 'react-icons/fa';
 import Modal from '@/components/Modal/Modal';
 import Link from 'next/link';
+import { useModal } from '@/components/Modal/ModalContext';
 
 const Collection: React.FC<CollectionProps> = ({
   images,
@@ -17,8 +18,8 @@ const Collection: React.FC<CollectionProps> = ({
   removingPhotos = false,
 }) => {
   const [photos, setPhotos] = useState<Photo[]>(images);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPhotos, setSelectedPhotos] = useState<Photo[]>([]);
+  const { closeModal } = useModal();
 
   useEffect(() => {
     setPhotos(images);
@@ -35,12 +36,10 @@ const Collection: React.FC<CollectionProps> = ({
   const handleRemoveSelected = () => {
     const selected = photos.filter((img: Photo) => img.added);
     setSelectedPhotos(selected);
-    setIsModalOpen(true);
   };
 
   const confirmRemoveSelected = () => {
     onRemoveSelected(selectedPhotos);
-    setIsModalOpen(false);
   };
 
   const selectedCount = photos.filter((img: Photo) => img.added).length;
@@ -78,32 +77,29 @@ const Collection: React.FC<CollectionProps> = ({
         </p>
       )}
 
-      {isModalOpen && (
-        <Modal onClose={() => setIsModalOpen(false)}>
-          <h2>Confirm Removal</h2>
-          <p>Are you sure you want to remove the selected photos?</p>
-          <div className={styles.modalActions}>
-            <Button
-              styleType={'secondary'}
-              buttonType="button"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              buttonType="button"
-              onClick={confirmRemoveSelected}
-              isDisabled={removingPhotos}
-            >
-              {removingPhotos ? (
-                <FaSpinner className="animate-spin mr-2" />
-              ) : (
-                'Remove'
-              )}
-            </Button>
-          </div>
-        </Modal>
-      )}
+      <Modal title={'Confirm Removal'}>
+        <p>Are you sure you want to remove the selected photos?</p>
+        <div className={styles.modalActions}>
+          <Button
+            styleType={'secondary'}
+            buttonType="button"
+            onClick={closeModal}
+          >
+            Cancel
+          </Button>
+          <Button
+            buttonType="button"
+            onClick={confirmRemoveSelected}
+            isDisabled={removingPhotos}
+          >
+            {removingPhotos ? (
+              <FaSpinner className="animate-spin mr-2" />
+            ) : (
+              'Remove'
+            )}
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 };

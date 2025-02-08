@@ -2,7 +2,11 @@
 
 import DataPage from '@/components/AdminData/AdminDataPage';
 import Button from '@/components/Button/Button';
-import { ENTITY_TYPE_ATTRACTIONS, ENTITY_TYPE_ATTRACTION } from '@/constants';
+import {
+  ENTITY_TYPE_ATTRACTIONS,
+  ENTITY_TYPE_ATTRACTION,
+  ENTITY_TYPE_COUNTRIES,
+} from '@/constants';
 import styles from './AttractionsPage.module.scss';
 import Link from 'next/link';
 
@@ -22,7 +26,8 @@ export default function AttractionsPage() {
       }}
       fetchFiltersAction={async () => {
         const response = await fetch('/api/countries?all=true');
-        return await response.json();
+        const data = await response.json();
+        return data[ENTITY_TYPE_COUNTRIES];
       }}
       columns={[
         { key: 'name', label: 'City Name' },

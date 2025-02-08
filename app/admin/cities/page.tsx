@@ -2,7 +2,11 @@
 
 import DataPage from '@/components/AdminData/AdminDataPage';
 import Button from '@/components/Button/Button';
-import { ENTITY_TYPE_CITIES, ENTITY_TYPE_CITY } from '@/constants';
+import {
+  ENTITY_TYPE_CITIES,
+  ENTITY_TYPE_CITY,
+  ENTITY_TYPE_COUNTRIES,
+} from '@/constants';
 import styles from './CitiesPage.module.scss';
 import Link from 'next/link';
 
@@ -15,12 +19,15 @@ export default function CitiesPage() {
       fetchDataAction={async (query: string) => {
         const response = await fetch(`/api/${ENTITY_TYPE_CITIES}?${query}`);
         const data = await response.json();
+        console.log(data);
 
         return { entries: data[ENTITY_TYPE_CITIES], total: data.total };
       }}
       fetchFiltersAction={async () => {
-        const response = await fetch('/api/countries');
-        return await response.json();
+        const response = await fetch(`/api/countries?all=true`);
+        const data = await response.json();
+        console.log(data);
+        return data[ENTITY_TYPE_COUNTRIES];
       }}
       columns={[
         { key: 'name', label: 'City Name' },

@@ -127,7 +127,7 @@ export default function DataPage({
         <h1 className={styles.title}>{title}</h1>
         {message && <Message message={message} type={messageType} />}
         <div className={styles.flexBetween}>
-          {filterLabel && filterKey && (
+          {filters && filters.length > 0 && filterLabel && filterKey && (
             <FormSelect
               label={filterLabel}
               id={filterKey}

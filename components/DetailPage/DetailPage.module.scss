@@ -1,0 +1,58 @@
+// app/cities/[id]/CityPage.module.scss
+@import "@/styles/variables";
+
+.detailPage {
+  .container {
+    max-width: 7xl;
+    margin: 0 auto;
+    padding: 0 1rem;
+
+    @media (min-width: 640px) {
+      padding: 0 1.5rem;
+    }
+
+    @media (min-width: 1024px) {
+      padding: 0 2rem;
+    }
+  }
+
+  .title {
+    font-size: 2rem;
+    font-weight: bold;
+    padding: 0;
+    line-height: 1;
+    margin-top: 1rem;
+  }
+
+  .subtitle {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: $color-gray-500;
+  }
+
+  .wikiInfo {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-top: 1rem;
+  }
+
+  .wikiLink {
+    color: $color-blue-500;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .photos {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-top: 1rem;
+  }
+
+  .notFound {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+}
