@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './UserMenu.module.scss';
 import { User } from 'next-auth';
@@ -14,7 +14,8 @@ interface UserMenuProps {
 
 export default function UserMenu({ user }: UserMenuProps) {
   const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false); // ✅ Control dropdown visibility
+  const [isOpen, setIsOpen] = useState(false); // Control dropdown visibility
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = async () => {
     try {
@@ -36,45 +37,63 @@ export default function UserMenu({ user }: UserMenuProps) {
     }
   };
 
-  return (
-    <div className={styles.menu}>
-      {user ? (
-        <>
-          {/* ✅ Toggle dropdown manually */}
-          <button
-            className={styles.menuButton}
-            aria-expanded={isOpen}
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            <Image
-              src="/img/icon-mountain.webp"
-              alt={user.name || 'User'}
-              className={styles.avatar}
-              width={18}
-              height={18}
-            />
-          </button>
+  const handleClickOutside = (event: MouseEvent) => {
+    if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      setIsOpen(false);
+    }
+  };
 
-          {/* ✅ Dropdown opens based on state */}
-          {isOpen && (
-            <div className={styles.menuDropdown}>
-              <Link className={styles.menuItem} href={'/admin'}>
-                Admin
-              </Link>
-              <Button className={styles.menuItem} onClick={handleLogout}>
-                Logout
-              </Button>
-            </div>
-          )}
-        </>
-      ) : (
-        <Button
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  return (
+    <div className={styles.menu} ref={menuRef}>
+      <>
+        {/* Toggle dropdown manually */}
+        <button
           className={styles.menuButton}
-          onClick={() => router.push('/login')}
+          aria-expanded={isOpen}
+          onClick={() => setIsOpen(!isOpen)}
         >
-          Login
-        </Button>
-      )}
+          <Image
+            src="/img/icon-mountain.webp"
+            alt={user?.name || 'User'}
+            className={styles.avatar}
+            width={18}
+            height={18}
+          />
+        </button>
+
+        {/* Dropdown opens based on state */}
+        {isOpen && (
+          <div className={styles.menuDropdown}>
+            <Link className={styles.menuItem} href={'/about'}>
+              About
+            </Link>
+            {user ? (
+              <>
+                <Link className={styles.menuItem} href={'/admin'}>
+                  Admin
+                </Link>
+                <Button className={styles.menuItem} onClick={handleLogout}>
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <Button
+                className={styles.menuItem}
+                onClick={() => router.push('/login')}
+              >
+                Login
+              </Button>
+            )}
+          </div>
+        )}
+      </>
     </div>
   );
 }
