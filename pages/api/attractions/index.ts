@@ -40,7 +40,13 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import db from '../../../database/db';
 import { handleApiError } from '@/utils/errorHandler';
 
-const validColumns = ['name', 'lat', 'lng', 'wiki_term', 'country_name'];
+const validColumns = [
+  'attractions.name',
+  'lat',
+  'lng',
+  'wiki_term',
+  'country_name',
+];
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
@@ -53,14 +59,22 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     } = req.query;
 
     const offset = (Number(page) - 1) * Number(limit);
-    const sortByStr = Array.isArray(sortBy) ? sortBy[0] : sortBy;
-    const sortOrderStr = Array.isArray(sortOrder) ? sortOrder[0] : sortOrder;
+    let sortByStr = Array.isArray(sortBy)
+      ? sortBy[0]
+      : sortBy || 'attractions.name';
+    const sortOrderStr = Array.isArray(sortOrder)
+      ? sortOrder[0]
+      : sortOrder || 'asc';
 
-    if (!validColumns.includes(sortByStr)) {
+    if (sortByStr === 'name') {
+      sortByStr = 'attractions.name';
+    }
+
+    if (sortOrderStr && !validColumns.includes(sortByStr)) {
       return handleApiError(null, res, 'Invalid sort column.', 400);
     }
 
-    if (!['asc', 'desc'].includes(sortOrderStr)) {
+    if (sortOrderStr && !['asc', 'desc'].includes(sortOrderStr)) {
       return handleApiError(null, res, 'Invalid sort order.', 400);
     }
 

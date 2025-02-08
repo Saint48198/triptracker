@@ -53,14 +53,16 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       sortOrder = 'asc',
     } = req.query;
 
-    const sortByStr = Array.isArray(sortBy) ? sortBy[0] : sortBy;
-    const sortOrderStr = Array.isArray(sortOrder) ? sortOrder[0] : sortOrder;
+    const sortByStr = Array.isArray(sortBy) ? sortBy[0] : sortBy || 'name';
+    const sortOrderStr = Array.isArray(sortOrder)
+      ? sortOrder[0]
+      : sortOrder || 'asc';
 
-    if (!validColumns.includes(sortBy as string)) {
+    if (sortBy && !validColumns.includes(sortBy as string)) {
       return handleApiError(null, res, 'Invalid sort column.', 400);
     }
 
-    if (!['asc', 'desc'].includes(sortOrder as string)) {
+    if (sortOrder && !['asc', 'desc'].includes(sortOrder as string)) {
       return handleApiError(null, res, 'Invalid sort order.', 400);
     }
 

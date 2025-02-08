@@ -64,7 +64,7 @@ const HomePage: React.FC = () => {
       setCenter([37.09024, -95.712891]);
     } else {
       setZoom(3);
-      setCenter([20, 0]);
+      setCenter([18, 0]);
     }
   }, [mapType]);
 
@@ -209,7 +209,7 @@ const HomePage: React.FC = () => {
       }
     } else {
       // Reset to the default map view
-      setCenter([20, 0]);
+      setCenter([18, 0]);
       setZoom(3);
     }
 

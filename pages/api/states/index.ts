@@ -37,7 +37,7 @@ import db from '../../../database/db';
 import { handleApiError } from '@/utils/errorHandler';
 
 const validColumns = [
-  'name',
+  'states.name',
   'abbr',
   'country_id',
   'last_visited',
@@ -54,14 +54,20 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       sortOrder = 'asc',
     } = req.query;
 
-    const sortByStr = Array.isArray(sortBy) ? sortBy[0] : sortBy;
-    const sortOrderStr = Array.isArray(sortOrder) ? sortOrder[0] : sortOrder;
+    let sortByStr = Array.isArray(sortBy) ? sortBy[0] : sortBy || 'states.name';
+    const sortOrderStr = Array.isArray(sortOrder)
+      ? sortOrder[0]
+      : sortOrder || 'asc';
 
-    if (!validColumns.includes(sortByStr)) {
+    if (sortByStr === 'name') {
+      sortByStr = 'states.name';
+    }
+
+    if (sortByStr && !validColumns.includes(sortByStr)) {
       return handleApiError(null, res, 'Invalid sort column.', 400);
     }
 
-    if (!['asc', 'desc'].includes(sortOrderStr)) {
+    if (sortOrderStr && !['asc', 'desc'].includes(sortOrderStr)) {
       return handleApiError(null, res, 'Invalid sort order.', 400);
     }
 
