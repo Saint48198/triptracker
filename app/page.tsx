@@ -94,7 +94,7 @@ const HomePage: React.FC = () => {
 
       const response = await fetch(url);
       const result = await response.json();
-      console.log(`Fetched ${view} data:`, result);
+
       setHasPageProperty(!!(result && result.page));
       setData(result[view] || result);
       setTotal(result.total || result.length);
