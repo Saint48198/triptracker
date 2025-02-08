@@ -238,7 +238,7 @@ export default function PhotoManager({
   };
 
   return (
-    <div>
+    <div className={styles.photoManager}>
       <h2>Photos</h2>
       <Collection
         images={photos}

@@ -1,3 +1,13 @@
-.adminDetailFormContainer {
+.form {
+  padding: 0 1rem 1.75rem;
 
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 1.25rem 0 0.25em;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
 }

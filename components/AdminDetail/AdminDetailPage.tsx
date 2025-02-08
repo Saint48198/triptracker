@@ -17,6 +17,7 @@ import {
   ENTITY_TYPE_CITIES,
   ENTITY_TYPE_CITY,
 } from '@/constants';
+import styles from './AdminDetailPage.module.scss';
 
 export default function AdminDetailPage({
   entity,
@@ -138,7 +139,9 @@ export default function AdminDetailPage({
           <AdminLocalNav currentSection={entity} />
         </aside>
         <div>
-          <h1>{entityId ? `Edit ${entity}` : `Add ${entity}`}</h1>
+          <h1 className={styles.pageTitle}>
+            {entityId ? `Edit ${entity}` : `Add ${entity}`}
+          </h1>
           {message && <Message message={message} type={messageType} />}
           <>
             {loading ? (
@@ -172,7 +175,7 @@ export default function AdminDetailPage({
                 {entityId && (
                   <PhotoManager entityId={entityId} entityType={entities} />
                 )}
-                <div>
+                <div className={styles.formActions}>
                   <Button buttonType="submit" isDisabled={loading}>
                     {entityId ? 'Update' : 'Add'} {entity}
                   </Button>
