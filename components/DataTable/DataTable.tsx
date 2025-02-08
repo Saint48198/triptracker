@@ -38,7 +38,7 @@ const DataTable: React.FC<DataTableProps> = ({
   return (
     <table className={styles.dataTable}>
       <thead className={styles.dataTableHeader}>
-        <tr className="bg-gray-100">
+        <tr>
           {columns.map((column: Column) => (
             <th
               key={column.key}
