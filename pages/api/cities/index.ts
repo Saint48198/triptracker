@@ -7,24 +7,61 @@
  * - GET: Fetch a list of cities with optional filtering, sorting, and pagination.
  * - POST: Add a new city to the database.
  *
+ * Query Parameters for GET:
+ * - `country_id`: Filter cities by country ID.
+ * - `page`: The page number for pagination (default: 1).
+ * - `limit`: The number of items per page (default: 25).
+ * - `sortBy`: The column to sort by (default: 'name').
+ * - `sort`: The order of sorting, either 'asc' or 'desc' (default: 'asc').
+ *
+ * Request Body for POST:
+ * - `name`: The name of the city (required).
+ * - `lat`: The latitude of the city (required).
+ * - `lng`: The longitude of the city (required).
+ * - `state_id`: The state ID of the city.
+ * - `country_id`: The country ID of the city (required).
+ * - `last_visited`: The last visited date for the city.
+ * - `wiki_term`: The Wikipedia term for the city.
+ *
  * Database:
  * - Uses SQLite database to store city information.
  * - Joins with countries and states tables to fetch related data.
  *
- * Error Handling:
- * - Returns appropriate HTTP status codes and error messages for different failure scenarios.
- *
+ * Responses:
+ * - 200: Successful GET request with the list of cities.
+ * - 201: Successful POST request with a confirmation message.
+ * - 400: Bad request due to invalid parameters or missing required fields.
+ * - 405: Method not allowed for unsupported HTTP methods.
+ * - 500: Internal server error for any other failures.
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
 import db from '@/database/db';
 import { handleApiError } from '@/utils/errorHandler';
 
+const validColumns = ['name', 'lat', 'lng', 'country_name', 'state_name'];
+
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
-    const { country_id, page = 1, limit = 25, sortBy, sort } = req.query;
+    const {
+      country_id,
+      page = 1,
+      limit = 25,
+      sortBy = 'name',
+      sort = 'asc',
+    } = req.query;
     const offset = (Number(page) - 1) * Number(limit);
-    const order = sort === 'desc' ? 'DESC' : 'ASC';
+
+    const sortByStr = Array.isArray(sortBy) ? sortBy[0] : sortBy;
+    const sortOrderStr = Array.isArray(sort) ? sort[0] : sort;
+
+    if (!validColumns.includes(sortByStr)) {
+      return handleApiError(null, res, 'Invalid sort column.', 400);
+    }
+
+    if (!['asc', 'desc'].includes(sortOrderStr as string)) {
+      return handleApiError(null, res, 'Invalid sort order.', 400);
+    }
 
     // Fetch all cities with their associated country and state
     try {
@@ -45,9 +82,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       }
 
       // Optional Sorting
-      if (sortBy && sort) {
-        query += ` ORDER BY ${sortBy === 'country' ? 'countries.name' : 'cities.name'} ${order}`;
-      }
+      query += ` ORDER BY ${sortByStr} ${sortOrderStr.toUpperCase()}`;
 
       // Add LIMIT and OFFSET for pagination
       query += ` LIMIT ? OFFSET ?`;
