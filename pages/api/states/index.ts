@@ -32,7 +32,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
              LIMIT ? OFFSET ?`
           )
           .all(Number(limit), offset);
-        res.status(200).json({ total, states });
+        res.status(200).json({ total, states, page, limit });
       }
     } catch (error) {
       console.error(error);

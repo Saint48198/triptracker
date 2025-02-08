@@ -20,7 +20,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         const countries = db
           .prepare('SELECT * FROM countries ORDER BY name ASC LIMIT ? OFFSET ?')
           .all(Number(limit), offset);
-        res.status(200).json({ total, countries });
+        res.status(200).json({ total, countries, page, limit });
       }
     } catch (error) {
       console.error(error);

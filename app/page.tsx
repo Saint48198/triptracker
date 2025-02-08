@@ -94,6 +94,7 @@ const HomePage: React.FC = () => {
 
       const response = await fetch(url);
       const result = await response.json();
+      console.log(`Fetched ${view} data:`, result);
       setHasPageProperty(!!(result && result.page));
       setData(result[view] || result);
       setTotal(result.total || result.length);
@@ -133,7 +134,7 @@ const HomePage: React.FC = () => {
 
   const fetchFilteredGeoJsonData = async (type: string) => {
     try {
-      const response = await fetch(`/api/${type}`);
+      const response = await fetch(`/api/${type}?all=true`);
       const placesData = await response.json();
       const places = placesData[type];
 
