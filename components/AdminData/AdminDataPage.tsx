@@ -101,14 +101,14 @@ export default function DataPage({
       console.error(error);
     } finally {
       setIsDeleting(false);
-      closeModal(); // ✅ Close modal after action
+      closeModal('confirm-action'); // ✅ Close modal after action
       setSelectedItemId(null);
     }
   };
 
   const confirmDelete = async (id: string) => {
     setSelectedItemId(id);
-    openModal();
+    openModal('confirm-action');
   };
 
   const fetchData = useCallback(async () => {

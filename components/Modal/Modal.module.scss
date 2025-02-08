@@ -31,7 +31,7 @@
   max-width: 90%;
   text-align: center;
   transition: transform $transition-duration ease-out, opacity $transition-duration ease-out;
-
+  position: relative;
 }
 
 // Modal Title

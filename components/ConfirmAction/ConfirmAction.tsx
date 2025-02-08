@@ -24,14 +24,14 @@ const ConfirmAction: React.FC<ConfirmActionProps> = ({
     setError('');
     try {
       await onConfirm();
-      closeModal();
+      closeModal('confirm-action');
     } catch (error) {
       setError('Failed to perform action');
     }
   };
 
   return (
-    <Modal title={'Confirm Action'}>
+    <Modal title={'Confirm Action'} id={'confirm-action'}>
       <div className={styles.confirmActionContainer}>
         {error && <Message type="error" message={error} />}
 
@@ -49,7 +49,7 @@ const ConfirmAction: React.FC<ConfirmActionProps> = ({
           </Button>
 
           <Button
-            onClick={closeModal}
+            onClick={() => closeModal('confirm-action')}
             buttonType="button"
             isDisabled={isLoading}
             styleType="secondary"

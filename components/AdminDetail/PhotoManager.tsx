@@ -10,6 +10,7 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import styles from './PhotoManager.module.scss';
 import { ENTITY_TYPE_ATTRACTIONS, ENTITY_TYPE_CITIES } from '@/constants';
+import { useModal } from '@/components/Modal/ModalContext';
 
 interface PhotoManagerProps {
   entityId: string;
@@ -21,7 +22,6 @@ export default function PhotoManager({
   entityType,
 }: PhotoManagerProps) {
   const [photos, setPhotos] = useState<Photo[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchResults, setSearchResults] = useState<Photo[]>([]);
   const [selectedSearchPhotos, setSelectedSearchPhotos] = useState<string[]>(
     []
@@ -32,6 +32,7 @@ export default function PhotoManager({
   const searchSubject = useMemo(() => new Subject<string>(), []);
   const [nextCursor, setNextCursor] = useState(null);
   const [query, setQuery] = useState('');
+  const { isOpen, openModal, closeModal } = useModal();
 
   // Ensure API calls happen only when user is actively typing
   useEffect(() => {
@@ -182,7 +183,6 @@ export default function PhotoManager({
 
       if (response.ok) {
         setPhotos((prevPhotos) => [...prevPhotos, ...newPhotos]);
-        setIsModalOpen(false);
         setSearchResults([]);
         setSelectedSearchPhotos([]);
       } else {
@@ -245,66 +245,60 @@ export default function PhotoManager({
         onImageClick={(photoId) => handleSelectPhoto(photoId)}
         onRemoveSelected={handleRemoveSelected}
         removingPhotos={removingPhotos}
-        onStartPhotoSearch={() => setIsModalOpen(true)}
+        onStartPhotoSearch={() => {
+          openModal('photo-search-modal');
+          setSearchResults([]);
+        }}
         onClearSelection={handleClearSelection}
       />
 
       {/* Modal for searching & adding photos */}
-      {isModalOpen && (
-        <Modal
-          onClose={() => {
-            setIsModalOpen(false);
-            setSearchResults([]);
-            setSelectedSearchPhotos([]);
-          }}
-        >
-          <div className={styles.modalContent}>
-            <div className={styles.modelHeader}>
-              <h2>Search & Add Photos</h2>
-              <SearchBar
-                onSearch={handleSearchPhotos}
-                fetchSuggestions={fetchSuggestions}
-              />
-            </div>
-            <div className={styles.photoSearchResultsModal}>
-              <ImageGrid
-                images={searchResults}
-                onImageClick={handleSelectPhoto}
-              />
-            </div>
-            {searchResults.length > 0 && (
-              <div className={styles.modalActions}>
-                {nextCursor && searchResults.length > 0 && (
-                  <button
-                    type={'button'}
-                    onClick={() => handleSearchPhotos(query, nextCursor)}
-                  >
-                    Load More
-                  </button>
-                )}
-                <Button
-                  buttonType="button"
-                  onClick={() => setIsModalOpen(false)}
-                  styleType={'secondary'}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  buttonType="button"
-                  onClick={handleAddPhotos}
-                  isDisabled={selectedSearchPhotos.length === 0 || addingPhotos}
-                >
-                  {addingPhotos ? (
-                    <FaSpinner className="animate-spin mr-2" />
-                  ) : (
-                    `Add ${selectedSearchPhotos.length} Photos`
-                  )}
-                </Button>
-              </div>
-            )}
+      <Modal title={'Search & Add Photos'} id={'photo-search-modal'}>
+        <div className={styles.modalContent}>
+          <div className={styles.modelHeader}>
+            <SearchBar
+              onSearch={handleSearchPhotos}
+              fetchSuggestions={fetchSuggestions}
+            />
           </div>
-        </Modal>
-      )}
+          <div className={styles.photoSearchResultsModal}>
+            <ImageGrid
+              images={searchResults}
+              onImageClick={handleSelectPhoto}
+            />
+          </div>
+          {searchResults.length > 0 && (
+            <div className={styles.modalActions}>
+              {nextCursor && searchResults.length > 0 && (
+                <button
+                  type={'button'}
+                  onClick={() => handleSearchPhotos(query, nextCursor)}
+                >
+                  Load More
+                </button>
+              )}
+              <Button
+                buttonType="button"
+                onClick={() => closeModal('photo-search-modal')}
+                styleType={'secondary'}
+              >
+                Cancel
+              </Button>
+              <Button
+                buttonType="button"
+                onClick={handleAddPhotos}
+                isDisabled={selectedSearchPhotos.length === 0 || addingPhotos}
+              >
+                {addingPhotos ? (
+                  <FaSpinner className="animate-spin mr-2" />
+                ) : (
+                  `Add ${selectedSearchPhotos.length} Photos`
+                )}
+              </Button>
+            </div>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 }

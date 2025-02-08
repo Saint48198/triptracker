@@ -77,13 +77,13 @@ const Collection: React.FC<CollectionProps> = ({
         </p>
       )}
 
-      <Modal title={'Confirm Removal'}>
+      <Modal title={'Confirm Removal'} id={'confirm-remove'}>
         <p>Are you sure you want to remove the selected photos?</p>
         <div className={styles.modalActions}>
           <Button
             styleType={'secondary'}
             buttonType="button"
-            onClick={closeModal}
+            onClick={() => closeModal('confirm-remove')}
           >
             Cancel
           </Button>
