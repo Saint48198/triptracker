@@ -69,11 +69,17 @@ const HomePage: React.FC = () => {
   }, [mapType]);
 
   const fetchData = useCallback(
-    async (view: string, page: number, country?: string) => {
+    async (
+      view: string,
+      page: number,
+      country?: string,
+      sortBy = 'name',
+      sortOrder = 'asc'
+    ) => {
       setLoading(true);
 
       try {
-        let url = page ? `/api/${view}?page=${page}` : `/api/${view}`;
+        let url = `/api/${view}?page=${page}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
         if (country) {
           url += `&country_id=${country}`;
         }
@@ -313,9 +319,7 @@ const HomePage: React.FC = () => {
               columns={columns}
               data={data}
               onSort={(sortBy, sortOrder) => {
-                console.log(
-                  `Sorting ${mapType} by ${sortBy} in ${sortOrder} order`
-                );
+                fetchData(mapType, page, selectedCountry, sortBy, sortOrder);
               }}
               onRowClick={
                 mapType === ENTITY_TYPE_CITIES ||

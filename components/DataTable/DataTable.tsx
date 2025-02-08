@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DataTableProps, Column } from './DataTable.types';
 import styles from './DataTable.module.scss';
 import Link from 'next/link';
@@ -14,14 +14,19 @@ const DataTable: React.FC<DataTableProps> = ({
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const handleSort = (columnKey: string) => {
+    console.log('Sorting by:', columnKey);
+    let newSortOrder: 'asc' | 'desc' = 'asc';
     if (sortBy === columnKey) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(columnKey);
-      setSortOrder('asc');
+      newSortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
     }
+    setSortBy((prev) => (prev === columnKey ? columnKey : columnKey)); // Ensure re-render
+    setSortOrder((prev) =>
+      sortBy === columnKey ? (prev === 'asc' ? 'desc' : 'asc') : 'asc'
+    );
+
+    console.log('New sortBy:', columnKey);
     if (onSort) {
-      onSort(columnKey, sortOrder === 'asc' ? 'desc' : 'asc');
+      onSort(columnKey, newSortOrder);
     }
   };
 
@@ -35,6 +40,10 @@ const DataTable: React.FC<DataTableProps> = ({
     }
   };
 
+  useEffect(() => {
+    console.log('SortBy changed:', sortBy);
+  }, [sortBy]);
+
   return (
     <table className={styles.dataTable}>
       <thead className={styles.dataTableHeader}>
@@ -42,13 +51,20 @@ const DataTable: React.FC<DataTableProps> = ({
           {columns.map((column: Column) => (
             <th
               key={column.key}
-              className={`${styles.dataTableHeaderCell} ${column.sortable ? 'sortable' : ''}`}
+              className={`${styles.dataTableHeaderCell} ${column.sortable ? styles.sortable : ''}`}
               onClick={() => column.sortable && handleSort(column.key)}
             >
-              {column.label}{' '}
-              {column.sortable &&
-                sortBy === column.key &&
-                (sortOrder === 'asc' ? '⬆️' : '⬇️')}
+              {column.label}
+              {column.sortable && (
+                <span className={styles.sortIcon}>
+                  sortby:{sortBy} col:{column.key} order:{sortOrder}
+                  {sortBy === column.key
+                    ? sortOrder === 'asc'
+                      ? '⬆️'
+                      : '⬇️'
+                    : ''}
+                </span>
+              )}
             </th>
           ))}
           {actions && <th className={styles.dataTableHeaderCell}>Actions</th>}
