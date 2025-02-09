@@ -93,11 +93,11 @@ export default function AdminDetailPage({
     await fetchCountries();
     await fetchEntity();
 
-    // load states if country is US or Canada
-    if ((countryId === '1' || countryId === '2') && entity === ENTITY_TYPE_CITY)
+    // load states if country has a state selected or form is for a new city
+    if ((stateId || !entityId) && entity === ENTITY_TYPE_CITY)
       await fetchStates();
     setLoading(false);
-  }, [fetchCountries, fetchEntity, countryId, entity, fetchStates]);
+  }, [fetchCountries, fetchEntity, stateId, entityId, entity, fetchStates]);
 
   useEffect(() => {
     fetchData();
