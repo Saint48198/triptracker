@@ -6,6 +6,11 @@
 body {
   font-family: $font-sans;
   background-color: $color-gray-100;
+  height: 100%;
+}
+
+main {
+  flex: 1;
 }
 
 h1 {

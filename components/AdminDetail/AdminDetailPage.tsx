@@ -34,6 +34,7 @@ export default function AdminDetailPage({
   const [stateId, setStateId] = useState('');
   const [states, setStates] = useState([]);
   const [countryId, setCountryId] = useState('');
+  const [countryName, setCountryName] = useState('');
   const [countries, setCountries] = useState([]);
   const [lat, setLat] = useState('');
   const [lng, setLng] = useState('');
@@ -75,6 +76,7 @@ export default function AdminDetailPage({
         setName(data.name);
         setLat(data.lat?.toString() || '');
         setLng(data.lng?.toString() || '');
+        setCountryName(data.country_name || '');
         setCountryId(data.country_id.toString());
         setStateId(data.state_id?.toString() || '');
         setLastVisited(data.last_visited || '');
@@ -89,7 +91,12 @@ export default function AdminDetailPage({
     setLoading(true);
     await fetchCountries();
     await fetchEntity();
-    if (entity === ENTITY_TYPE_CITY) await fetchStates();
+    console.log(countryName);
+    if (
+      (countryName === 'United States' || countryName === 'Canada') &&
+      entity === ENTITY_TYPE_CITY
+    )
+      await fetchStates();
     setLoading(false);
   }, [fetchCountries, fetchEntity]);
 

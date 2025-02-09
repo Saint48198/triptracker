@@ -77,7 +77,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
       // Base query
       let query = `
-          SELECT cities.id, cities.name, cities.lat, cities.lng, countries.name AS country_name, states.name AS state_name
+          SELECT cities.id, cities.name, cities.lat, cities.lng, cities.last_visited, countries.name AS country_name, states.name AS state_name
           FROM cities
           JOIN countries ON cities.country_id = countries.id
           LEFT JOIN states ON cities.state_id = states.id

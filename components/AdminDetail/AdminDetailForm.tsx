@@ -81,6 +81,7 @@ export default function AdminForm({
             label="Last Visited"
             id="lastVisited"
             value={lastVisited || ''}
+            type={'month'}
             onChange={(e) => setLastVisited!(e.target.value)}
           />
         )}
