@@ -73,6 +73,7 @@ export default function AdminDetailPage({
       const response = await fetch(`/api/${entities}/${entityId}`);
       const data = await response.json();
       if (response.ok) {
+        console.log(data);
         setName(data.name);
         setLat(data.lat?.toString() || '');
         setLng(data.lng?.toString() || '');
@@ -91,14 +92,12 @@ export default function AdminDetailPage({
     setLoading(true);
     await fetchCountries();
     await fetchEntity();
-    console.log(countryName);
-    if (
-      (countryName === 'United States' || countryName === 'Canada') &&
-      entity === ENTITY_TYPE_CITY
-    )
+
+    // load states if country is US or Canada
+    if ((countryId === '1' || countryId === '2') && entity === ENTITY_TYPE_CITY)
       await fetchStates();
     setLoading(false);
-  }, [fetchCountries, fetchEntity]);
+  }, [fetchCountries, fetchEntity, countryId, entity, fetchStates]);
 
   useEffect(() => {
     fetchData();
@@ -117,6 +116,7 @@ export default function AdminDetailPage({
         body: JSON.stringify({
           name,
           country_id: countryId,
+          state_id: stateId,
           lat,
           lng,
           last_visited: lastVisited,
