@@ -10,6 +10,25 @@ import styles from './UploadForm.module.scss';
 import FormCheckbox from '@/components/FormCheckbox/FormCheckbox';
 import ExifReader from 'exifreader';
 
+type GPSData = {
+  GPSLatitude: {
+    description: string;
+    value: [number[], number[], number[]];
+  };
+  GPSLatitudeRef: {
+    description: string;
+    value: ['N'] | ['S'];
+  };
+  GPSLongitude: {
+    description: string;
+    value: [number[], number[], number[]];
+  };
+  GPSLongitudeRef: {
+    description: string;
+    value: ['E'] | ['W'];
+  };
+};
+
 export default function UploadForm() {
   const [files, setFiles] = useState<File[] | null>(null);
   const [visibility, setVisibility] = useState<'public' | 'private'>('public');
@@ -64,6 +83,122 @@ export default function UploadForm() {
     }
   };
 
+  function getContinentFromCoords(
+    lat: number | undefined,
+    lon: number | undefined
+  ): string | string[] {
+    const regions = [
+      {
+        name: 'Africa',
+        latMin: -34.83333,
+        latMax: 37.33,
+        lonMin: -17.66,
+        lonMax: 51.66,
+      },
+      {
+        name: 'Europe',
+        latMin: 35.0,
+        latMax: 71.0,
+        lonMin: -25.0,
+        lonMax: 45.0,
+      },
+      {
+        name: 'Asia',
+        latMin: -10.0,
+        latMax: 81.0,
+        lonMin: 25.0,
+        lonMax: 180.0,
+      },
+      {
+        name: 'North America',
+        latMin: 7.0,
+        latMax: 83.0,
+        lonMin: -170.0,
+        lonMax: -52.0,
+      },
+      {
+        name: 'South America',
+        latMin: -56.0,
+        latMax: 13.0,
+        lonMin: -81.0,
+        lonMax: -34.0,
+      },
+      {
+        name: 'Central America',
+        latMin: 5.0,
+        latMax: 25.0,
+        lonMin: -95.0,
+        lonMax: -60.0,
+      },
+      {
+        name: 'Antarctica',
+        latMin: -90.0,
+        latMax: -60.0,
+        lonMin: -180.0,
+        lonMax: 180.0,
+      },
+      {
+        name: 'Middle East',
+        latMin: 12.0,
+        latMax: 42.0,
+        lonMin: 32.0,
+        lonMax: 65.0,
+      },
+      {
+        name: 'Southeast Asia',
+        latMin: -11.0,
+        latMax: 23.0,
+        lonMin: 90.0,
+        lonMax: 145.0,
+      },
+      {
+        name: 'Oceania',
+        latMin: -50.0,
+        latMax: 0.0,
+        lonMin: 110.0,
+        lonMax: 180.0,
+      },
+    ];
+    if (typeof lat !== 'undefined' && typeof lon !== 'undefined') {
+      for (const region of regions) {
+        if (
+          lat >= region.latMin &&
+          lat <= region.latMax &&
+          lon >= region.lonMin &&
+          lon <= region.lonMax
+        ) {
+          return region.name;
+        }
+      }
+    }
+
+    return regions.map((region) => region.name);
+  }
+
+  function parseGPS(data: GPSData): { lat: number; lon: number } {
+    // Extract degrees, minutes, seconds from fractional representation
+    const degLat = data.GPSLatitude.value[0][0] / data.GPSLatitude.value[0][1];
+    const minLat = data.GPSLatitude.value[1][0] / data.GPSLatitude.value[1][1];
+    const secLat = data.GPSLatitude.value[2][0] / data.GPSLatitude.value[2][1];
+
+    const degLon =
+      data.GPSLongitude.value[0][0] / data.GPSLongitude.value[0][1];
+    const minLon =
+      data.GPSLongitude.value[1][0] / data.GPSLongitude.value[1][1];
+    const secLon =
+      data.GPSLongitude.value[2][0] / data.GPSLongitude.value[2][1];
+
+    // Convert to decimal degrees
+    let lat = degLat + minLat / 60 + secLat / 3600;
+    let lon = degLon + minLon / 60 + secLon / 3600;
+
+    // Adjust hemisphere (N/S and E/W)
+    if (data.GPSLatitudeRef.value[0] === 'S') lat *= -1;
+    if (data.GPSLongitudeRef.value[0] === 'W') lon *= -1;
+
+    return { lat, lon };
+  }
+
   const extractMetadata = async (file: File) => {
     try {
       const arrayBuffer = await file.arrayBuffer();
@@ -87,18 +222,58 @@ export default function UploadForm() {
             )
           : [];
 
-      const baseKeywords = [
-        'Africa',
-        'Europe',
-        'Asia',
-        'North America',
-        'South America',
-        'Central America',
-        'Antarctica',
-        'Middle East',
-        'Southeast Asia',
-        'Oceania',
-      ];
+      const baseKeywords: string[] = [];
+      const gpsLatitude = tags['GPSLatitude']
+        ? parseFloat(tags['GPSLatitude'].description)
+        : '';
+      const gpsLongitude = tags['GPSLongitude']
+        ? parseFloat(tags['GPSLongitude'].description)
+        : '';
+
+      if (gpsLatitude && gpsLongitude) {
+        const { lat, lon } = parseGPS({
+          GPSLatitude: (tags['GPSLatitude'] as unknown as {
+            description: string;
+            value: [number[], number[], number[]];
+          }) ?? {
+            description: '',
+            value: [0, 0, 0],
+          },
+          GPSLatitudeRef: (tags['GPSLatitudeRef'] as unknown as {
+            description: string;
+            value: ['N'] | ['S'];
+          }) ?? {
+            description: '',
+            value: ['N'],
+          },
+          GPSLongitude: (tags['GPSLongitude'] as unknown as {
+            description: string;
+            value: [number[], number[], number[]];
+          }) ?? {
+            description: '',
+            value: [0, 0, 0],
+          },
+          GPSLongitudeRef: (tags['GPSLongitudeRef'] as unknown as {
+            description: string;
+            value: ['E'] | ['W'];
+          }) ?? {
+            description: '',
+            value: ['E'],
+          },
+        });
+        const region = getContinentFromCoords(lat, lon);
+        baseKeywords.push(...(Array.isArray(region) ? region : [region]));
+
+        if (!Array.isArray(region)) {
+          keywordsArray.push(region);
+        }
+      } else {
+        const regions = getContinentFromCoords(
+          undefined,
+          undefined
+        ) as string[];
+        baseKeywords.push(...regions);
+      }
 
       if (tags['Country'] && tags['Country'].description) {
         keywordsArray.push(tags['Country'].description);
