@@ -133,7 +133,7 @@ export default function DataPage({
               id={filterKey}
               options={filters.map((filter: FilterOption) => ({
                 value: filter.id.toString(),
-                label: filter.name,
+                label: filter.label,
               }))}
               value={filterValue}
               onChange={(e) => setFilterValue(e.target.value)}

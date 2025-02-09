@@ -235,12 +235,6 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const filterOptions: FilterOption[] = countries.map((country: Country) => ({
-    id: country.id.toString(),
-    label: country.name,
-    value: country.name,
-  }));
-
   const totalPages = Math.ceil(total / limit);
 
   useEffect(() => {
@@ -307,7 +301,11 @@ const HomePage: React.FC = () => {
               countries &&
               countries.length > 0 && (
                 <FilterBy
-                  options={filterOptions}
+                  options={countries.map((country: Country) => ({
+                    id: country.id.toString(),
+                    label: country.name,
+                    value: country.name,
+                  }))}
                   selectedFilters={selectedCountry ? [selectedCountry] : []}
                   onFilterChange={handleFilterChange}
                   includeSelectAll={true}

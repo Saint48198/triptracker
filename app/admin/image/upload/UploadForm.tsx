@@ -386,61 +386,72 @@ export default function UploadForm() {
           hideLabel={true}
           value={''}
           multiple
+          disabled={uploading}
         />
 
         {/* Display Image Previews */}
         <div className={styles.previewContainer}>
           {previewUrls.map((url, index) => (
-            <img key={index} src={url} alt={`Preview ${index}`} width={200} />
+            <div className={styles.mediaItem} key={index}>
+              <img src={url} alt={`Preview ${index}`} />
+            </div>
           ))}
         </div>
 
         <FormInput
-          label={'title'}
+          label={'Title'}
           id={'title'}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           hideLabel={false}
+          disabled={uploading}
         />
         <FormTextarea
-          label={'description'}
+          label={'Description'}
           id={'description'}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          disabled={uploading}
         />
 
         {/* Render checkboxes for each tag */}
         <div>
           <h2>Tags</h2>
-          <div>
+          <div className={styles.addTagContainer}>
             <FormInput
               label={'Add Tag'}
               id={'manualTag'}
               value={manualTag}
               onChange={(e) => setManualTag(e.target.value)}
+              hideLabel={true}
+              disabled={uploading}
             />
             <Button
               buttonType="button"
               styleType="secondary"
               onClick={handleAddManualTag}
+              isDisabled={uploading}
             >
               Add Tag
             </Button>
           </div>
-          {availableTags.map((tag, index) => (
-            <FormCheckbox
-              label={tag}
-              id={tag}
-              value={tag}
-              key={index}
-              checked={selectedTags.includes(tag)}
-              onChange={() => handleTagChange(tag)}
-            />
-          ))}
+          <div className={styles.tagsContainer}>
+            {availableTags.map((tag, index) => (
+              <FormCheckbox
+                label={tag}
+                id={tag}
+                value={tag}
+                key={index}
+                checked={selectedTags.includes(tag)}
+                onChange={() => handleTagChange(tag)}
+                disabled={uploading}
+              />
+            ))}
+          </div>
         </div>
 
         <FormSelect
-          label={'visibility'}
+          label={'Visibility'}
           id={'visibility'}
           options={[
             { value: 'private', label: 'Private' },
@@ -450,7 +461,7 @@ export default function UploadForm() {
             setVisibility(e.target.value as 'public' | 'private')
           }
         />
-        <div>
+        <div className={styles.uploadImageActions}>
           <Button
             buttonType="submit"
             styleType="primary"

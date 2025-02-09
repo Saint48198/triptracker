@@ -1,5 +1,62 @@
 .previewContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); // Adjust min/max width as needed
+  gap: 8px;
+  padding: 10px;
+}
+
+.mediaItem {
   display: flex;
-  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: #f7f7f7; // Placeholder bg
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.2s ease-in-out;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  // Aspect ratio handling (for dynamic images)
+  &.portrait {
+    grid-row: span 2;
+  }
+
+  &.landscape {
+    grid-column: span 2;
+  }
+
+  &.square {
+    grid-row: span 1;
+    grid-column: span 1;
+  }
+}
+
+.tagsContainer {
+  display: flex;
+  gap: 15px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.addTagContainer {
+  display: flex;
+  gap: 5px;
   margin-top: 10px;
+}
+
+.uploadImageActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
 }
