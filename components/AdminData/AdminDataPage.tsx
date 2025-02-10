@@ -14,7 +14,8 @@ import styles from './AdminDataPage.module.scss';
 import { FilterOption } from '@/components/FilterBy/FilterBy.types';
 import { DataPageProps } from '@/types/AdminTypes';
 import ConfirmAction from '@/components/ConfirmAction/ConfirmAction';
-import { useModal } from '@/components/Modal/ModalContext'; // Use the modal context
+import { useModal } from '@/components/Modal/ModalContext';
+import Link from 'next/link'; // Use the modal context
 
 export default function DataPage({
   entity,
@@ -123,52 +124,57 @@ export default function DataPage({
   return (
     <>
       <Navbar />
-      <main className={styles.container}>
-        <h1 className={styles.title}>{title}</h1>
-        {message && (
-          <div className={styles.messageContainer}>
-            <Message message={message} type={messageType} />
-          </div>
-        )}
-        {loading ? (
-          <LoadingSpinner />
-        ) : (
-          <div>
-            <div className={styles.filters}>
-              {filters && filters.length > 0 && filterLabel && filterKey && (
-                <FormSelect
-                  label={filterLabel}
-                  id={filterKey}
-                  options={filters.map((filter: FilterOption) => ({
-                    value: filter.id.toString(),
-                    label: filter.label,
-                  }))}
-                  value={filterValue}
-                  onChange={(e) => setFilterValue(e.target.value)}
-                  noValueOption={{ include: true, label: 'All' }}
-                  hideLabel={true}
-                />
-              )}
-              <Button
-                buttonType="button"
-                styleType="secondary"
-                onClick={() => router.push(`/admin/${entity}`)}
-              >
-                Add Item
-              </Button>
+      <main>
+        <div className={styles.container}>
+          <Link href={'/admin'} className={styles.backLink}>
+            Back to Admin
+          </Link>
+          <h1 className={styles.title}>{title}</h1>
+          {message && (
+            <div className={styles.messageContainer}>
+              <Message message={message} type={messageType} />
             </div>
-            <DataTable
-              columns={columns}
-              data={data || []}
-              actions={(row) => action(row, confirmDelete)}
-            />
-            <Pagination
-              currentPage={page}
-              totalPages={Math.ceil(total / limit)}
-              onPageChange={setPage}
-            />
-          </div>
-        )}
+          )}
+          {loading ? (
+            <LoadingSpinner />
+          ) : (
+            <div>
+              <div className={styles.filters}>
+                {filters && filters.length > 0 && filterLabel && filterKey && (
+                  <FormSelect
+                    label={filterLabel}
+                    id={filterKey}
+                    options={filters.map((filter: FilterOption) => ({
+                      value: filter.id.toString(),
+                      label: filter.label,
+                    }))}
+                    value={filterValue}
+                    onChange={(e) => setFilterValue(e.target.value)}
+                    noValueOption={{ include: true, label: 'All' }}
+                    hideLabel={true}
+                  />
+                )}
+                <Button
+                  buttonType="button"
+                  styleType="secondary"
+                  onClick={() => router.push(`/admin/${entity}`)}
+                >
+                  Add Item
+                </Button>
+              </div>
+              <DataTable
+                columns={columns}
+                data={data || []}
+                actions={(row) => action(row, confirmDelete)}
+              />
+              <Pagination
+                currentPage={page}
+                totalPages={Math.ceil(total / limit)}
+                onPageChange={setPage}
+              />
+            </div>
+          )}
+        </div>
       </main>
       <Footer />
 

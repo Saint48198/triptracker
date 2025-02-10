@@ -13,12 +13,20 @@
   margin: 1rem 0;
 }
 
+.adminContentContainer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, auto);
+  gap: 1rem;
+}
+
 .link {
   display: block;
   background-color: $color-blue-500;
+  min-height: 200px;
   color: $color-white;
   padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
+  border-radius: $border-radius;
   &:hover {
     background-color: $color-blue-600
   }
