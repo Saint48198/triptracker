@@ -9,13 +9,15 @@ const UploadPage: React.FC = () => {
   return (
     <>
       <Navbar />
-      <main className={styles.container}>
-        <aside>
-          <AdminLocalNav currentSection={'image'} />
-        </aside>
-        <div className={styles.pageContent}>
-          <h1>Upload Images</h1>
-          <UploadForm />
+      <main>
+        <div className={styles.container}>
+          <aside>
+            <AdminLocalNav currentSection={'image'} />
+          </aside>
+          <div className={styles.pageContent}>
+            <h1>Upload Images</h1>
+            <UploadForm />
+          </div>
         </div>
       </main>
       <Footer />

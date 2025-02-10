@@ -12,7 +12,7 @@ export default function AdminLandingPage() {
       <Navbar />
       <main>
         <div className={styles.container}>
-          <h1 className={styles.title}>Admin Section</h1>
+          <h1 className={styles.title}>Site Administration</h1>
           <div className={styles.adminContentContainer}>
             <Link href="/admin/countries" className={styles.link}>
               Manage Countries
