@@ -1,22 +1,7 @@
 // StatesPage.module.scss
-.container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-}
-
-.title {
-  font-size: 1.875rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-}
-
-.flexEnd {
+.actionButtons {
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: 1rem;
-}
-
-.overflowXAuto {
-  overflow-x: auto;
+  gap: 0.5rem;
+  justify-content: space-between;
+  align-items: center;
 }

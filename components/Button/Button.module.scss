@@ -7,6 +7,7 @@
   padding: 0.5rem 1rem;
   border-radius: $border-radius;
   transition: background-color 0.3s;
+  white-space: nowrap;
 
   &.primary {
     background-color: $color-blue-500;

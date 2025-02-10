@@ -125,34 +125,38 @@ export default function DataPage({
       <Navbar />
       <main className={styles.container}>
         <h1 className={styles.title}>{title}</h1>
-        {message && <Message message={message} type={messageType} />}
-        <div className={styles.flexBetween}>
-          {filters && filters.length > 0 && filterLabel && filterKey && (
-            <FormSelect
-              label={filterLabel}
-              id={filterKey}
-              options={filters.map((filter: FilterOption) => ({
-                value: filter.id.toString(),
-                label: filter.label,
-              }))}
-              value={filterValue}
-              onChange={(e) => setFilterValue(e.target.value)}
-              noValueOption={{ include: true, label: 'All' }}
-              hideLabel={true}
-            />
-          )}
-          <Button
-            buttonType="button"
-            styleType="secondary"
-            onClick={() => router.push(`/admin/${entity}`)}
-          >
-            Add Item
-          </Button>
-        </div>
+        {message && (
+          <div className={styles.messageContainer}>
+            <Message message={message} type={messageType} />
+          </div>
+        )}
         {loading ? (
           <LoadingSpinner />
         ) : (
-          <div className={styles.overflowXAuto}>
+          <div>
+            <div className={styles.filters}>
+              {filters && filters.length > 0 && filterLabel && filterKey && (
+                <FormSelect
+                  label={filterLabel}
+                  id={filterKey}
+                  options={filters.map((filter: FilterOption) => ({
+                    value: filter.id.toString(),
+                    label: filter.label,
+                  }))}
+                  value={filterValue}
+                  onChange={(e) => setFilterValue(e.target.value)}
+                  noValueOption={{ include: true, label: 'All' }}
+                  hideLabel={true}
+                />
+              )}
+              <Button
+                buttonType="button"
+                styleType="secondary"
+                onClick={() => router.push(`/admin/${entity}`)}
+              >
+                Add Item
+              </Button>
+            </div>
             <DataTable
               columns={columns}
               data={data || []}
