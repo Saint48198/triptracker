@@ -28,26 +28,26 @@ const LatLngField: React.FC<LatLngFieldProps> = ({
   return (
     <div className={styles.latLngField}>
       <div className={styles.fieldGroup}>
-        <div className="flex items-center space-x-2">
-          <FormInput
-            label={latLabel}
-            id={'lat'}
-            value={lat}
-            onChange={(e) => onLatChange(Number(e.target.value))}
-            readOnly={isLoading}
-            type={'number'}
-            required
-          />
-          <FormInput
-            label={lngLabel}
-            id={'lng'}
-            value={lng}
-            onChange={(e) => onLngChange(Number(e.target.value))}
-            readOnly={isLoading}
-            type={'number'}
-            required
-          />
-        </div>
+        <FormInput
+          label={latLabel}
+          id={'lat'}
+          value={lat !== undefined ? lat.toString() : ''}
+          onChange={(e) => onLatChange(Number(e.target.value))}
+          readOnly={isLoading}
+          type={'number'}
+          inlineLabel={true}
+          required
+        />
+        <FormInput
+          label={lngLabel}
+          id={'lng'}
+          value={lng !== undefined ? lng.toString() : ''}
+          onChange={(e) => onLngChange(Number(e.target.value))}
+          readOnly={isLoading}
+          type={'number'}
+          inlineLabel={true}
+          required
+        />
         <Button
           ariaLabel="Look up Lat/Lng"
           onClick={onLookup}

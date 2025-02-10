@@ -18,6 +18,7 @@ import {
   ENTITY_TYPE_CITY,
 } from '@/constants';
 import styles from './AdminDetailPage.module.scss';
+import { FaSpinner } from 'react-icons/fa';
 
 export default function AdminDetailPage({
   entity,
@@ -43,6 +44,7 @@ export default function AdminDetailPage({
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'error' | 'success' | ''>('');
+  const [isWorking, setIsWorking] = useState(false);
 
   const fetchStates = useCallback(async () => {
     try {
@@ -73,7 +75,6 @@ export default function AdminDetailPage({
       const response = await fetch(`/api/${entities}/${entityId}`);
       const data = await response.json();
       if (response.ok) {
-        console.log(data);
         setName(data.name);
         setLat(data.lat?.toString() || '');
         setLng(data.lng?.toString() || '');
@@ -86,7 +87,7 @@ export default function AdminDetailPage({
     } catch (error) {
       setMessage(`Failed to fetch ${entity}.`);
     }
-  }, [entity, entityId]);
+  }, [entities, entity, entityId]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -108,6 +109,8 @@ export default function AdminDetailPage({
 
     const method = entityId ? 'PUT' : 'POST';
     const url = entityId ? `/api/${entities}/${entityId}` : `/api/${entity}s`;
+
+    setIsWorking(true);
 
     try {
       const response = await fetch(url, {
@@ -135,6 +138,8 @@ export default function AdminDetailPage({
     } catch (error) {
       setMessage('An error occurred.');
       setMessageType('error');
+    } finally {
+      setIsWorking(false);
     }
   };
 
@@ -149,7 +154,11 @@ export default function AdminDetailPage({
           <h1 className={styles.pageTitle}>
             {entityId ? `Edit ${entity}` : `Add ${entity}`}
           </h1>
-          {message && <Message message={message} type={messageType} />}
+          {message && (
+            <div className={styles.messageContainer}>
+              <Message message={message} type={messageType} />
+            </div>
+          )}
           <>
             {loading ? (
               <LoadingSpinner displayText={false} />
@@ -183,8 +192,14 @@ export default function AdminDetailPage({
                   <PhotoManager entityId={entityId} entityType={entities} />
                 )}
                 <div className={styles.formActions}>
-                  <Button buttonType="submit" isDisabled={loading}>
-                    {entityId ? 'Update' : 'Add'} {entity}
+                  <Button buttonType="submit" isDisabled={loading || isWorking}>
+                    {isWorking ? (
+                      <FaSpinner className="animate-spin mr-2" />
+                    ) : entityId ? (
+                      `Update ${entity}`
+                    ) : (
+                      `Add ${entity}`
+                    )}
                   </Button>
                 </div>
               </form>

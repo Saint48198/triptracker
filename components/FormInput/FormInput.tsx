@@ -11,6 +11,7 @@ interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  inlineLabel?: boolean;
 }
 
 const FormInput: React.FC<FormInputProps> = ({
@@ -18,10 +19,13 @@ const FormInput: React.FC<FormInputProps> = ({
   id,
   hideLabel = false,
   ref,
+  inlineLabel = false,
   ...props
 }) => {
   return (
-    <div className={styles.formInputContainer}>
+    <div
+      className={`${styles.formInputContainer} ${inlineLabel ? styles.inlineLabel : ''}`}
+    >
       {!hideLabel && (
         <label htmlFor={id} className={styles.label}>
           {label}
