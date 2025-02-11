@@ -23,6 +23,12 @@
   }
 }
 
+.dataTableHeaderActionCell {
+  padding: 0.5rem 1rem;
+  text-align: center;
+  width: 150px;
+}
+
 .dataTableRow {
   a {
     color: $color-blue-500;
@@ -38,6 +44,11 @@
 
 .dataTableCell {
   padding: 0.5rem 1rem;
+}
+
+.dataTableActionCell {
+  padding: 0.5rem 0;
+  max-width: 150px;
 }
 
 .noData {

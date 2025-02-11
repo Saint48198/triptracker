@@ -64,7 +64,9 @@ const DataTable: React.FC<DataTableProps> = ({
               )}
             </th>
           ))}
-          {actions && <th className={styles.dataTableHeaderCell}>Actions</th>}
+          {actions && (
+            <th className={styles.dataTableHeaderActionCell}>Actions</th>
+          )}
         </tr>
       </thead>
       <tbody>
@@ -98,7 +100,7 @@ const DataTable: React.FC<DataTableProps> = ({
               </td>
             ))}
             {actions && (
-              <td className={styles.dataTableCell}>{actions(row)}</td>
+              <td className={styles.dataTableActionCell}>{actions(row)}</td>
             )}
           </tr>
         ))}
