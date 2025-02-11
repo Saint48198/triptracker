@@ -19,14 +19,13 @@ export default function CitiesPage() {
       fetchDataAction={async (query: string) => {
         const response = await fetch(`/api/${ENTITY_TYPE_CITIES}?${query}`);
         const data = await response.json();
-        console.log(data);
 
         return { entries: data[ENTITY_TYPE_CITIES], total: data.total };
       }}
       fetchFiltersAction={async () => {
         const response = await fetch(`/api/countries?all=true`);
         const data = await response.json();
-        console.log(data);
+
         return data[ENTITY_TYPE_COUNTRIES];
       }}
       columns={[
