@@ -9,6 +9,7 @@ import {
 } from '@/constants';
 import styles from './AttractionsPage.module.scss';
 import Link from 'next/link';
+import ActionButtons from '@/components/AdminData/ActionButtons';
 
 export default function AttractionsPage() {
   return (
@@ -39,18 +40,11 @@ export default function AttractionsPage() {
       filterLabel="Filter by Country"
       filterKey="country_id"
       action={(row: { id: string }, handleDelete) => (
-        <>
-          <div className={styles.actionButtons}>
-            <Link href={`/admin/attraction?id=${row.id}`}>Edit</Link>
-            <Button
-              onClick={() => handleDelete(row.id)}
-              buttonType="button"
-              styleType="danger"
-            >
-              Delete
-            </Button>
-          </div>
-        </>
+        <ActionButtons
+          row={row}
+          handleDelete={handleDelete}
+          entity={ENTITY_TYPE_ATTRACTION}
+        />
       )}
     />
   );

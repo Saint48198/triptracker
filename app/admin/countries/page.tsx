@@ -5,6 +5,7 @@ import Button from '@/components/Button/Button';
 import { ENTITY_TYPE_COUNTRIES, ENTITY_TYPE_COUNTRY } from '@/constants';
 import styles from './CountriesPage.module.scss';
 import Link from 'next/link';
+import ActionButtons from '@/components/AdminData/ActionButtons';
 
 export default function CountriesPage() {
   return (
@@ -25,18 +26,11 @@ export default function CountriesPage() {
         { key: 'last_visited', label: 'Last Visited' },
       ]}
       action={(row: { id: string }, handleDelete) => (
-        <>
-          <div className={styles.actionButtons}>
-            <Link href={`/admin/country?id=${row.id}`}>Edit</Link>
-            <Button
-              onClick={() => handleDelete(row.id)}
-              buttonType="button"
-              styleType="danger"
-            >
-              Delete
-            </Button>
-          </div>
-        </>
+        <ActionButtons
+          row={row}
+          handleDelete={handleDelete}
+          entity={ENTITY_TYPE_COUNTRY}
+        />
       )}
     />
   );
