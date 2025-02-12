@@ -1,0 +1,18 @@
+.aboutPage {
+  margin: 1.25rem auto;
+  padding: 0 1.25rem;
+  max-width: 900px;
+
+  p {
+    margin-bottom: 1.5rem;
+    line-height: 1.25;
+  }
+
+  a {
+    color: #0070f3;
+    text-decoration: none;
+    &:hover, &:focus, &:active {
+      text-decoration: underline;
+    }
+  }
+}
