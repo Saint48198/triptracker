@@ -1,3 +1,17 @@
+/**
+ * This file contains the API route handler for user logout.
+ *
+ * The handler performs the following tasks:
+ * 1. Verifies the HTTP method is POST.
+ * 2. Extracts the token from the request headers or cookies.
+ * 3. Deletes the token from the database to invalidate the session.
+ * 4. Clears the auth token from the HTTP-only cookie.
+ * 5. Returns a success response if the logout is successful.
+ * 6. Returns appropriate error responses for invalid methods, missing tokens, or already logged out sessions.
+ *
+ * The token is used to identify the user's session and is stored in an HTTP-only cookie for security.
+ */
+
 import { NextApiRequest, NextApiResponse } from 'next';
 import db from '../../../database/db';
 

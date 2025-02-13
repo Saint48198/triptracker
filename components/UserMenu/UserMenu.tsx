@@ -27,8 +27,7 @@ export default function UserMenu({ user }: UserMenuProps) {
       });
 
       if (response.ok) {
-        console.log('Logout successful');
-        router.push('/login');
+        router.push('/?view=cities&page=1');
       } else {
         console.error('Failed to logout');
       }

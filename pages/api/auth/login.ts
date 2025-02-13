@@ -1,3 +1,21 @@
+/**
+ * This file contains the API route handler for user login.
+ *
+ * The handler performs the following tasks:
+ * 1. Verifies the HTTP method is POST.
+ * 2. Extracts the username and password from the request body.
+ * 3. Verifies the user credentials using the `verifyUser` utility function.
+ * 4. Fetches the roles associated with the user from the database.
+ * 5. Creates a JWT payload with the user's information and roles.
+ * 6. Generates a JWT token and stores it in the database.
+ * 7. Sets the JWT token in an HTTP-only cookie.
+ * 8. Returns a success response with the token if the login is successful.
+ * 9. Returns appropriate error responses for invalid credentials or server errors.
+ *
+ * The JWT token is used for authenticating subsequent requests.
+ * The token is stored in an HTTP-only cookie to enhance security.
+ */
+
 import { NextApiRequest, NextApiResponse } from 'next';
 import jwt from 'jsonwebtoken';
 import { verifyUser } from '@/utils/verifyUser';
