@@ -137,6 +137,16 @@ db.exec(`
     );
 `);
 
+db.exec(`
+    CREATE TABLE IF NOT EXISTS user_tokens (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        token TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+`);
+
 // Trigger: Update `countries.last_visited` based on `attractions.last_visited`
 db.exec(`
   CREATE TRIGGER IF NOT EXISTS update_country_last_visited_from_attraction

@@ -44,10 +44,14 @@ export default async function handler(
       return res.status(500).json({ error: 'Internal Server Error' });
     }
 
-    // Generate JWT
-    const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
-      expiresIn: '1h',
-    });
+    // Generate JWT (no expiration)
+    const token = jwt.sign(payload, process.env.JWT_SECRET as string);
+
+    // Store token in database
+    db.prepare(`INSERT INTO user_tokens (user_id, token) VALUES (?, ?)`).run(
+      user.id,
+      token
+    );
 
     // Set token in HTTP-only cookie
     res.setHeader(
