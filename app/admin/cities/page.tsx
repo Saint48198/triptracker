@@ -10,6 +10,7 @@ import {
 import styles from './CitiesPage.module.scss';
 import Link from 'next/link';
 import ActionButtons from '@/components/AdminData/ActionButtons';
+import { Country } from '@/types/ContentTypes';
 
 export default function CitiesPage() {
   return (
@@ -27,7 +28,10 @@ export default function CitiesPage() {
         const response = await fetch(`/api/countries?all=true`);
         const data = await response.json();
 
-        return data[ENTITY_TYPE_COUNTRIES];
+        return data[ENTITY_TYPE_COUNTRIES].map((country: Country) => ({
+          id: country.id,
+          label: country.name,
+        }));
       }}
       columns={[
         { key: 'name', label: 'City Name' },

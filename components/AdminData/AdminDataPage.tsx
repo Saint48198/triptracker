@@ -32,16 +32,15 @@ export default function DataPage({
   const searchParams = useSearchParams();
   const { openModal, closeModal } = useModal();
 
+  const [hydrated, setHydrated] = useState(false);
   const [data, setData] = useState<any[]>([]);
   const [filters, setFilters] = useState<FilterOption[]>([]);
-  const [filterValue, setFilterValue] = useState(
-    filterKey ? searchParams?.get(filterKey) || '' : ''
-  );
-  const [page, setPage] = useState(Number(searchParams?.get('page')) || 1);
+  const [filterValue, setFilterValue] = useState('');
+  const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [total, setTotal] = useState(0);
-  const [sortBy, setSortBy] = useState(searchParams?.get('sortBy') || '');
-  const [sort, setSort] = useState(searchParams?.get('sort') || '');
+  const [sortBy, setSortBy] = useState('');
+  const [sort, setSort] = useState('');
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'error' | 'success' | ''>('');
   const [loading, setLoading] = useState(true);
@@ -49,15 +48,16 @@ export default function DataPage({
   const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchFiltersData = useCallback(async () => {
-    if (fetchFiltersAction) {
-      const data = await fetchFiltersAction();
-      setFilters(data);
-    }
-  }, [fetchFiltersAction]);
+    if (!fetchFiltersAction || !hydrated) return;
+    const data = await fetchFiltersAction();
+    setFilters(data);
+  }, [fetchFiltersAction, hydrated]);
 
   const fetchDataEntries = useCallback(async () => {
+    if (!hydrated) return;
     setLoading(true);
     setMessage('');
+
     try {
       const query = new URLSearchParams({
         ...(filterValue && filterKey && { [filterKey]: filterValue }),
@@ -77,7 +77,16 @@ export default function DataPage({
     } finally {
       setLoading(false);
     }
-  }, [filterValue, filterKey, sortBy, sort, page, limit, fetchDataAction]);
+  }, [
+    hydrated,
+    filterValue,
+    filterKey,
+    sortBy,
+    sort,
+    page,
+    limit,
+    fetchDataAction,
+  ]);
 
   const handleDelete = async () => {
     if (!selectedItemId) return;
@@ -102,7 +111,7 @@ export default function DataPage({
       console.error(error);
     } finally {
       setIsDeleting(false);
-      closeModal('confirm-action'); // ✅ Close modal after action
+      closeModal('confirm-action'); //  Close modal after action
       setSelectedItemId(null);
     }
   };
@@ -112,35 +121,66 @@ export default function DataPage({
     openModal('confirm-action');
   };
 
-  const fetchData = useCallback(async () => {
-    await fetchFiltersData();
-    await fetchDataEntries();
-  }, [fetchFiltersData, fetchDataEntries]);
+  const updatePageInUrl = useCallback(
+    (newPage: number) => {
+      const params = new URLSearchParams(searchParams?.toString() || '');
+      params.set('page', newPage.toString());
+      router.replace(`?${params.toString()}`, { scroll: false });
+      setPage(newPage);
+    },
+    [searchParams, router]
+  );
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (hydrated) {
+      fetchFiltersData();
+      fetchDataEntries();
+    }
+  }, [hydrated, fetchFiltersData, fetchDataEntries]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams?.toString() || '');
+    setPage(Number(params.get('page')) || 1);
+    setFilterValue(filterKey ? params.get(filterKey) || '' : '');
+    setSortBy(params.get('sortBy') || '');
+    setSort(params.get('sort') || '');
+    setHydrated(true);
+  }, [searchParams, filterKey]);
+
+  if (!hydrated) {
+    return (
+      <>
+        <Navbar />
+        <main>
+          <div className={styles.container}>
+            <LoadingSpinner />
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
       <Navbar />
       <main>
         <div className={styles.container}>
-          <Link href={'/admin'} className={styles.backLink}>
-            Back to Admin
-          </Link>
-          <h1 className={styles.title}>{title}</h1>
-          {message && (
-            <div className={styles.messageContainer}>
-              <Message message={message} type={messageType} />
-            </div>
-          )}
           {loading ? (
             <LoadingSpinner />
           ) : (
-            <div>
+            <>
+              <Link href={'/admin'} className={styles.backLink}>
+                Back to Admin
+              </Link>
+              <h1 className={styles.title}>{title}</h1>
+              {message && (
+                <div className={styles.messageContainer}>
+                  <Message message={message} type={messageType} />
+                </div>
+              )}
               <div className={styles.filters}>
-                {filters && filters.length > 0 && filterLabel && filterKey && (
+                {filters.length > 0 && filterLabel && filterKey && (
                   <FormSelect
                     label={filterLabel}
                     id={filterKey}
@@ -164,20 +204,19 @@ export default function DataPage({
               </div>
               <DataTable
                 columns={columns}
-                data={data || []}
+                data={data}
                 actions={(row) => action(row, confirmDelete)}
               />
               <Pagination
                 currentPage={page}
                 totalPages={Math.ceil(total / limit)}
-                onPageChange={setPage}
+                onPageChange={updatePageInUrl}
               />
-            </div>
+            </>
           )}
         </div>
       </main>
       <Footer />
-
       <ConfirmAction
         isOpen // Modal context manages visibility
         onConfirm={handleDelete}

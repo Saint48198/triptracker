@@ -10,7 +10,6 @@ import Pagination from '@/components/Pagination/Pagination';
 import Message from '@/components/Message/Message';
 import LoadingSpinner from '@/components/LoadingSpinner/LoadingSpinner';
 import FilterBy from '@/components/FilterBy/FilterBy';
-import { FilterOption } from '@/components/FilterBy/FilterBy.types';
 import { Country, State } from '@/types/ContentTypes';
 import {
   ENTITY_TYPE_ATTRACTIONS,

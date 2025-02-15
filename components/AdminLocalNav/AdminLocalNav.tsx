@@ -1,22 +1,40 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from './AdminLocalNav.module.scss';
+import {
+  ENTITY_TYPE_ATTRACTION,
+  ENTITY_TYPE_CITY,
+  ENTITY_TYPE_COUNTRY,
+  ENTITY_TYPE_STATE,
+} from '@/constants';
+import usePreviousUrl from '@/hooks/usePreviousUrl';
 
 interface LocalNavProps {
-  currentSection: 'attraction' | 'city' | 'state' | 'country' | 'image';
+  currentSection:
+    | typeof ENTITY_TYPE_ATTRACTION
+    | typeof ENTITY_TYPE_CITY
+    | typeof ENTITY_TYPE_STATE
+    | typeof ENTITY_TYPE_COUNTRY
+    | 'image';
 }
 
 const AdminLocalNav: React.FC<LocalNavProps> = ({ currentSection }) => {
-  const router = useRouter();
+  const { goBack } = usePreviousUrl();
 
   return (
     <nav className={styles.localNav}>
-      <button onClick={() => router.back()} className={styles.backButton}>
+      <Link
+        href="#"
+        onClick={(e) => {
+          e.preventDefault();
+          goBack();
+        }}
+        className={styles.backButton}
+      >
         Back
-      </button>
+      </Link>
       <ul className={styles.navList}>
         <li className={currentSection === 'attraction' ? styles.active : ''}>
           <Link href="/admin/attractions">Attractions</Link>
