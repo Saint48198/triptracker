@@ -74,6 +74,9 @@ export default function UserMenu({ user }: UserMenuProps) {
             <Link className={styles.menuItem} href={'/about'}>
               About
             </Link>
+            <Link className={styles.menuItem} href={'/check-ins'}>
+              Check-ins
+            </Link>
             {user ? (
               <>
                 <Link className={styles.menuItem} href={'/admin'}>

@@ -1,14 +1,11 @@
 'use client';
 
 import DataPage from '@/components/AdminData/AdminDataPage';
-import Button from '@/components/Button/Button';
 import {
   ENTITY_TYPE_ATTRACTIONS,
   ENTITY_TYPE_ATTRACTION,
   ENTITY_TYPE_COUNTRIES,
 } from '@/constants';
-import styles from './AttractionsPage.module.scss';
-import Link from 'next/link';
 import ActionButtons from '@/components/AdminData/ActionButtons';
 
 export default function AttractionsPage() {
