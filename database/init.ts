@@ -147,6 +147,16 @@ db.exec(`
     );
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS user_locations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    latitude REAL NOT NULL,
+    longitude REAL NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+
 // Trigger: Update `countries.last_visited` based on `attractions.last_visited`
 db.exec(`
   CREATE TRIGGER IF NOT EXISTS update_country_last_visited_from_attraction

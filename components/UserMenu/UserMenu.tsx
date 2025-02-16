@@ -7,6 +7,7 @@ import { User } from 'next-auth';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@headlessui/react';
+import LocationButton from '@/components/LocationButton/LocationButton';
 
 interface UserMenuProps {
   user: User | null;
@@ -59,7 +60,7 @@ export default function UserMenu({ user }: UserMenuProps) {
           onClick={() => setIsOpen(!isOpen)}
         >
           <Image
-            src="/img/icon-mountain.webp"
+            src="/img/icon-plane.webp"
             alt={user?.name || 'User'}
             className={styles.avatar}
             width={18}
@@ -78,6 +79,7 @@ export default function UserMenu({ user }: UserMenuProps) {
                 <Link className={styles.menuItem} href={'/admin'}>
                   Admin
                 </Link>
+                <LocationButton userId={user.id} className={styles.menuItem} />
                 <Button className={styles.menuItem} onClick={handleLogout}>
                   Logout
                 </Button>

@@ -1,6 +1,7 @@
 import './globals.scss';
 import { ReactNode } from 'react';
 import { ModalProvider } from '@/components/Modal/ModalContext';
+import { Toaster } from 'react-hot-toast';
 import styles from './layout.module.scss';
 
 export const metadata = {
@@ -15,6 +16,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <ModalProvider>
           <div className={styles.wrapper}>{children}</div>
         </ModalProvider>
+        <Toaster />
       </body>
     </html>
   );
