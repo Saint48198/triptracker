@@ -15,6 +15,11 @@
     &:hover {
       background-color: color.adjust($color-blue-500, $lightness: -10%);
     }
+    &:disabled {
+      background-color: $color-gray-300;
+      color: $color-gray-500;
+      cursor: not-allowed;
+    }
   }
 
   &.secondary {
@@ -22,6 +27,11 @@
     color: $color-gray-800;
     &:hover {
       background-color: color.adjust($color-gray-300, $lightness: -10%);
+    }
+    &:disabled {
+      background-color: $color-gray-200;
+      color: $color-gray-500;
+      cursor: not-allowed;
     }
   }
 
@@ -32,6 +42,11 @@
     &:hover {
       background-color: $color-gray-100;
     }
+    &:disabled {
+      background-color: $color-gray-100;
+      color: $color-gray-500;
+      cursor: not-allowed;
+    }
   }
 
   &.danger {
@@ -40,6 +55,11 @@
     &:hover {
       background-color: color.adjust($color-red-500, $lightness: -10%);
     }
+    &:disabled {
+      background-color: $color-red-300;
+      color: $color-white;
+      cursor: not-allowed;
+    }
   }
 
   &.text {
@@ -47,6 +67,10 @@
     color: $color-blue-500;
     &:hover {
       background-color: $color-gray-100;
+    }
+    &:disabled {
+      color: $color-gray-500;
+      cursor: not-allowed;
     }
   }
 }

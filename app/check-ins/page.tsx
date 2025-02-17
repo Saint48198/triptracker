@@ -7,6 +7,7 @@ import Footer from '@/components/Footer/Footer';
 import Message from '@/components/Message/Message';
 import DataTable from '@/components/DataTable/DataTable';
 import Button from '@/components/Button/Button';
+import { User } from '@/types/UserTypes';
 
 interface CheckIn {
   id: number;
@@ -22,6 +23,7 @@ export default function CheckInsPage() {
   const [deleting, setDeleting] = useState<number | null>(null);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'error' | 'success' | ''>('');
+  const [user, setUser] = useState<User | null>(null);
 
   const columns = [
     {
@@ -43,8 +45,26 @@ export default function CheckInsPage() {
   ];
 
   useEffect(() => {
+    fetchUser();
     fetchCheckIns();
   }, []);
+
+  const fetchUser = async () => {
+    try {
+      const response = await fetch('/api/auth/validate-session', {
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+      }
+    } catch (error) {
+      setMessage('Failed to fetch user.');
+      setMessageType('error');
+      console.error('Failed to fetch user');
+    }
+  };
 
   const fetchCheckIns = async () => {
     setLoading(true);
@@ -60,6 +80,7 @@ export default function CheckInsPage() {
   };
 
   const deleteCheckIn = async (id: number) => {
+    if (!user?.roles.includes('admin')) return;
     setDeleting(id);
     try {
       await axios.delete(`/api/check-ins?id=${id}`);
@@ -94,7 +115,11 @@ export default function CheckInsPage() {
                   buttonType={'button'}
                   styleType={'danger'}
                   onClick={() => deleteCheckIn((row as CheckIn).id)}
-                  isDisabled={deleting === (row as CheckIn).id}
+                  isDisabled={
+                    !user ||
+                    !user?.roles.includes('admin') ||
+                    deleting === (row as CheckIn).id
+                  }
                 >
                   {deleting === (row as CheckIn).id ? 'Deleting...' : 'Delete'}
                 </Button>
