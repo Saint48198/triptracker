@@ -157,6 +157,17 @@ db.exec(`
   );
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS user_locations_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    check_in_id INTEGER NOT NULL,
+    user_id INTEGER,
+    message TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (check_in_id) REFERENCES check_ins(id) ON DELETE CASCADE
+  );
+`);
+
 // Trigger: Update `countries.last_visited` based on `attractions.last_visited`
 db.exec(`
   CREATE TRIGGER IF NOT EXISTS update_country_last_visited_from_attraction
