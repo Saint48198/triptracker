@@ -150,7 +150,7 @@ db.exec(`
 db.exec(`
   CREATE TABLE IF NOT EXISTS user_locations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT NOT NULL,
+    user_id INTEGER NOT NULL,
     latitude REAL NOT NULL,
     longitude REAL NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP

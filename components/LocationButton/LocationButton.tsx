@@ -6,7 +6,7 @@ import { Button } from '@headlessui/react';
 import { toast } from 'react-hot-toast';
 
 interface LocationButtonProps {
-  userId: string;
+  userId: number;
   className?: string;
 }
 
@@ -22,6 +22,9 @@ export default function LocationButton({
 
   const logLocation = async (latitude: number, longitude: number) => {
     try {
+      userId = Math.floor(userId); // required because service requires an int and user id was stored as a float
+      console.log(userId);
+
       await axios.post('/api/users/log-location', {
         userId,
         latitude,

@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
@@ -24,6 +25,8 @@ export default function CheckInsPage() {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'error' | 'success' | ''>('');
   const [user, setUser] = useState<User | null>(null);
+  const searchParams = useSearchParams();
+  const checkInId = searchParams ? searchParams.get('id') : null;
 
   const columns = [
     {
@@ -44,11 +47,6 @@ export default function CheckInsPage() {
     },
   ];
 
-  useEffect(() => {
-    fetchUser();
-    fetchCheckIns();
-  }, []);
-
   const fetchUser = async () => {
     try {
       const response = await fetch('/api/auth/validate-session', {
@@ -66,10 +64,13 @@ export default function CheckInsPage() {
     }
   };
 
-  const fetchCheckIns = async () => {
+  const fetchCheckIns = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get('/api/check-ins');
+      const url = checkInId
+        ? `/api/check-ins?userId=${checkInId}`
+        : '/api/check-ins';
+      const response = await axios.get(url);
       setCheckIns(response.data.checkIns);
     } catch (error) {
       setMessage('Failed to fetch check-ins.');
@@ -77,7 +78,7 @@ export default function CheckInsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [checkInId]);
 
   const deleteCheckIn = async (id: number) => {
     if (!user?.roles.includes('admin')) return;
@@ -95,6 +96,10 @@ export default function CheckInsPage() {
     }
   };
 
+  useEffect(() => {
+    fetchUser().then(() => fetchCheckIns());
+  }, [fetchCheckIns]);
+
   return (
     <>
       <Navbar />
@@ -110,20 +115,22 @@ export default function CheckInsPage() {
             <DataTable
               columns={columns}
               data={checkIns}
-              actions={(row: Record<string, any>) => (
-                <Button
-                  buttonType={'button'}
-                  styleType={'danger'}
-                  onClick={() => deleteCheckIn((row as CheckIn).id)}
-                  isDisabled={
-                    !user ||
-                    !user?.roles.includes('admin') ||
-                    deleting === (row as CheckIn).id
-                  }
-                >
-                  {deleting === (row as CheckIn).id ? 'Deleting...' : 'Delete'}
-                </Button>
-              )}
+              actions={
+                user && user.roles.includes('admin')
+                  ? (row: Record<string, any>) => (
+                      <Button
+                        buttonType={'button'}
+                        styleType={'danger'}
+                        onClick={() => deleteCheckIn((row as CheckIn).id)}
+                        isDisabled={deleting === (row as CheckIn).id}
+                      >
+                        {deleting === (row as CheckIn).id
+                          ? 'Deleting...'
+                          : 'Delete'}
+                      </Button>
+                    )
+                  : undefined
+              }
             />
           )}
         </div>
