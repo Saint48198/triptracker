@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
+import { format } from 'date-fns';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import Message from '@/components/Message/Message';
@@ -29,10 +30,7 @@ export default function CheckInsPage() {
   const checkInId = searchParams ? searchParams.get('id') : null;
 
   const columns = [
-    {
-      label: 'User ID',
-      key: 'user_id',
-    },
+    ...(checkInId ? [] : [{ label: 'User ID', key: 'user_id' }]),
     {
       label: 'Latitude',
       key: 'latitude',
@@ -42,8 +40,10 @@ export default function CheckInsPage() {
       key: 'longitude',
     },
     {
-      label: 'Created At',
+      label: 'Time',
       key: 'created_at',
+      format: (value: string) =>
+        format(new Date(value), 'MMM d, yyyy hh:mm:ss a'),
     },
   ];
 

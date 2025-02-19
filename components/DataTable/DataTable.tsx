@@ -92,10 +92,16 @@ const DataTable: React.FC<DataTableProps> = ({
                       onRowClick(row);
                     }}
                   >
-                    {row[column.key]}
+                    {column.format
+                      ? column.format(row[column.key])
+                      : row[column.key]}
                   </Link>
                 ) : (
-                  <>{row[column.key]}</>
+                  <>
+                    {column.format
+                      ? column.format(row[column.key])
+                      : row[column.key]}
+                  </>
                 )}
               </td>
             ))}

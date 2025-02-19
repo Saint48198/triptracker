@@ -2,6 +2,7 @@ export interface Column {
   key: string;
   label: string;
   sortable?: boolean;
+  format?: (value: any) => string;
 }
 
 export interface DataTableProps {
