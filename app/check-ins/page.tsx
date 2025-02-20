@@ -10,6 +10,11 @@ import Message from '@/components/Message/Message';
 import DataTable from '@/components/DataTable/DataTable';
 import Button from '@/components/Button/Button';
 import { User } from '@/types/UserTypes';
+import dynamic from 'next/dynamic';
+
+const MapComponent = dynamic(() => import('@/components/Map/Map'), {
+  ssr: false,
+});
 
 interface CheckIn {
   id: number;
@@ -28,16 +33,15 @@ export default function CheckInsPage() {
   const [user, setUser] = useState<User | null>(null);
   const searchParams = useSearchParams();
   const checkInId = searchParams ? searchParams.get('id') : null;
+  const [selectedCheckIn, setSelectedCheckIn] = useState<CheckIn | null>(null);
 
   const columns = [
     ...(checkInId ? [] : [{ label: 'User ID', key: 'user_id' }]),
     {
-      label: 'Latitude',
-      key: 'latitude',
-    },
-    {
-      label: 'Longitude',
-      key: 'longitude',
+      label: 'Location',
+      key: 'location',
+      format: (value: { latitude: number; longitude: number }) =>
+        `${value.latitude}, ${value.longitude}`,
     },
     {
       label: 'Time',
@@ -72,6 +76,7 @@ export default function CheckInsPage() {
         : '/api/check-ins';
       const response = await axios.get(url);
       setCheckIns(response.data.checkIns);
+      setSelectedCheckIn(checkIns[0]);
     } catch (error) {
       setMessage('Failed to fetch check-ins.');
       setMessageType('error');
@@ -112,26 +117,46 @@ export default function CheckInsPage() {
           ) : checkIns.length === 0 ? (
             <p>No check-ins found.</p>
           ) : (
-            <DataTable
-              columns={columns}
-              data={checkIns}
-              actions={
-                user && user.roles.includes('admin')
-                  ? (row: Record<string, any>) => (
-                      <Button
-                        buttonType={'button'}
-                        styleType={'danger'}
-                        onClick={() => deleteCheckIn((row as CheckIn).id)}
-                        isDisabled={deleting === (row as CheckIn).id}
-                      >
-                        {deleting === (row as CheckIn).id
-                          ? 'Deleting...'
-                          : 'Delete'}
-                      </Button>
-                    )
-                  : undefined
-              }
-            />
+            <>
+              {selectedCheckIn && (
+                <MapComponent
+                  markers={[
+                    {
+                      lat: selectedCheckIn.latitude,
+                      lng: selectedCheckIn.longitude,
+                      popupText: `last check-in`,
+                    },
+                  ]}
+                  zoom={8}
+                />
+              )}
+              <DataTable
+                columns={columns}
+                data={checkIns.map((checkIn) => ({
+                  ...checkIn,
+                  location: {
+                    latitude: checkIn.latitude,
+                    longitude: checkIn.longitude,
+                  },
+                }))}
+                actions={
+                  user && user.roles.includes('admin')
+                    ? (row: Record<string, any>) => (
+                        <Button
+                          buttonType={'button'}
+                          styleType={'danger'}
+                          onClick={() => deleteCheckIn((row as CheckIn).id)}
+                          isDisabled={deleting === (row as CheckIn).id}
+                        >
+                          {deleting === (row as CheckIn).id
+                            ? 'Deleting...'
+                            : 'Delete'}
+                        </Button>
+                      )
+                    : undefined
+                }
+              />
+            </>
           )}
         </div>
       </main>
