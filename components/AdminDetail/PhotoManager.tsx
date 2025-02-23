@@ -32,7 +32,7 @@ export default function PhotoManager({
   const searchSubject = useMemo(() => new Subject<string>(), []);
   const [nextCursor, setNextCursor] = useState(null);
   const [query, setQuery] = useState('');
-  const { isOpen, openModal, closeModal } = useModal();
+  const { openModal, closeModal } = useModal();
 
   // Ensure API calls happen only when user is actively typing
   useEffect(() => {

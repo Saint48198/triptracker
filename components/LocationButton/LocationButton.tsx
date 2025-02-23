@@ -8,6 +8,7 @@ import { toast } from 'react-hot-toast';
 interface LocationButtonProps {
   userId: number;
   className?: string;
+  onClick?: (checkInId: number) => void;
 }
 
 const CustomSuccessToast = ({ message }: { message: string }) => (
@@ -17,13 +18,13 @@ const CustomSuccessToast = ({ message }: { message: string }) => (
 export default function LocationButton({
   userId,
   className,
+  onClick,
 }: LocationButtonProps) {
   const [loading, setLoading] = useState(false);
 
   const logLocation = async (latitude: number, longitude: number) => {
     try {
       userId = Math.floor(userId); // required because service requires an int and user id was stored as a float
-      console.log(userId);
 
       await axios.post('/api/users/log-location', {
         userId,
@@ -49,10 +50,22 @@ export default function LocationButton({
           ? `Location logged successfully!<br>${location.city}, ${location.state} ${location.country}`
           : `Location logged successfully!<br>${location.city}, ${location.country}`;
 
-      toast.success(<CustomSuccessToast message={successMessage} />, {
-        duration: 5000,
-        style: { whiteSpace: 'pre-line' },
-      });
+      const response = await axios.get('/api/check-ins?id=' + userId);
+      const data = await response.data?.checkIns;
+
+      if (response.status === 200 && data.length > 0) {
+        const checkInId = data[0].id;
+        if (onClick) {
+          toast.success(<CustomSuccessToast message={successMessage} />, {
+            duration: 5000,
+            style: { whiteSpace: 'pre-line' },
+          });
+
+          onClick(checkInId);
+        }
+      } else {
+        console.error('Failed to create check-in');
+      }
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : 'Failed to log location.';

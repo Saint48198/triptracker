@@ -1,0 +1,29 @@
+// components/MessageForm/MessageForm.module.scss
+@use "@/styles/variables" as *;
+
+.formContainer {
+  padding: 20px;
+}
+
+.textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid $color-gray;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.submitButton {
+  background-color: $color-blue-500;
+  color: $color-white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+
+    &:hover {
+        background-color: $color-blue-600;
+    }
+}

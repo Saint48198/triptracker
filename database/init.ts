@@ -164,7 +164,7 @@ db.exec(`
     user_id INTEGER,
     message TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (check_in_id) REFERENCES check_ins(id) ON DELETE CASCADE
+    FOREIGN KEY (check_in_id) REFERENCES user_locations(id) ON DELETE CASCADE
   );
 `);
 

@@ -7,7 +7,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   } else if (req.method === 'POST') {
     return addMessage(req, res);
   } else {
-    return res.setHeader('Allow', ['GET', 'POST']).status(405).end(`Method ${req.method} Not Allowed`);
+    return res
+      .setHeader('Allow', ['GET', 'POST'])
+      .status(405)
+      .end(`Method ${req.method} Not Allowed`);
   }
 }
 
@@ -20,7 +23,9 @@ async function getMessages(req: NextApiRequest, res: NextApiResponse) {
   }
 
   try {
-    const stmt = db.prepare('SELECT * FROM check_in_messages WHERE check_in_id = ? ORDER BY created_at ASC');
+    const stmt = db.prepare(
+      'SELECT * FROM check_in_messages WHERE check_in_id = ? ORDER BY created_at ASC'
+    );
     const messages = stmt.all(id);
 
     return res.status(200).json({ messages });
@@ -35,13 +40,16 @@ async function addMessage(req: NextApiRequest, res: NextApiResponse) {
   const { checkInId, userId, message } = req.body;
 
   if (!checkInId || !userId || !message) {
-    return res.status(400).json({ error: 'Check-in ID, user ID, and message are required.' });
+    return res
+      .status(400)
+      .json({ error: 'Check-in ID, user ID, and message are required.' });
   }
 
   try {
+    console.log('Adding message:', { checkInId, userId, message });
     const stmt = db.prepare(`
-      INSERT INTO check_in_messages (check_in_id, user_id, message)
-      VALUES (?, ?, ?)
+        INSERT INTO user_locations_messages (check_in_id, user_id, message)
+        VALUES (?, ?, ?)
     `);
     stmt.run(checkInId, userId, message);
 
