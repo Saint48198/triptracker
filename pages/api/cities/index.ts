@@ -138,7 +138,15 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       const stmt = db.prepare(
         'INSERT INTO cities (name, lat, lng, state_id, country_id, last_visited, wiki_term) VALUES (?, ?, ?, ?, ?, ?, ?)'
       );
-      stmt.run(name, lat, lng, state_id || null, country_id, last_visited);
+      stmt.run(
+        name,
+        lat,
+        lng,
+        state_id || null,
+        country_id,
+        last_visited,
+        wiki_term
+      );
       res.status(201).json({ message: 'City added successfully.' });
     } catch (error: unknown) {
       return handleApiError(error, res, 'Failed to add city', 500);

@@ -48,20 +48,22 @@ export default function AdminForm({
         />
 
         {/* Conditionally render states dropdown */}
-        {states.length > 0 && setStateId && (
-          <FormSelect
-            label="State"
-            id="stateId"
-            options={states.map((state) => ({
-              value: state.id?.toString(),
-              label: state.name,
-            }))}
-            noValueOption={{ include: true, label: 'Select a state' }}
-            value={stateId || ''}
-            onChange={(e) => setStateId(e.target.value)}
-            required
-          />
-        )}
+        {(countryId === '1' || countryId === '5') &&
+          states.length > 0 &&
+          setStateId && (
+            <FormSelect
+              label="State"
+              id="stateId"
+              options={states.map((state) => ({
+                value: state.id?.toString(),
+                label: state.name,
+              }))}
+              noValueOption={{ include: true, label: 'Select a state' }}
+              value={stateId || ''}
+              onChange={(e) => setStateId(e.target.value)}
+              required
+            />
+          )}
 
         <FormSelect
           label="Country"

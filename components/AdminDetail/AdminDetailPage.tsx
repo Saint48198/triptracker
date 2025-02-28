@@ -108,7 +108,7 @@ export default function AdminDetailPage({
     e.preventDefault();
 
     const method = entityId ? 'PUT' : 'POST';
-    const url = entityId ? `/api/${entities}/${entityId}` : `/api/${entity}s`;
+    const url = entityId ? `/api/${entities}/${entityId}` : `/api/${entities}`;
 
     setIsWorking(true);
 

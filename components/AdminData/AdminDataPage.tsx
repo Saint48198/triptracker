@@ -124,9 +124,12 @@ export default function DataPage({
   const updatePageInUrl = useCallback(
     (newPage: number) => {
       const params = new URLSearchParams(searchParams?.toString() || '');
-      params.set('page', newPage.toString());
-      router.replace(`?${params.toString()}`, { scroll: false });
-      setPage(newPage);
+      const currentPage = Number(params.get('page')) || 1;
+
+      if (currentPage !== newPage) {
+        params.set('page', newPage.toString());
+        router.replace(`?${params.toString()}`, { scroll: false });
+      }
     },
     [searchParams, router]
   );
