@@ -145,7 +145,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       );
 
       // Ensure correct data types
-      stmt.run(
+      const result = stmt.run(
         name,
         Number(country_id),
         is_unesco ? 1 : 0, // Convert boolean to integer
@@ -156,7 +156,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         wiki_term
       );
 
-      res.status(201).json({ message: 'Attraction added successfully.' });
+      res.status(201).json({
+        message: 'Attraction added successfully.',
+        id: result.lastInsertRowid,
+      });
     } catch (error) {
       return handleApiError(error, res, 'Failed to add attraction.', 500);
     }
