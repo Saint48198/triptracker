@@ -119,8 +119,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       const stmt = db.prepare(
         'INSERT INTO states (name, abbr, country_id, last_visited) VALUES (?, ?, ?, ?)'
       );
-      stmt.run(name, abbr || null, country_id, last_visited);
-      res.status(201).json({ message: 'State created successfully.' });
+      const result = stmt.run(name, abbr || null, country_id, last_visited);
+      res.status(201).json({
+        message: 'State created successfully.',
+        id: result.lastInsertRowid,
+      });
     } catch (error: unknown) {
       return handleApiError(error, res, 'Failed to create state.', 500);
     }

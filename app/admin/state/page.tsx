@@ -27,9 +27,13 @@ export default function StatePage() {
 
   const fetchCountries = useCallback(async () => {
     try {
-      const response = await fetch('/api/countries');
+      const response = await fetch('/api/countries?all=true');
       const data = await response.json();
-      setCountries(data);
+      const filteredCountries = (data?.countries || []).filter(
+        (country: Country) =>
+          country.name === 'United States' || country.name === 'Canada'
+      );
+      setCountries(filteredCountries || []);
     } catch (error) {
       console.error('Failed to fetch countries:', error);
       setMessage('Failed to fetch countries.');

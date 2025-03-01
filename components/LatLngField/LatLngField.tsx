@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaSpinner } from 'react-icons/fa';
 import styles from './LatLngField.module.scss';
 import Button from '@/components/Button/Button';
 import FormInput from '@/components/FormInput/FormInput';
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 interface LatLngFieldProps {
   latLabel: string;
@@ -12,7 +14,8 @@ interface LatLngFieldProps {
   isLoading: boolean;
   onLatChange: (lat: number) => void;
   onLngChange: (lng: number) => void;
-  onLookup: () => void;
+  city?: string;
+  country?: string;
 }
 
 const LatLngField: React.FC<LatLngFieldProps> = ({
@@ -23,8 +26,40 @@ const LatLngField: React.FC<LatLngFieldProps> = ({
   isLoading,
   onLatChange,
   onLngChange,
-  onLookup,
+  city,
+  country,
 }) => {
+  const [fetchingCoordinates, setFetchingCoordinates] = useState(false);
+
+  const getCoordinates = async () => {
+    if (!city || !country) {
+      toast.error('City and Country are required to get coordinates.');
+      return;
+    }
+
+    setFetchingCoordinates(true);
+    try {
+      const response = await axios.post('/api/geocode', {
+        city,
+        country,
+      });
+
+      if (response.data.lat && response.data.lng) {
+        onLatChange(response.data.lat);
+        onLngChange(response.data.lng);
+        toast.success(
+          `Coordinates: ${response.data.lat}, ${response.data.lng}`
+        );
+      } else {
+        toast.error('No results found for the given location.');
+      }
+    } catch (error) {
+      toast.error('Failed to fetch coordinates.');
+    } finally {
+      setFetchingCoordinates(false);
+    }
+  };
+
   return (
     <div className={styles.latLngField}>
       <div className={styles.fieldGroup}>
@@ -50,13 +85,15 @@ const LatLngField: React.FC<LatLngFieldProps> = ({
         />
         <Button
           ariaLabel="Look up Lat/Lng"
-          onClick={onLookup}
+          onClick={getCoordinates}
           isDisabled={isLoading}
           styleType="primary"
           buttonType={'button'}
         >
-          {isLoading ? <FaSpinner className="animate-spin mr-2" /> : null}
-          {isLoading ? 'Loading...' : 'Look up Lat/Lng'}
+          {isLoading || fetchingCoordinates ? (
+            <FaSpinner className="animate-spin mr-2" />
+          ) : null}
+          {isLoading || fetchingCoordinates ? 'Loading...' : 'Get Lat/Lng'}
         </Button>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import FormInput from '@/components/FormInput/FormInput';
 import FormSelect from '@/components/FormSelect/FormSelect';
 import FormCheckbox from '@/components/FormCheckbox/FormCheckbox';
@@ -28,13 +28,25 @@ export default function AdminForm({
   setLastVisited,
   wikiTerm,
   setWikiTerm,
-  handleGeocode,
   loading,
   isUnesco,
   setIsUnesco,
   isNationalPark,
   setIsNationalPark,
 }: AdminFormProps) {
+  const [countryName, setCountryName] = useState('');
+
+  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedCountryId = e.target.value;
+    setCountryId(selectedCountryId);
+    const selectedCountry = countries.find(
+      (country) => country.id?.toString() === selectedCountryId
+    );
+    if (selectedCountry) {
+      setCountryName(selectedCountry.name);
+    }
+  };
+
   return (
     <>
       <div className={styles.form}>
@@ -74,7 +86,7 @@ export default function AdminForm({
           }))}
           noValueOption={{ include: true, label: 'Select a country' }}
           value={countryId}
-          onChange={(e) => setCountryId(e.target.value)}
+          onChange={handleCountryChange}
           required
         />
 
@@ -115,7 +127,8 @@ export default function AdminForm({
           isLoading={loading}
           onLatChange={(lat) => setLat(lat.toString())}
           onLngChange={(lng) => setLng(lng.toString())}
-          onLookup={handleGeocode}
+          city={name}
+          country={countryName}
         />
       </div>
       {lat && lng && (
