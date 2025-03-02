@@ -174,6 +174,8 @@ export default function AdminDetailPage({
                   states={states}
                   countryId={countryId || ''}
                   setCountryId={setCountryId}
+                  countryName={countryName}
+                  setCountryName={setCountryName}
                   countries={countries}
                   lat={lat}
                   setLat={setLat}

@@ -15,6 +15,8 @@ export default function AdminForm({
   name,
   setName,
   countryId = '',
+  countryName,
+  setCountryName,
   setCountryId,
   countries = [],
   states = [],
@@ -34,17 +36,13 @@ export default function AdminForm({
   isNationalPark,
   setIsNationalPark,
 }: AdminFormProps) {
-  const [countryName, setCountryName] = useState('');
-
   const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCountryId = e.target.value;
     setCountryId(selectedCountryId);
     const selectedCountry = countries.find(
       (country) => country.id?.toString() === selectedCountryId
     );
-    if (selectedCountry) {
-      setCountryName(selectedCountry.name);
-    }
+    setCountryName(selectedCountry?.name || '');
   };
 
   return (

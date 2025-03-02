@@ -7,6 +7,8 @@ export interface AdminFormProps {
   name: string;
   setName: (value: string) => void;
   countryId: string;
+  countryName: string;
+  setCountryName: (value: string) => void;
   setCountryId: (value: string) => void;
   countries: Country[];
   states?: { id: string; name: string }[];
