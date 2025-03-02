@@ -27,22 +27,24 @@
   color: $color-white;
   padding: 0.5rem 1rem;
   border-radius: $border-radius;
+  position: relative;
+  overflow: hidden;
   &:hover {
     background-color: $color-blue-600
   }
 }
 
 .linkGreen {
-  background-color: #10b981;
+  background-color: $color-green-500;
   &:hover {
-    background-color: #059669;
+    background-color: $color-green-600;
   }
 }
 
 .linkPurple {
-  background-color: #8b5cf6;
+  background-color: $color-indigo-500;
   &:hover {
-    background-color: #7c3aed;
+    background-color: $color-indigo-600;
   }
 }
 
@@ -51,4 +53,25 @@
   &:hover {
     background-color: #d97706;
   }
+}
+
+.linkGray {
+  background-color: $color-gray-500;
+  &:hover {
+    background-color: $color-gray-600;
+  }
+}
+
+.linkOrange {
+  background-color: $color-orange-500;
+  &:hover {
+    background-color: $color-orange-600;
+  }
+}
+
+.iconBackground {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(6); /* Increase size by 300% */
 }
