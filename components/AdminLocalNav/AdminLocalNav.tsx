@@ -9,7 +9,7 @@ import {
   ENTITY_TYPE_COUNTRY,
   ENTITY_TYPE_STATE,
 } from '@/constants';
-import usePreviousUrl from '@/hooks/usePreviousUrl';
+import PreviousPageLink from '@/components/PreviousPageLink/PreviousPageLink';
 
 interface LocalNavProps {
   currentSection:
@@ -21,20 +21,9 @@ interface LocalNavProps {
 }
 
 const AdminLocalNav: React.FC<LocalNavProps> = ({ currentSection }) => {
-  const { goBack } = usePreviousUrl();
-
   return (
     <nav className={styles.localNav}>
-      <Link
-        href="#"
-        onClick={(e) => {
-          e.preventDefault();
-          goBack();
-        }}
-        className={styles.backButton}
-      >
-        Back
-      </Link>
+      <PreviousPageLink variant={'button'}></PreviousPageLink>
       <ul className={styles.navList}>
         <li className={currentSection === 'attraction' ? styles.active : ''}>
           <Link href="/admin/attractions">Attractions</Link>

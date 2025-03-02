@@ -197,13 +197,9 @@ export default function DataPage({
                     hideLabel={true}
                   />
                 )}
-                <Button
-                  buttonType="button"
-                  styleType="secondary"
-                  onClick={() => router.push(`/admin/${entity}`)}
-                >
-                  Add Item
-                </Button>
+                <Link href={`/admin/${entity}`} className={styles.addButton}>
+                  Add {entity}
+                </Link>
               </div>
               <DataTable
                 columns={columns}

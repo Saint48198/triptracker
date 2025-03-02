@@ -72,10 +72,7 @@ export default async function handler(
     );
 
     // Set token in HTTP-only cookie
-    res.setHeader(
-      'Set-Cookie',
-      `auth_token=${token}; HttpOnly; Path=/; Max-Age=3600`
-    );
+    res.setHeader('Set-Cookie', `auth_token=${token}; HttpOnly; Path=/;`);
 
     res.status(200).json({ message: 'Login successful', token });
   } else {

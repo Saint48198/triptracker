@@ -10,6 +10,28 @@
   color: $color-blue-500;
 }
 
+.addButton {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  white-space: nowrap;
+  border-radius: $border-radius;
+  background-color: $color-blue-500;
+  color: $color-white;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: $color-blue-600;
+  }
+
+  &:disabled {
+    background-color: $color-gray-300;
+    color: $color-gray-500;
+    cursor: not-allowed;
+  }
+}
+
 .title {
   font-size: 1.875rem;
   font-weight: 700;

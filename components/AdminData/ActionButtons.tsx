@@ -8,7 +8,6 @@ import {
   ENTITY_TYPE_COUNTRY,
   ENTITY_TYPE_STATE,
 } from '@/constants';
-import usePreviousUrl from '@/hooks/usePreviousUrl';
 
 type EntityType =
   | typeof ENTITY_TYPE_CITY
@@ -27,13 +26,9 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   handleDelete,
   entity,
 }) => {
-  const { saveCurrentUrl } = usePreviousUrl();
-
   return (
     <div className={styles.actionButtons}>
-      <Link href={`/admin/${entity}?id=${row.id}`} onClick={saveCurrentUrl}>
-        Edit
-      </Link>
+      <Link href={`/admin/${entity}?id=${row.id}`}>Edit</Link>
       <Button
         onClick={() => handleDelete(row.id)}
         buttonType="button"
