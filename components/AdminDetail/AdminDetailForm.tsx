@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import FormInput from '@/components/FormInput/FormInput';
 import FormSelect from '@/components/FormSelect/FormSelect';
 import FormCheckbox from '@/components/FormCheckbox/FormCheckbox';
@@ -36,6 +36,17 @@ export default function AdminForm({
   isNationalPark,
   setIsNationalPark,
 }: AdminFormProps) {
+  const [stateName, setStateName] = useState<string>('');
+
+  useEffect(() => {
+    if (stateId) {
+      const selectedState = states.find(
+        (state) => state.id?.toString() === stateId
+      );
+      setStateName(selectedState?.name || '');
+    }
+  }, [stateId, states]);
+
   const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCountryId = e.target.value;
     setCountryId(selectedCountryId);
@@ -127,6 +138,7 @@ export default function AdminForm({
           onLngChange={(lng) => setLng(lng.toString())}
           city={name}
           country={countryName}
+          state={stateName}
         />
       </div>
       {lat && lng && (

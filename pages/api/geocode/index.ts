@@ -34,7 +34,7 @@ export default async function handler(
       .end(`Method ${req.method} Not Allowed`);
   }
 
-  const { city, country, place, latitude, longitude } = req.body;
+  const { city, country, place, state, latitude, longitude } = req.body;
 
   // 🔹 Case 1: Reverse Geocoding (Lat, Lng → City, State, Country)
   if (latitude && longitude) {
@@ -79,7 +79,8 @@ export default async function handler(
       .json({ error: 'At least one of city, country, or place is required.' });
   }
 
-  const query = place || `${city || ''}, ${country || ''}`.trim();
+  const query =
+    place || `${city || ''}, ${state || ''}, ${country || ''}`.trim();
 
   try {
     const response = await axios.get(

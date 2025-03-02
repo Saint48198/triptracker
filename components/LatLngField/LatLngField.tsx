@@ -16,6 +16,7 @@ interface LatLngFieldProps {
   onLngChange: (lng: number) => void;
   city?: string;
   country?: string;
+  state?: string;
 }
 
 const LatLngField: React.FC<LatLngFieldProps> = ({
@@ -28,6 +29,7 @@ const LatLngField: React.FC<LatLngFieldProps> = ({
   onLngChange,
   city,
   country,
+  state,
 }) => {
   const [fetchingCoordinates, setFetchingCoordinates] = useState(false);
 
@@ -39,10 +41,12 @@ const LatLngField: React.FC<LatLngFieldProps> = ({
 
     setFetchingCoordinates(true);
     try {
-      const response = await axios.post('/api/geocode', {
-        city,
-        country,
-      });
+      const requestBody: any = { city, country };
+      if (state) {
+        requestBody.state = state;
+      }
+
+      const response = await axios.post('/api/geocode', requestBody);
 
       if (response.data.lat && response.data.lng) {
         onLatChange(response.data.lat);
