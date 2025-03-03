@@ -16,7 +16,7 @@ export default function AdminLandingPage() {
           <h1 className={styles.title}>Site Administration</h1>
           <div className={styles.adminContentContainer}>
             <Link href="/admin/countries" className={styles.link}>
-              Manage Countries
+              Countries
               <Earth className={styles.iconBackground} />
             </Link>
             <Link
@@ -30,21 +30,21 @@ export default function AdminLandingPage() {
               href="/admin/cities"
               className={`${styles.link} ${styles.linkYellow}`}
             >
-              Manage Cities
+              Cities
               <Building className={styles.iconBackground} />
             </Link>
             <Link
               href="/admin/attractions"
               className={`${styles.link} ${styles.linkOrange}`}
             >
-              Manage Attractions
+              Attractions
               <Landmark className={styles.iconBackground} />
             </Link>
             <Link
               href="/admin/users"
               className={`${styles.link} ${styles.linkPurple}`}
             >
-              Manage Users
+              Users
               <User className={styles.iconBackground} />
             </Link>
             <Link
