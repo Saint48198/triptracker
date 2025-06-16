@@ -9,6 +9,8 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
   secure: true,
+  categorization: 'google',
+  auto_tagging: 0.75,
 });
 
 export const config = {
