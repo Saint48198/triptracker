@@ -7,7 +7,7 @@ import styles from './PreviousPageLink.module.scss';
 interface PreviousPageLinkProps {
   defaultHref?: string;
   className?: string;
-  variant?: 'button' | 'link'; // Added option for button or link style
+  variant?: 'button' | 'link';
 }
 
 const PreviousPageLink: React.FC<PreviousPageLinkProps> = ({
@@ -17,26 +17,33 @@ const PreviousPageLink: React.FC<PreviousPageLinkProps> = ({
 }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [hoverUrl, setHoverUrl] = useState<string>('');
+  const [hoverUrl, setHoverUrl] = useState<string>(defaultHref);
 
   useEffect(() => {
-    const params = searchParams ? searchParams.toString() : '';
+    // Only run on client
     let fallbackUrl = defaultHref;
-
-    if (
-      document.referrer &&
-      new URL(document.referrer).origin === window.location.origin
-    ) {
-      fallbackUrl = document.referrer;
-    } else if (params) {
-      fallbackUrl = `${defaultHref}?${params}`;
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+      const params = searchParams ? searchParams.toString() : '';
+      if (
+        document.referrer &&
+        new URL(document.referrer).origin === window.location.origin
+      ) {
+        fallbackUrl = document.referrer;
+      } else if (params) {
+        fallbackUrl = `${defaultHref}?${params}`;
+      }
     }
-
-    setHoverUrl(document.referrer ? document.referrer : fallbackUrl);
+    setHoverUrl(fallbackUrl);
   }, [searchParams, defaultHref]);
 
   const handleGoBack = () => {
     router.back();
+  };
+
+  const handleMouseEnter = () => {
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+      setHoverUrl(document.referrer || hoverUrl);
+    }
   };
 
   return (
@@ -45,11 +52,9 @@ const PreviousPageLink: React.FC<PreviousPageLinkProps> = ({
       className={
         className || (variant === 'link' ? styles.link : styles.button)
       }
-      title={hoverUrl} // Tooltip on hover for accessibility
+      title={hoverUrl}
       aria-label={`Go back to ${hoverUrl}`}
-      onMouseEnter={() =>
-        setHoverUrl(document.referrer ? document.referrer : hoverUrl)
-      }
+      onMouseEnter={handleMouseEnter}
     >
       ← Previous Page
     </button>

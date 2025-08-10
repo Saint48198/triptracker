@@ -1,5 +1,6 @@
 'use client';
 
+import React, { Suspense } from 'react';
 import DataPage from '@/components/AdminData/AdminDataPage';
 import {
   ENTITY_TYPE_ATTRACTIONS,
@@ -8,7 +9,7 @@ import {
 } from '@/constants';
 import ActionButtons from '@/components/AdminData/ActionButtons';
 
-export default function AttractionsPage() {
+function AttractionsPageContent() {
   return (
     <DataPage
       entity={ENTITY_TYPE_ATTRACTION}
@@ -44,5 +45,13 @@ export default function AttractionsPage() {
         />
       )}
     />
+  );
+}
+
+export default function AttractionsPage() {
+  return (
+    <Suspense>
+      <AttractionsPageContent />
+    </Suspense>
   );
 }

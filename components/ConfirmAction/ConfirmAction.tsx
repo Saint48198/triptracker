@@ -6,10 +6,11 @@ import styles from './ConfirmAction.module.scss';
 import { useModal } from '@/components/Modal/ModalContext';
 
 interface ConfirmActionProps {
+  isOpen: boolean;
+  onClose?: () => void;
   onConfirm: () => Promise<void>;
   message: string;
   isLoading: boolean;
-  isOpen: boolean;
 }
 
 const ConfirmAction: React.FC<ConfirmActionProps> = ({

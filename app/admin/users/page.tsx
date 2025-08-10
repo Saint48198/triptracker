@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { Suspense, useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 import bcrypt from 'bcryptjs';
@@ -18,7 +18,7 @@ import { Column } from '@/components/DataTable/DataTable.types';
 import FormInput from '@/components/FormInput/FormInput';
 import FormCheckbox from '@/components/FormCheckbox/FormCheckbox';
 
-const UsersPage = () => {
+function UsersPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const uid = searchParams ? searchParams.get('uid') : null;
@@ -409,7 +409,7 @@ const UsersPage = () => {
                     </Button>
                     <Button
                       ariaLabel={'Delete'}
-                      onClick={() => handleDeleteUser(user.id)}
+                      onClick={() => handleDeleteUser(Number(user.id))}
                       styleType={'danger'}
                     >
                       Delete
@@ -431,6 +431,12 @@ const UsersPage = () => {
       />
     </>
   );
-};
+}
 
-export default UsersPage;
+export default function UsersPage() {
+  return (
+    <Suspense>
+      <UsersPageContent />
+    </Suspense>
+  );
+}

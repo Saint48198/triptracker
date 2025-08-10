@@ -12,95 +12,16 @@ import { LatLngExpression } from 'leaflet';
 import L from 'leaflet';
 import styles from './Map.module.scss';
 import { MapProps, MarkerProps } from './Map.types';
-import {
-  Feature,
-  FeatureCollection,
-  Polygon,
-  MultiPolygon,
-  Position,
-} from 'geojson';
 import React, { useEffect } from 'react';
 
 // Fix the default icon path
 delete (L.Icon.Default.prototype as any)._getIconUrl;
-
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
     'https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon-2x.png',
   iconUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
 });
-
-const wrapGeoJsonFeatures = (
-  geoJson: FeatureCollection | undefined
-): FeatureCollection | null => {
-  if (!geoJson) return null;
-
-  const wrappedFeatures: Feature[] = [];
-
-  geoJson.features.forEach((feature: Feature) => {
-    wrappedFeatures.push(feature);
-
-    const wrapLeft: Feature = JSON.parse(JSON.stringify(feature));
-    const wrapRight: Feature = JSON.parse(JSON.stringify(feature));
-
-    if (wrapLeft.geometry.type === 'Polygon') {
-      (wrapLeft.geometry as Polygon).coordinates = (
-        wrapLeft.geometry as Polygon
-      ).coordinates.map((ring: Position[]) =>
-        ring.map((pos: Position) => {
-          if (pos.length === 2) {
-            const [lon, lat] = pos as [number, number];
-            return [lon - 360, lat];
-          }
-          return pos;
-        })
-      );
-      (wrapRight.geometry as Polygon).coordinates = (
-        wrapRight.geometry as Polygon
-      ).coordinates.map((ring: Position[]) =>
-        ring.map((pos: Position) => {
-          if (pos.length === 2) {
-            const [lon, lat] = pos as [number, number];
-            return [lon + 360, lat];
-          }
-          return pos;
-        })
-      );
-    } else if (wrapLeft.geometry.type === 'MultiPolygon') {
-      (wrapLeft.geometry as MultiPolygon).coordinates = (
-        wrapLeft.geometry as MultiPolygon
-      ).coordinates.map((polygon: Position[][]) =>
-        polygon.map((ring: Position[]) =>
-          ring.map((pos: Position) => {
-            if (pos.length === 2) {
-              const [lon, lat] = pos as [number, number];
-              return [lon - 360, lat];
-            }
-            return pos;
-          })
-        )
-      );
-      (wrapRight.geometry as MultiPolygon).coordinates = (
-        wrapRight.geometry as MultiPolygon
-      ).coordinates.map((polygon: Position[][]) =>
-        polygon.map((ring: Position[]) =>
-          ring.map((pos: Position) => {
-            if (pos.length === 2) {
-              const [lon, lat] = pos as [number, number];
-              return [lon + 360, lat];
-            }
-            return pos;
-          })
-        )
-      );
-    }
-
-    wrappedFeatures.push(wrapLeft, wrapRight);
-  });
-
-  return { ...geoJson, features: wrappedFeatures };
-};
 
 const ResetMapView = ({
   center,
@@ -110,45 +31,24 @@ const ResetMapView = ({
   zoom: number;
 }) => {
   const map = useMap();
-
   useEffect(() => {
     map.setView(center, zoom);
   }, [center, zoom, map]);
-
   return null;
 };
 
-const ResetLayerControl = ({
-  geoJSON,
-  center,
-  zoom,
-}: {
-  geoJSON: FeatureCollection | null;
-  center: LatLngExpression;
-  zoom: number;
-}) => {
+const InvalidateSizeOnResize: React.FC = () => {
   const map = useMap();
-
   useEffect(() => {
-    if (!geoJSON) return;
-
-    // Clear existing layers
-    map.eachLayer((layer) => {
-      if (layer instanceof L.GeoJSON) {
-        map.removeLayer(layer);
-      }
-    });
-
-    // Add new GeoJSON layer
-    const geoJsonLayer = new L.GeoJSON(geoJSON);
-    geoJsonLayer.addTo(map);
-
-    // Adjust bounds only if no center and zoom are explicitly provided
-    if (!center && !zoom) {
-      map.fitBounds(geoJsonLayer.getBounds());
+    requestAnimationFrame(() => map.invalidateSize());
+    const container = map.getContainer();
+    const ro = new ResizeObserver(() => map.invalidateSize());
+    ro.observe(container);
+    if ((document as any).fonts?.ready) {
+      (document as any).fonts.ready.then(() => map.invalidateSize());
     }
-  }, [geoJSON, map, center, zoom]);
-
+    return () => ro.disconnect();
+  }, [map]);
   return null;
 };
 
@@ -164,8 +64,7 @@ const Map: React.FC<MapProps> = ({
     markers && markers.length === 1
       ? [markers[0].lat, markers[0].lng]
       : centerLocation;
-  const zoomVal = zoom ?? (markers && markers.length === 1 ? 12 : 3); // Zoom level
-  const wrappedGeoJsonData = wrapGeoJsonFeatures(geoJSON);
+  const zoomVal = zoom ?? (markers && markers.length === 1 ? 12 : 3);
 
   return (
     <MapContainer
@@ -183,17 +82,13 @@ const Map: React.FC<MapProps> = ({
         noWrap={false}
       />
       <ResetMapView center={center} zoom={zoomVal} />
-      <ResetLayerControl
-        geoJSON={wrappedGeoJsonData}
-        center={center}
-        zoom={zoomVal}
-      />
-      {markers &&
-        markers.map((marker: MarkerProps, index: number) => (
-          <Marker key={index} position={[marker.lat, marker.lng]}>
-            {marker.popupText && <Popup>{marker.popupText}</Popup>}
-          </Marker>
-        ))}
+      <InvalidateSizeOnResize />
+      {geoJSON && <GeoJSON data={geoJSON} />}
+      {markers?.map((marker: MarkerProps, index: number) => (
+        <Marker key={index} position={[marker.lat, marker.lng]}>
+          {marker.popupText && <Popup>{marker.popupText}</Popup>}
+        </Marker>
+      ))}
     </MapContainer>
   );
 };

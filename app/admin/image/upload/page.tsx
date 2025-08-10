@@ -1,11 +1,13 @@
-import React from 'react';
+'use client';
+
+import React, { Suspense } from 'react';
 import UploadForm from './UploadForm';
 import Navbar from '@/components/Navbar/Navbar';
 import styles from '@/app/admin/city/CityPage.module.scss';
 import AdminLocalNav from '@/components/AdminLocalNav/AdminLocalNav';
 import Footer from '@/components/Footer/Footer';
 
-const UploadPage: React.FC = () => {
+function UploadPageContent() {
   return (
     <>
       <Navbar />
@@ -23,6 +25,12 @@ const UploadPage: React.FC = () => {
       <Footer />
     </>
   );
-};
+}
 
-export default UploadPage;
+export default function UploadPage() {
+  return (
+    <Suspense>
+      <UploadPageContent />
+    </Suspense>
+  );
+}

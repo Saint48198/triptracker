@@ -42,11 +42,9 @@ export default async function handler(
   }
 
   if (!['cities', 'attractions'].includes(entityType)) {
-    return res
-      .status(400)
-      .json({
-        error: 'Invalid entityType. Must be "cities" or "attractions".',
-      });
+    return res.status(400).json({
+      error: 'Invalid entityType. Must be "cities" or "attractions".',
+    });
   }
 
   if (req.method !== 'DELETE') {

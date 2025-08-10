@@ -1,18 +1,16 @@
 'use client';
 
+import React, { Suspense } from 'react';
 import DataPage from '@/components/AdminData/AdminDataPage';
-import Button from '@/components/Button/Button';
 import {
   ENTITY_TYPE_CITIES,
   ENTITY_TYPE_CITY,
   ENTITY_TYPE_COUNTRIES,
 } from '@/constants';
-import styles from './CitiesPage.module.scss';
-import Link from 'next/link';
 import ActionButtons from '@/components/AdminData/ActionButtons';
 import { Country } from '@/types/ContentTypes';
 
-export default function CitiesPage() {
+function CitiesPageContent() {
   return (
     <DataPage
       entity={ENTITY_TYPE_CITY}
@@ -51,5 +49,13 @@ export default function CitiesPage() {
         />
       )}
     />
+  );
+}
+
+export default function CitiesPage() {
+  return (
+    <Suspense>
+      <CitiesPageContent />
+    </Suspense>
   );
 }

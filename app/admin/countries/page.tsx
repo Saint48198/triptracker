@@ -1,5 +1,6 @@
 'use client';
 
+import React, { Suspense } from 'react';
 import DataPage from '@/components/AdminData/AdminDataPage';
 import Button from '@/components/Button/Button';
 import { ENTITY_TYPE_COUNTRIES, ENTITY_TYPE_COUNTRY } from '@/constants';
@@ -7,7 +8,7 @@ import styles from './CountriesPage.module.scss';
 import Link from 'next/link';
 import ActionButtons from '@/components/AdminData/ActionButtons';
 
-export default function CountriesPage() {
+function CountriesPageContent() {
   return (
     <DataPage
       entity={ENTITY_TYPE_COUNTRY}
@@ -33,5 +34,13 @@ export default function CountriesPage() {
         />
       )}
     />
+  );
+}
+
+export default function CountriesPage() {
+  return (
+    <Suspense>
+      <CountriesPageContent />
+    </Suspense>
   );
 }

@@ -1,3 +1,4 @@
+import 'leaflet/dist/leaflet.css';
 import './globals.scss';
 import { ReactNode } from 'react';
 import { ModalProvider } from '@/components/Modal/ModalContext';

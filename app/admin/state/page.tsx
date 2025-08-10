@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Country } from '@/types/ContentTypes';
 import Navbar from '@/components/Navbar/Navbar';
@@ -13,7 +13,7 @@ import styles from './StatePage.module.scss';
 import FormInput from '@/components/FormInput/FormInput';
 import FormSelect from '@/components/FormSelect/FormSelect';
 
-export default function StatePage() {
+function StatePageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [name, setName] = useState('');
@@ -23,7 +23,7 @@ export default function StatePage() {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'error' | 'success' | ''>('');
   const [countries, setCountries] = useState([]);
-  const id = searchParams ? searchParams.get('id') : null; // Get the ID from the query string
+  const id = searchParams ? searchParams.get('id') : null;
 
   const fetchCountries = useCallback(async () => {
     try {
@@ -63,8 +63,6 @@ export default function StatePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Scroll to the top of the page
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     const method = id ? 'PUT' : 'POST';
@@ -95,12 +93,10 @@ export default function StatePage() {
   useEffect(() => {
     const getData = async () => {
       await fetchCountries();
-
       if (id) {
         await fetchState(id);
       }
     };
-
     getData();
   }, [fetchCountries, fetchState, id]);
 
@@ -163,5 +159,13 @@ export default function StatePage() {
       </main>
       <Footer />
     </>
+  );
+}
+
+export default function StatePage() {
+  return (
+    <Suspense>
+      <StatePageContent />
+    </Suspense>
   );
 }

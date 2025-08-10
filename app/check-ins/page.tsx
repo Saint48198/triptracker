@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { format } from 'date-fns';
@@ -24,7 +24,7 @@ interface CheckIn {
   created_at: string;
 }
 
-export default function CheckInsPage() {
+function CheckInsPageContent() {
   const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<number | null>(null);
@@ -76,7 +76,7 @@ export default function CheckInsPage() {
         : '/api/check-ins';
       const response = await axios.get(url);
       setCheckIns(response.data.checkIns);
-      setSelectedCheckIn(checkIns[0]);
+      setSelectedCheckIn(response.data.checkIns[0]);
     } catch (error) {
       setMessage('Failed to fetch check-ins.');
       setMessageType('error');
@@ -162,5 +162,13 @@ export default function CheckInsPage() {
       </main>
       <Footer />
     </>
+  );
+}
+
+export default function CheckInsPage() {
+  return (
+    <Suspense>
+      <CheckInsPageContent />
+    </Suspense>
   );
 }
