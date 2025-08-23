@@ -14,32 +14,29 @@ interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   inlineLabel?: boolean;
 }
 
-const FormInput: React.FC<FormInputProps> = ({
-  label,
-  id,
-  hideLabel = false,
-  ref,
-  inlineLabel = false,
-  ...props
-}) => {
-  return (
-    <div
-      className={`${styles.formInputContainer} ${inlineLabel ? styles.inlineLabel : ''}`}
-    >
-      {!hideLabel && (
-        <label htmlFor={id} className={styles.label}>
-          {label}
-        </label>
-      )}
-      <input
-        ref={ref}
-        id={id}
-        className={styles.input}
-        aria-label={hideLabel ? label : undefined}
-        {...props}
-      />
-    </div>
-  );
-};
+const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
+  ({ label, id, hideLabel = false, inlineLabel = false, ...props }, ref) => {
+    return (
+      <div
+        className={`${styles.formInputContainer} ${inlineLabel ? styles.inlineLabel : ''}`}
+      >
+        {!hideLabel && (
+          <label htmlFor={id} className={styles.label}>
+            {label}
+          </label>
+        )}
+        <input
+          ref={ref}
+          id={id}
+          className={styles.input}
+          aria-label={hideLabel ? label : undefined}
+          {...props}
+        />
+      </div>
+    );
+  }
+);
+
+FormInput.displayName = 'FormInput';
 
 export default FormInput;

@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import FormInput from '@/components/FormInput/FormInput';
 import FormTextarea from '@/components/FormTextarea/FormTextarea';
 import FormSelect from '@/components/FormSelect/FormSelect';
@@ -220,9 +220,21 @@ export default function UploadForm() {
     }
   };
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleReset = () => {
+    setFileData([]);
+    setUploadProgress([]);
+    setMessage('');
+    setMessageType('');
+    setVisibility('private');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   return (
     <div>
       {message && <Message message={message} type={messageType} />}
+
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -230,6 +242,7 @@ export default function UploadForm() {
         }}
       >
         <FormInput
+          ref={fileInputRef}
           label="Upload Images"
           id="files"
           type="file"
@@ -293,6 +306,16 @@ export default function UploadForm() {
         />
 
         <div className={styles.uploadImageActions}>
+          <div className={styles.resetActions}>
+            <Button
+              styleType="secondary"
+              buttonType={'button'}
+              onClick={handleReset}
+              isDisabled={uploading}
+            >
+              Cancel
+            </Button>
+          </div>
           <Button
             buttonType="submit"
             styleType="primary"
