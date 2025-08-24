@@ -10,6 +10,8 @@ import styles from './UploadForm.module.scss';
 import FormCheckbox from '@/components/FormCheckbox/FormCheckbox';
 import ExifReader from 'exifreader';
 import { ProgressBar } from '@/components/ProgressBar/ProgressBar';
+import { fetchJSONWithErrors } from '@/utils/fetchJSONWithErrors';
+import { fileToCompressedBase64 } from '@/utils/fileToCompressedBase64';
 
 type FileMetadata = {
   file: File;
@@ -18,6 +20,9 @@ type FileMetadata = {
   description: string;
   tags: string[];
   availableTags: string[];
+  aiSuggestions?: string[];
+  aiLoading?: boolean;
+  aiError?: string;
 };
 
 export default function UploadForm() {
@@ -231,6 +236,46 @@ export default function UploadForm() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const suggestTitles = async (index: number) => {
+    const item = fileData[index];
+    if (!item?.file) return;
+
+    // clear previous error & start loading
+    updateFileData(index, { aiLoading: true, aiError: undefined });
+
+    try {
+      // use your (compressed) base64 function here
+      const { base64, mimeType } = await fileToCompressedBase64(item.file, {
+        maxSide: 1024,
+        quality: 0.85,
+        forceMime: 'image/jpeg',
+      });
+
+      const data = await fetchJSONWithErrors('/api/photos/suggest-titles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageBase64: base64,
+          mimeType,
+          hints: { tags: item.tags },
+        }),
+      });
+
+      updateFileData(index, { aiSuggestions: data.suggestions ?? [] });
+    } catch (e: any) {
+      const msg =
+        e?.message?.toString().slice(0, 300) ||
+        'Unable to get title suggestions right now.';
+      // show inline per-image error
+      updateFileData(index, { aiError: msg });
+      // optional: also surface a global banner
+      setMessageType('error');
+      setMessage(msg);
+    } finally {
+      updateFileData(index, { aiLoading: false });
+    }
+  };
+
   return (
     <div>
       {message && <Message message={message} type={messageType} />}
@@ -256,17 +301,46 @@ export default function UploadForm() {
         {fileData.map((data, index) => (
           <div className={styles.imageBlock} key={index}>
             <img src={data.previewUrl} alt={`Preview ${index}`} />
-
             <ProgressBar progress={uploadProgress[index] || 0} />
+            <div className={styles.titleRow}>
+              <FormInput
+                label="Title"
+                id={`title-${index}`}
+                value={data.title}
+                onChange={(e) =>
+                  updateFileData(index, { title: e.target.value })
+                }
+                disabled={uploading}
+              />
+              <Button
+                styleType="secondary"
+                buttonType="button"
+                onClick={() => suggestTitles(index)}
+                isDisabled={uploading || data.aiLoading}
+              >
+                {data.aiLoading ? (
+                  <FaSpinner className="animate-spin mr-2" />
+                ) : (
+                  'Suggest Title'
+                )}
+              </Button>
+            </div>
 
-            <FormInput
-              label="Title"
-              id={`title-${index}`}
-              value={data.title}
-              onChange={(e) => updateFileData(index, { title: e.target.value })}
-              disabled={uploading}
-            />
-
+            {data.aiSuggestions && data.aiSuggestions.length > 0 && (
+              <div className={styles.suggestionChips}>
+                {data.aiSuggestions.slice(0, 8).map((s) => (
+                  <button
+                    type="button"
+                    key={s}
+                    className={styles.suggestionChip}
+                    onClick={() => updateFileData(index, { title: s })}
+                    aria-label={`Use suggested title: ${s}`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
             <FormTextarea
               label="Description"
               id={`description-${index}`}
@@ -276,7 +350,6 @@ export default function UploadForm() {
               }
               disabled={uploading}
             />
-
             <div className={styles.tagsContainer}>
               {data.availableTags.map((tag) => (
                 <FormCheckbox

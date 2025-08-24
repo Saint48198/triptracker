@@ -5,11 +5,11 @@ import styles from './Button.module.scss';
 
 // Define the prop types for the Button component
 interface ButtonProps {
-  children: React.ReactNode; // Any valid React node (string, JSX, etc.)
-  onClick?: () => void; // Optional click handler
-  buttonType?: 'button' | 'submit' | 'reset'; // Optional button type
-  isDisabled?: boolean; // Optional disabled state
-  styleType?: 'primary' | 'secondary' | 'neutral' | 'danger' | 'text'; // Optional style type
+  children: React.ReactNode;
+  onClick?: () => void;
+  buttonType?: 'button' | 'submit' | 'reset';
+  isDisabled?: boolean;
+  styleType?: 'primary' | 'secondary' | 'neutral' | 'danger' | 'text';
   ariaLabel?: string;
   className?: string;
 }
