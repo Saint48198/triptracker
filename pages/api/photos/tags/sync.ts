@@ -8,9 +8,9 @@ const API_SECRET = process.env.CLOUDINARY_API_SECRET as string;
 
 // Initialize SQLite DB
 db.exec(`CREATE TABLE IF NOT EXISTS tags (
-                                             id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                             name TEXT UNIQUE
-         )`);
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              name TEXT UNIQUE
+)`);
 
 export default async function handler(
   req: NextApiRequest,

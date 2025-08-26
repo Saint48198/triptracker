@@ -3,9 +3,9 @@ import db from '@/database/db';
 import { handleApiError } from '@/utils/errorHandler';
 
 db.exec(`CREATE TABLE IF NOT EXISTS tags (
-                                             id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                             name TEXT UNIQUE
-         )`);
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE
+)`);
 
 export default async function handler(
   req: NextApiRequest,

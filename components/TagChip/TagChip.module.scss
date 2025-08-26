@@ -1,0 +1,27 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 9999px;
+  padding: .35rem .65rem;
+  background: var(--chip-bg, #fff);
+  cursor: pointer;
+  user-select: none;
+  transition: transform .05s ease, background .15s ease, border-color .15s ease;
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--accent, #3b82f6);
+  outline-offset: 2px;
+}
+
+.dashed { border-style: dashed; }
+.selected {
+  border-color: var(--accent, #3b82f6);
+  background: color-mix(in srgb, var(--accent, #3b82f6) 12%, white);
+}
+.disabled { opacity: .6; cursor: not-allowed; }
+
+.text { line-height: 1; }
+.affordance { font-weight: 600; }

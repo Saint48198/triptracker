@@ -7,11 +7,12 @@ import Button from '@/components/Button/Button';
 import { FaSpinner } from 'react-icons/fa';
 import Message from '@/components/Message/Message';
 import styles from './UploadForm.module.scss';
-import FormCheckbox from '@/components/FormCheckbox/FormCheckbox';
 import ExifReader from 'exifreader';
 import { ProgressBar } from '@/components/ProgressBar/ProgressBar';
 import { fetchJSONWithErrors } from '@/utils/fetchJSONWithErrors';
 import { fileToCompressedBase64 } from '@/utils/fileToCompressedBase64';
+import { normTag } from '@/utils/normTag';
+import TagChip from '@/components/TagChip/TagChip';
 
 type FileMetadata = {
   file: File;
@@ -23,6 +24,9 @@ type FileMetadata = {
   aiSuggestions?: string[];
   aiLoading?: boolean;
   aiError?: string;
+  aiTagSuggestions?: string[];
+  aiTagsLoading?: boolean;
+  aiTagsError?: string;
 };
 
 export default function UploadForm() {
@@ -41,18 +45,31 @@ export default function UploadForm() {
       Array.from(selectedFiles).map(async (file) => {
         const previewUrl = URL.createObjectURL(file);
         const metadata = await extractMetadata(file);
+
+        const availableRaw = metadata.allKeywords || [];
+        const initialSelected = availableRaw.map(normTag);
+
         return {
           file,
           previewUrl,
           title: metadata.title,
           description: metadata.description,
-          tags: metadata.tags || [],
+          tags: initialSelected || [],
           availableTags: metadata.allKeywords || [],
         };
       })
     );
 
-    setFileData(newFileData);
+    setFileData(
+      newFileData.map((item) => ({
+        ...item,
+        tags:
+          item.tags && item.tags.length > 0
+            ? item.tags.map(normTag)
+            : (item.availableTags || []).map(normTag), // select all available tags by default
+      }))
+    );
+
     setUploadProgress(Array(newFileData.length).fill(0));
   };
 
@@ -64,14 +81,33 @@ export default function UploadForm() {
     });
   };
 
-  const toggleTag = (index: number, tag: string) => {
+  const toggleTag = (index: number, tagLike: string) => {
+    const t = normTag(tagLike);
+
     setFileData((prev) => {
-      const copy = [...prev];
-      const tags = copy[index].tags.includes(tag)
-        ? copy[index].tags.filter((t) => t !== tag)
-        : [...copy[index].tags, tag];
-      copy[index].tags = tags;
-      return copy;
+      // clone outer array
+      const next = [...prev];
+      console.log(prev);
+      console.log('Toggling tag:', t, 'for item index:', index);
+
+      // clone the specific item
+      const item = { ...next[index] };
+
+      // clone tags into a Set to toggle
+      const set = new Set(item.tags);
+      if (set.has(t)) {
+        set.delete(t);
+      } else {
+        set.add(t);
+      }
+
+      // write back a NEW array for tags
+      item.tags = Array.from(set);
+
+      // write back the NEW item
+      next[index] = item;
+
+      return next;
     });
   };
 
@@ -276,6 +312,43 @@ export default function UploadForm() {
     }
   };
 
+  const suggestTags = async (index: number) => {
+    const item = fileData[index];
+    if (!item?.file) return;
+
+    updateFileData(index, { aiTagsLoading: true, aiTagsError: undefined });
+
+    try {
+      const { base64, mimeType } = await fileToCompressedBase64(item.file, {
+        maxSide: 1024,
+        quality: 0.85,
+        forceMime: 'image/jpeg',
+      });
+
+      const data = await fetchJSONWithErrors('/api/photos/tags/suggest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64: base64, mimeType }),
+      });
+
+      // Keep suggestions separate (below your existing list); don’t overwrite availableTags
+      const incoming = (data.tags as string[] | undefined)?.map(normTag) ?? [];
+      // de-dupe within suggestions
+      const unique = Array.from(new Set(incoming));
+
+      updateFileData(index, { aiTagSuggestions: unique });
+    } catch (e: any) {
+      const msg =
+        e?.message?.toString().slice(0, 300) ||
+        'Unable to get tag suggestions right now.';
+      updateFileData(index, { aiTagsError: msg });
+      setMessageType('error');
+      setMessage(msg);
+    } finally {
+      updateFileData(index, { aiTagsLoading: false });
+    }
+  };
+
   return (
     <div>
       {message && <Message message={message} type={messageType} />}
@@ -298,73 +371,140 @@ export default function UploadForm() {
           hideLabel
         />
 
-        {fileData.map((data, index) => (
-          <div className={styles.imageBlock} key={index}>
-            <img src={data.previewUrl} alt={`Preview ${index}`} />
-            <ProgressBar progress={uploadProgress[index] || 0} />
-            <div className={styles.titleRow}>
-              <FormInput
-                label="Title"
-                id={`title-${index}`}
-                value={data.title}
+        {fileData.map((data, index) => {
+          const pairs = data.availableTags.map((raw) => ({
+            raw,
+            norm: normTag(raw),
+          }));
+          const availableNorm = new Set(pairs.map((p) => p.norm));
+          const isSelected = (v: string) => data.tags.includes(v);
+
+          return (
+            <div className={styles.imageBlock} key={index}>
+              <img src={data.previewUrl} alt={`Preview ${index}`} />
+              <ProgressBar progress={uploadProgress[index] || 0} />
+
+              <div className={styles.titleRow}>
+                <FormInput
+                  label="Title"
+                  id={`title-${index}`}
+                  value={data.title}
+                  onChange={(e) =>
+                    updateFileData(index, { title: e.target.value })
+                  }
+                  disabled={uploading}
+                />
+                <Button
+                  styleType="secondary"
+                  buttonType="button"
+                  onClick={() => suggestTitles(index)}
+                  isDisabled={uploading || data.aiLoading}
+                >
+                  {data.aiLoading ? (
+                    <FaSpinner className="animate-spin mr-2" />
+                  ) : (
+                    'Suggest Title'
+                  )}
+                </Button>
+              </div>
+
+              {Array.isArray(data.aiSuggestions) &&
+                data.aiSuggestions.length > 0 && (
+                  <div className={styles.suggestionChips}>
+                    {data.aiSuggestions.slice(0, 8).map((s) => (
+                      <button
+                        type="button"
+                        key={`title-sug-${s}`}
+                        className={styles.suggestionChip}
+                        onClick={() => updateFileData(index, { title: s })}
+                        disabled={uploading}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+              <FormTextarea
+                label="Description"
+                id={`description-${index}`}
+                value={data.description}
                 onChange={(e) =>
-                  updateFileData(index, { title: e.target.value })
+                  updateFileData(index, { description: e.target.value })
                 }
                 disabled={uploading}
               />
-              <Button
-                styleType="secondary"
-                buttonType="button"
-                onClick={() => suggestTitles(index)}
-                isDisabled={uploading || data.aiLoading}
-              >
-                {data.aiLoading ? (
-                  <FaSpinner className="animate-spin mr-2" />
-                ) : (
-                  'Suggest Title'
-                )}
-              </Button>
-            </div>
 
-            {data.aiSuggestions && data.aiSuggestions.length > 0 && (
-              <div className={styles.suggestionChips}>
-                {data.aiSuggestions.slice(0, 8).map((s) => (
-                  <button
-                    type="button"
-                    key={s}
-                    className={styles.suggestionChip}
-                    onClick={() => updateFileData(index, { title: s })}
-                    aria-label={`Use suggested title: ${s}`}
-                  >
-                    {s}
-                  </button>
+              {/* Existing tags as toggle chips (raw label shown, normalized stored) */}
+              <div className={styles.tagsChipsContainer}>
+                {pairs.map(({ raw, norm }) => (
+                  <TagChip
+                    key={`${norm}-${index}`}
+                    label={raw}
+                    value={raw} // pass raw; toggle will normalize
+                    selected={isSelected(norm)}
+                    disabled={uploading}
+                    onToggle={(val) => toggleTag(index, val)}
+                  />
                 ))}
               </div>
-            )}
-            <FormTextarea
-              label="Description"
-              id={`description-${index}`}
-              value={data.description}
-              onChange={(e) =>
-                updateFileData(index, { description: e.target.value })
-              }
-              disabled={uploading}
-            />
-            <div className={styles.tagsContainer}>
-              {data.availableTags.map((tag) => (
-                <FormCheckbox
-                  key={tag}
-                  label={tag}
-                  id={`${tag}-${index}`}
-                  value={tag}
-                  checked={data.tags.includes(tag)}
-                  onChange={() => toggleTag(index, tag)}
-                  disabled={uploading}
-                />
-              ))}
+
+              <div className={styles.suggestTagsRow}>
+                <Button
+                  styleType="secondary"
+                  buttonType="button"
+                  onClick={() => suggestTags(index)}
+                  isDisabled={uploading || data.aiTagsLoading}
+                >
+                  {data.aiTagsLoading ? (
+                    <FaSpinner className="animate-spin mr-2" />
+                  ) : (
+                    'Suggest Tags'
+                  )}
+                </Button>
+                {data.aiTagsError && (
+                  <span className={styles.inlineError}>
+                    Error: {data.aiTagsError}
+                  </span>
+                )}
+              </div>
+
+              {Array.isArray(data.aiTagSuggestions) &&
+                data.aiTagSuggestions.length > 0 && (
+                  <div className={styles.suggestionChips}>
+                    {/* Suggestions not already in availableTags */}
+                    {data.aiTagSuggestions
+                      .filter((t) => !availableNorm.has(t))
+                      .map((t) => (
+                        <TagChip
+                          key={`sug-unique-${t}`}
+                          label={t} // suggestions are normalized; using as label is fine
+                          value={t}
+                          selected={isSelected(t)}
+                          disabled={uploading}
+                          onToggle={(val) => toggleTag(index, val)}
+                        />
+                      ))}
+
+                    {/* Suggestions that overlap with existing availableTags (dashed style) */}
+                    {data.aiTagSuggestions
+                      .filter((t) => availableNorm.has(t))
+                      .map((t) => (
+                        <TagChip
+                          key={`sug-existing-${t}`}
+                          label={t}
+                          value={t}
+                          selected={isSelected(t)}
+                          disabled={uploading}
+                          variant="dashed"
+                          onToggle={(val) => toggleTag(index, val)}
+                        />
+                      ))}
+                  </div>
+                )}
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         <FormSelect
           label="Visibility"
