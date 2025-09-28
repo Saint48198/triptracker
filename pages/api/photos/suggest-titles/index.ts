@@ -16,6 +16,39 @@ type ReqBody = {
   };
 };
 
+// Simple in-memory cache for the selected model
+let cachedModelId: string | null = null;
+
+async function pickFreeGenerateModel(apiKey: string): Promise<string> {
+  if (cachedModelId) return cachedModelId;
+
+  const resp = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`
+  );
+  if (!resp.ok) throw new Error(`ListModels failed: ${resp.statusText}`);
+  const { models } = await resp.json();
+
+  // Pick first model that supports generateContent and is NOT a pro model
+  const free = models.find((m: any) => {
+    const supports =
+      m.supportedGenerationMethods?.includes('generateContent') ||
+      m.availableMethods?.includes('generateContent');
+    const isPro = /(^|[-])pro($|[-])/i.test(m.baseModelId || m.name || '');
+    return supports && !isPro;
+  });
+
+  if (!free) throw new Error('No free model supporting generateContent found');
+
+  const id =
+    free.baseModelId ||
+    (free.name?.startsWith('models/')
+      ? free.name.slice('models/'.length)
+      : free.name);
+  if (!id) throw new Error('Could not determine model ID');
+  cachedModelId = id;
+  return id;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -26,7 +59,9 @@ export default async function handler(
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: 'Missing GEMINI_API_KEY' });
+  if (!apiKey) {
+    return res.status(500).json({ error: 'Missing GEMINI_API_KEY' });
+  }
 
   try {
     const {
@@ -35,8 +70,13 @@ export default async function handler(
       hints = {},
     } = req.body as ReqBody;
 
-    if (!imageBase64)
+    if (!imageBase64) {
       return res.status(400).json({ error: 'imageBase64 required' });
+    }
+
+    // Choose model dynamically (ListModels -> first that supports generateContent)
+    const modelId = await pickFreeGenerateModel(apiKey);
+    console.log('Using Gemini model:', modelId);
 
     const prompt = [
       'You are helping name personal photos.',
@@ -67,7 +107,9 @@ export default async function handler(
     };
 
     const resp = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
+        modelId
+      )}:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
