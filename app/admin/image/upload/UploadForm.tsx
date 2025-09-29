@@ -359,17 +359,19 @@ export default function UploadForm() {
           uploadImages();
         }}
       >
-        <FormInput
-          ref={fileInputRef}
-          label="Upload Images"
-          id="files"
-          type="file"
-          onChange={handleFileChange}
-          value={''}
-          multiple
-          disabled={uploading}
-          hideLabel
-        />
+        <div className={styles.containerChooseFiles}>
+          <FormInput
+            ref={fileInputRef}
+            label="Upload Images"
+            id="files"
+            type="file"
+            onChange={handleFileChange}
+            value={''}
+            multiple
+            disabled={uploading}
+            hideLabel
+          />
+        </div>
 
         {fileData.map((data, index) => {
           const pairs = data.availableTags.map((raw) => ({
@@ -424,16 +426,17 @@ export default function UploadForm() {
                     ))}
                   </div>
                 )}
-
-              <FormTextarea
-                label="Description"
-                id={`description-${index}`}
-                value={data.description}
-                onChange={(e) =>
-                  updateFileData(index, { description: e.target.value })
-                }
-                disabled={uploading}
-              />
+              <div className={styles.containerDescription}>
+                <FormTextarea
+                  label="Description"
+                  id={`description-${index}`}
+                  value={data.description}
+                  onChange={(e) =>
+                    updateFileData(index, { description: e.target.value })
+                  }
+                  disabled={uploading}
+                />
+              </div>
 
               {/* Existing tags as toggle chips (raw label shown, normalized stored) */}
               <div className={styles.tagsChipsContainer}>
